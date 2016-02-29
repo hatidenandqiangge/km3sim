@@ -1,0 +1,81 @@
+# .gitignore
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.d
+
+# Packages
+*.7z
+*.bz2
+*.gz
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.tbz2
+*.tgz
+*.xz
+*.zip
+*.Z
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Temp files #
+*.pyc
+*.swp
+*.pid
+*mpdstate
+
+# LaTeX
+*.acn
+*.acr
+*.alg
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.dvi
+*.glg
+*.glo
+*.gls
+*.idx
+*.ind
+*.lof
+*.lot
+*_minted/*
+*.nav
+*.old
+*.out
+*.pdf
+!*pic/*.pdf
+*.pygstyle
+*.run.xml
+*.snm
+*.sycntex.gz
+*.toc
+*.tof
+# pygments
+*.pyg
+*.xdy
+
+# Data
+*.h5
+*.hdf5
+*.root
+*.evt
