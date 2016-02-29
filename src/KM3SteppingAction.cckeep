@@ -1,0 +1,90 @@
+//
+// ********************************************************************
+// * DISCLAIMER                                                       *
+// *                                                                  *
+// * The following disclaimer summarizes all the specific disclaimers *
+// * of contributors to this software. The specific disclaimers,which *
+// * govern, are listed with their locations in:                      *
+// *   http://cern.ch/geant4/license                                  *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.                                                             *
+// *                                                                  *
+// * This  code  implementation is the  intellectual property  of the *
+// * GEANT4 collaboration.                                            *
+// * By copying,  distributing  or modifying the Program (or any work *
+// * based  on  the Program)  you indicate  your  acceptance of  this *
+// * statement, and all its terms.                                    *
+// ********************************************************************
+//
+
+
+#include "KM3SteppingAction.hh"
+#include "G4Step.hh"
+
+void KM3SteppingAction::UserSteppingAction(const G4Step* aStep)
+{
+  G4ThreeVector x0;
+  G4ThreeVector p0;
+  G4ThreeVector distanceV;
+  G4double direction,distance;
+  G4ThreeVector ppre,ppost;
+  G4double dirpre,dirpost;
+  //here we kill the primary particle only if it is far away from the detector and moves away from the detector or goes in the bottom of the sea
+  if(aStep->GetTrack()->GetParentID()==0){  //only the primary particle
+    p0=aStep->GetTrack()->GetMomentumDirection();
+    x0=aStep->GetTrack()->GetPosition();
+    //first check if it is at the nearest point
+    ppre=aStep->GetPreStepPoint()->GetPosition();
+    ppost=aStep->GetPostStepPoint()->GetPosition();
+    distanceV=myStDetector->detectorCenter-ppre;
+    dirpre=p0.dot(distanceV)+200.0;
+    distanceV=myStDetector->detectorCenter-ppost;
+    dirpost=p0.dot(distanceV)-200.0;
+    //    G4cout << "dircenter "<<dirpre <<" "<< dirpost <<G4endl;
+    if( (dirpre>0) && (dirpost<0) ){  //it is at the nearest to the detector center point
+      event_action->centerMomentum[aStep->GetTrack()->GetTrackID() - 1] = aStep->GetTrack()->GetMomentum();
+      event_action->centerPosition[aStep->GetTrack()->GetTrackID() - 1] = x0;
+      event_action->centerTime[aStep->GetTrack()->GetTrackID() - 1] = aStep->GetTrack()->GetGlobalTime();
+    }
+    //next find the momentum when entering the active volume of the detector
+    distanceV=myStDetector->detectorCenter-(myStDetector->detectorRadius-myStDetector->MaxAbsDist)*p0-ppre;
+    dirpre=p0.dot(distanceV)+200.0;
+    distanceV=myStDetector->detectorCenter-(myStDetector->detectorRadius-myStDetector->MaxAbsDist)*p0-ppost;
+    dirpost=p0.dot(distanceV)-200.0;
+    //    G4cout << "diredge "<<dirpre <<" "<< dirpost <<G4endl;
+    if( (dirpre>0) && (dirpost<0) ){  //it is at the nearest to the detector edge point
+      event_action->enterMomentum[aStep->GetTrack()->GetTrackID() - 1] = aStep->GetTrack()->GetMomentum();
+      event_action->enterPosition[aStep->GetTrack()->GetTrackID() - 1] = x0;
+      event_action->enterTime[aStep->GetTrack()->GetTrackID() - 1] = aStep->GetTrack()->GetGlobalTime();
+    }
+    //next find the momentum when leaving the active volume of the detector
+    distanceV=myStDetector->detectorCenter+(myStDetector->detectorRadius-myStDetector->MaxAbsDist)*p0-ppre;
+    dirpre=p0.dot(distanceV)+200.0;
+    distanceV=myStDetector->detectorCenter+(myStDetector->detectorRadius-myStDetector->MaxAbsDist)*p0-ppost;
+    dirpost=p0.dot(distanceV)-200.0;
+    //    G4cout << "diredge "<<dirpre <<" "<< dirpost <<G4endl;
+    if( (dirpre>0) && (dirpost<0) ){  //it is at the nearest to the detector edge point
+      event_action->leaveMomentum[aStep->GetTrack()->GetTrackID() - 1] = aStep->GetTrack()->GetMomentum();
+      event_action->leavePosition[aStep->GetTrack()->GetTrackID() - 1] = x0;
+      event_action->leaveTime[aStep->GetTrack()->GetTrackID() - 1] = aStep->GetTrack()->GetGlobalTime();
+    }
+   
+    ///////////////////////////////////////////
+    // If the particle is below the bottom of the sea and goes down kill it.
+    if( (x0(2)<myStDetector->bottomPosition) && (p0(2)<0) ){
+      aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+      return;
+    }
+    // If the particle goes away from the detector with an angle greater than 90 degrees and the distance is greater than a maximum kill it
+    distanceV=myStDetector->detectorCenter-x0;
+    direction=p0.dot(distanceV);
+    distance=distanceV.mag();
+    if ( (direction<0) && (distance>myStDetector->detectorRadius) ) aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+  }
+}
+
+

@@ -1,0 +1,592 @@
+//
+// ********************************************************************
+// * DISCLAIMER                                                       *
+// *                                                                  *
+// * The following disclaimer summarizes all the specific disclaimers *
+// * of contributors to this software. The specific disclaimers,which *
+// * govern, are listed with their locations in:                      *
+// *   http://cern.ch/geant4/license                                  *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.                                                             *
+// *                                                                  *
+// * This  code  implementation is the  intellectual property  of the *
+// * GEANT4 collaboration.                                            *
+// * By copying,  distributing  or modifying the Program (or any work *
+// * based  on  the Program)  you indicate  your  acceptance of  this *
+// * statement, and all its terms.                                    *
+// ********************************************************************
+//
+//
+// $Id: ExN05EMShowerModel.cc,v 1.9 2004/11/25 23:35:16 mverderi Exp $
+// GEANT4 tag $Name: geant4-07-00-patch-01 $
+//
+#include "KM3EMShowerModel.hh"
+
+#include "RandomGamma.hh"
+#include "Randomize.hh"
+
+#include "G4Electron.hh"
+#include "G4Positron.hh"
+#include "G4Gamma.hh"
+#include "G4PionPlus.hh"
+#include "G4PionMinus.hh"
+#include "G4KaonPlus.hh"
+#include "G4KaonMinus.hh"
+#include "G4VProcess.hh"
+#include "G4TransportationManager.hh"
+
+KM3EMShowerModel::KM3EMShowerModel(G4String modelName, G4Region* envelope)
+: G4VFastSimulationModel(modelName, envelope)
+{
+  //initialize the constants used in fast simulation
+  constALL=fine_structure_const/h_Planck/c_light;
+  
+  max_erad=200*cm;
+  max_hrad=400*cm;
+  ThetaC=0.740683693;
+  G4double SinThetaC=sin(ThetaC);
+  G4double SinThetaC2=SinThetaC*SinThetaC;
+
+  small=1.e-10;        //constants for mylum (angular distribution for em cascades
+  radtodeg=180/M_PI;
+  radtodeg1=181/M_PI;
+  cemlum[0] = 0.875e-1;
+  cemlum[1] = 2.33;
+  cemlum[2] = -0.0683;
+  cemlum[3] = 0.136e-1;
+  cemlum[4] = 17.6;
+  cemlum[5] = 0.401;
+  cemlum[6] = 0.131e-1;
+  cemlum[7] = 23.6;
+  cemlum[8] = -0.770;
+
+  cemlum[0] *= radtodeg1;
+  cemlum[3] *= radtodeg1;
+  cemlum[6] *= radtodeg1;
+  cemlum[1] /= radtodeg;
+  cemlum[4] /= radtodeg;
+  cemlum[7] /= radtodeg;
+
+
+  chalum[0] = 0.488e-1;  //constants for halum (angular distribution for hadronic cascades
+  chalum[1] = 2.44;
+  chalum[2] = -0.203;
+  chalum[3] = 0.142e-1;
+  chalum[4] = 19.1;
+  chalum[5] = 0.423;
+  chalum[6] = 0.135e-1;
+  chalum[7] = 22.9;
+  chalum[8] = -0.789;
+
+  chalum[0] *= radtodeg1;
+  chalum[3] *= radtodeg1;
+  chalum[6] *= radtodeg1;
+  chalum[1] /= radtodeg;
+  chalum[4] /= radtodeg;
+  chalum[7] /= radtodeg;
+
+  G4double mydedx=2.0454e-3*GeV/cm;
+  G4double hadedx=2.453e-3*GeV/cm;
+  G4int ist = 2000;
+  G4double ddx = 2/double(ist);
+  G4double zz = mylum(M_PI-ThetaC);
+  G4double hhh = halum(M_PI-ThetaC);
+  G4double mylun = 0;
+  G4double halun = 0;
+  G4double x = -1;
+  G4double t,z,h;
+
+  for(G4int i = 1;i<=ist;i++){
+    x = x+ddx;
+    if(x>=1)t=0;
+    else t = acos(x);
+    z = mylum(t-ThetaC);
+    h = halum(t-ThetaC);
+    mylun = mylun + (z+zz)*0.5*ddx;
+    halun = halun + (h+hhh)*0.5*ddx;
+    //    G4cout << mylun << " " << halun <<" "<<t<<" "<<x<<G4endl;
+    zz =z;
+    hhh = h;
+  }
+  mylun *= 0.5;
+  halun *= 0.5;
+  //this constants produce a very large amount of c-photons, about a factor 3 from the actual with no parametrization
+  constEM1 = SinThetaC2/(2*mydedx*mylun);
+  constHAD1 = 0.86*SinThetaC2/(2*hadedx*halun);
+  //  G4cout << "constants "<< constALL <<" "<< constEM <<" "<< constHAD<< " "<<mylun<<" "<<halun<<G4endl;
+
+  dacuts11=1;  //this has to be trimmed
+  dacuts12=10;  //this has to be trimmed
+  emsimen=0.2*GeV;
+  hasimen=0.2*GeV;
+  ema1=2.03;
+  ema2=0.604;
+  minea=exp(-ema1/ema2)+0.001*GeV;
+  ema1 -= ema2*log(GeV);
+  emb=0.633;
+  haa1=1.49;
+  haa2=0.359;
+  minha=exp(-haa1/haa2)+0.001*GeV;
+  haa1 -= haa2*log(GeV);
+  hab=0.772;
+  gmp_step=10*cm;
+  DACASconst1=0.792;
+  DACASconst2=0.266;
+
+  parametrizationDownThreshold=10.0*GeV;  //the down threshold for the parametrization (for good results)
+  MaxNumberOfPhotonsSurviving=1000000;       //the maximum photons produced by the shower
+
+}
+
+
+KM3EMShowerModel::KM3EMShowerModel(G4String modelName)
+: G4VFastSimulationModel(modelName)
+{
+  //the same as above. Do not use this constructor
+
+}
+
+KM3EMShowerModel::~KM3EMShowerModel()
+{
+}
+//the following is for em cascades only (ctyp=1).
+//do not need hadronic- they are pretty rare and they produce muons that are not descibed by the parametrization
+//due to the long range.
+//wiebusch parametrization (mainly the angular distribution descibes very well the em cascedes for showers above 10GeV.
+//we put the threshold to 10 GeV that is described very well (less that 10% difference at the peak of the cherenkov angle)
+G4bool KM3EMShowerModel::IsApplicable(const G4ParticleDefinition& particleType)
+{
+  if(
+     &particleType == G4Electron::ElectronDefinition() ||
+     &particleType == G4Positron::PositronDefinition() ||
+     &particleType == G4Gamma::GammaDefinition() //do not to need the pi0 it is discribed by gamma (through decay)
+     )
+    {ctyp=1;return true;}
+
+  /*  else if(
+	  &particleType == G4PionPlus::PionPlusDefinition() ||
+	  &particleType == G4PionMinus::PionMinusDefinition() ||
+	  &particleType == G4KaonPlus::KaonPlusDefinition() ||
+	  &particleType == G4KaonMinus::KaonMinusDefinition()
+	  )
+    {ctyp=2;return true;}
+  */
+
+  else {return false;}
+}
+
+G4bool KM3EMShowerModel::ModelTrigger(const G4FastTrack& fastTrack)
+{
+  // Applies the parameterisation above 10 GeV and only if the particle is in Water:
+  //should check also if the particle is to close to a PMT, but this is time consuming
+  G4String materialName;
+  G4double kineticEnergy;
+  materialName = fastTrack.GetPrimaryTrack()->GetMaterial()->GetName();
+  kineticEnergy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  //  return ( (kineticEnergy > parametrizationDownThreshold) && (kineticEnergy < parametrizationUpThreshold) && (materialName=="Water"));
+  return ( (kineticEnergy > parametrizationDownThreshold) && (materialName=="Water"));
+}
+
+void KM3EMShowerModel::DoIt(const G4FastTrack& fastTrack, 
+		     G4FastStep& fastStep)
+{
+  static G4int ooo=0;
+  if (ooo==0){
+    //get maximum and minimum momentum of cerenkov photons. Initialize for the rest is the same
+    const G4Track* aTrack=fastTrack.GetPrimaryTrack();
+    const G4Material* aMaterial = aTrack->GetMaterial();
+    G4MaterialPropertiesTable* aMaterialPropertiesTable =
+      aMaterial->GetMaterialPropertiesTable();
+    Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+    AbsLength = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
+    G4double lem_rad=aMaterial->GetRadlen();
+    G4cout << "Radiation Length of Water "<<lem_rad<<G4endl;
+    G4double lha_rad=aMaterial->GetNuclearInterLength();
+    if(lem_rad>max_erad)lem_rad=max_erad;
+    if(lha_rad>max_hrad)lha_rad=max_hrad;
+    emirad=1/lem_rad;
+    hadirad=1/lha_rad;
+    Pmin = Rindex->GetMinPhotonMomentum();
+    Pmax = Rindex->GetMaxPhotonMomentum();
+    dp = Pmax - Pmin;
+    constEM = constEM1*constALL*dp;
+    constHAD = constHAD1*constALL*dp;
+    ooo=1;
+  }
+
+  // Kill the parameterised particle:
+  fastStep.KillPrimaryTrack();
+  fastStep.ProposePrimaryTrackPathLength(0.0);
+  fastStep.ProposeTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
+  //  if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < 10.0*GeV){  //test
+  //    fastStep.SetNumberOfSecondaryTracks(0);
+  //    return;
+  //  }
+  // create the optical photons of the shower:
+  //-----------------------------------------------------------------------
+  // find the parametres of the Cherenkov photons that are going to hit a benthos
+  //-----------------------------------------------------------------------
+
+  //--kinetic energy of the particle initiating the shower in MeV-----
+  G4double primaryShowerEnergy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  // axis of the shower, in global reference frame (normalized to unity):
+  G4ThreeVector primaryShowerAxis = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
+  // starting point of the shower:
+  G4ThreeVector primaryShowerPosition = fastTrack.GetPrimaryTrack()->GetPosition();
+  //the time of the primary track
+  G4double primaryShowerTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+  //clear stacks
+
+  G4cout << "KM3EMShowerModel::DoIt particle " << fastTrack.GetPrimaryTrack()->GetDefinition()->GetParticleName() 
+	 << " and Energy " <<primaryShowerEnergy<<"MeV "
+	 <<" created by "<< fastTrack.GetPrimaryTrack()->GetCreatorProcess()->GetProcessName() << G4endl;
+
+
+  //create the optical photons
+  PhotonsSurviving=0;
+  fastStep.SetNumberOfSecondaryTracks(MaxNumberOfPhotonsSurviving);
+  LO_CAS(primaryShowerPosition,primaryShowerAxis,primaryShowerTime,primaryShowerEnergy,fastStep);
+  G4cout << "Total photons created "<< PhotonsSurviving <<G4endl;
+
+}
+
+
+//this routine is the longitudal implementation of the wiebusch parametrization
+//splits the energy deposition (and cerencok photon produstion along the axis of the shower
+//for each subshower calls the routine CreatePhotonsPerPMT.
+void KM3EMShowerModel::LO_CAS(G4ThreeVector primaryShowerPosition,G4ThreeVector primaryShowerAxis,G4double primaryShowerTime,G4double primaryShowerEnergy,G4FastStep& fastStep)
+{
+  // calculate  the number of vertices to randomize.
+  // and init the cascade parameters from my longitudonal shower params
+  long int inv;
+  G4double casb,casa,rsimen;
+  if(ctyp==1){
+    inv = lrint(dacuts11+dacuts12*log10(primaryShowerEnergy/emsimen)); //this must be trimmed (dont know the meaning of dacuts)
+    if(inv<1)inv=1;
+    rsimen = primaryShowerEnergy/double(inv);
+    G4double help=primaryShowerEnergy;
+    if(help<minea)help=minea;
+    casa = ema1+ema2*log(help);
+    casb = emb;
+    // the above value is OK for E> 35 MeV!!!!!!!!!!
+  }
+  else{
+    inv = lrint(dacuts11+dacuts12*log10(primaryShowerEnergy/hasimen)); //this must be trimmed
+    if(inv<1)inv=1;
+    rsimen = primaryShowerEnergy/double(inv);
+    G4double help=primaryShowerEnergy;
+    if(help<minha)help=minha;
+    casa = haa1 + haa2*log(help);
+    casb = hab;
+  }
+
+  // calculate and loop over all vertices
+  G4double gmp_act=0.5*gmp_step;
+  G4int jnv=1;
+  G4double z_sim,prob,gmp_delt;
+  while(jnv<=inv)
+    {
+      // get probability
+      if(ctyp==1)z_sim=gmp_act*casb*emirad;
+      else z_sim=gmp_act*casb*hadirad;
+      prob=gammp(casa,z_sim);
+      // check prob
+      if(prob>=((double(jnv)-0.5)/double(inv))){ //now simulate a new cascade
+	jnv++;
+	// randomize vertex around gmp_act
+	gmp_delt=gmp_act + gmp_step*(G4UniformRand()-0.5);
+	G4double secondaryShowerEnergy=rsimen ;
+	G4ThreeVector secondaryShowerPosition=primaryShowerPosition+gmp_delt*primaryShowerAxis;
+	G4double secondaryShowerTime=primaryShowerTime+gmp_delt/c_light;
+	// now generate the hit
+	CreatePhotonsPerPMT(secondaryShowerPosition,primaryShowerAxis,secondaryShowerTime,secondaryShowerEnergy,fastStep);
+      }
+      else gmp_act += gmp_step; //     increment the position
+    }
+  G4cout << "The Shower is splitted in "<<inv <<" longitudal secondary showers. "<<"The maximum sec-shower position is "<< gmp_delt <<"mm"<<G4endl;
+}
+
+
+void KM3EMShowerModel::CreatePhotonsPerPMT(G4ThreeVector secondaryShowerPosition, G4ThreeVector primaryShowerAxis, G4double secondaryShowerTime, G4double secondaryShowerEnergy,G4FastStep& fastStep)
+{
+  //find the number of photons (Poisson distributed) that are directed to each PMT
+  // sShower is the starting point of the shower and aShower the direction of it
+  //also find the direction of the photons uniformly falling on the benthos
+  //it returns the std vector theOpticalPhotons <G4ThreeVector>
+  //we assume that the PMT is far from the shower so we can say that the flux is uniform along its crosssection
+  //this parametrization - benthos based- has the problem that counts 2 times the photons that goes to 2 adjusted benthos (no more)
+
+  G4ThreeVector OnPmt2;
+  G4ThreeVector thePosition,PMTposition;
+  G4double Distance,Distance2,thePhotonEnergy,thePhotonTime,theSpeed,theAbsorption,CosTheta,phi,radd;
+  G4double MaxRadiusOfBenthosArea,MaxBenthosCrossSection;
+  std::vector<StoreysPositions*> * temp=myStDetector->allStoreys;
+  G4bool local=false; //the track is defined in global coordinates
+
+  for (size_t isto=0 ; isto< temp->size() ; isto++)
+  {
+    PMTposition=(*temp)[isto]->position - secondaryShowerPosition;     //position of the benthos center with respect to the secondaryshower vertex
+    Distance=PMTposition.mag();
+    MaxRadiusOfBenthosArea=(*temp)[isto]->radius;
+    MaxBenthosCrossSection=M_PI*MaxRadiusOfBenthosArea*MaxRadiusOfBenthosArea;
+    if(Distance>MaxRadiusOfBenthosArea){   //create photons directed to a storey only if the secondary shower is outside the storey
+      CosTheta=PMTposition.cosTheta(primaryShowerAxis);
+      G4double MeanNumberOfPhotons=MaxBenthosCrossSection*DACAS(secondaryShowerEnergy,Distance,CosTheta); //PMT maximum crossection
+      //    G4cout << "MeanNumberOfPhotons " << MeanNumberOfPhotons << " " <<secondaryShowerEnergy<<" "<<Distance<<" "<<CosTheta<<G4endl;
+      MeanNumberOfPhotons *= myStDetector->Quantum_Efficiency; //quantum efficiency
+      G4int NumPhotons = (G4int) RandPoisson::shoot(MeanNumberOfPhotons);
+      //    G4cout <<Distance<<" "<<NumPhotons <<" "<<MeanNumberOfPhotons<<G4endl;
+      Distance2=Distance-MaxRadiusOfBenthosArea;  //is the distance each photon is transported towards the benthos
+      for(G4int i=0;i<NumPhotons;i++){
+	if(PhotonsSurviving<MaxNumberOfPhotonsSurviving){
+	  if(Distance2>(5*m)){    //transport the photons closer to the benthos (if the distance is greater then 5 meters - which has max 91.3% surviving probability)
+	    thePhotonEnergy=Pmin+dp*pow(G4UniformRand(),0.3333333333);  //sample a momentum
+	    theAbsorption = AbsLength->GetProperty(thePhotonEnergy);    //find the absorption length for this momentum
+	    if( G4UniformRand() <= exp(-Distance2/theAbsorption) ){     //if it survives the transportation
+	      PhotonsSurviving++;
+	      //create a point on the benthos (cross) surface 
+	      phi=G4UniformRand()*2*M_PI;
+	      radd=MaxRadiusOfBenthosArea*sqrt(G4UniformRand());
+	      G4ThreeVector OnPmt(cos(phi)*radd,sin(phi)*radd,0.);
+	      //and rotate it so the surface is vertical to the axis of the shower
+	      OnPmt2=gdrot(OnPmt,PMTposition.unit());
+	      OnPmt2 += PMTposition;
+	      OnPmt2=OnPmt2.unit();   //this vector is now the unit momentum vector of the photon
+	      thePosition=secondaryShowerPosition+Distance2*OnPmt2;
+	      //the polarization of the Cherenkov photon is OnPmt2 x (OnPmt2 x aShower)
+	      G4ThreeVector DisCrossAxis=OnPmt2.cross(primaryShowerAxis);
+	      G4ThreeVector thePolarization=OnPmt2.cross(DisCrossAxis);
+	      //the photon momentum
+	      theSpeed=c_light/Rindex->GetProperty(thePhotonEnergy);
+	      thePhotonTime=secondaryShowerTime+Distance2/theSpeed;
+	      
+	      G4DynamicParticle aCerenkovPhoton(G4OpticalPhoton::OpticalPhoton(),OnPmt2);
+	      aCerenkovPhoton.SetPolarization
+		(thePolarization.unit().x(),
+		 thePolarization.unit().y(),
+		 thePolarization.unit().z());
+	      aCerenkovPhoton.SetKineticEnergy(thePhotonEnergy);
+	      // Generate the track
+	      fastStep.CreateSecondaryTrack(aCerenkovPhoton,thePosition,thePhotonTime,local);
+	    }
+	  }
+	  else{   //do not transport the photons, create them on the primary shower axis
+	    PhotonsSurviving++;
+	    //create a point on the benthos (cross) surface 
+	    phi=G4UniformRand()*2*M_PI;
+	    radd=MaxRadiusOfBenthosArea*sqrt(G4UniformRand());
+	    G4ThreeVector OnPmt(cos(phi)*radd,sin(phi)*radd,0.);
+	    //and rotate it so the surface is vertical to the axis of the shower
+	    OnPmt2=gdrot(OnPmt,PMTposition.unit());
+	    OnPmt2 += PMTposition;
+	    OnPmt2=OnPmt2.unit();   //this vector is now the unit momentum vector of the photon
+	    thePhotonEnergy=Pmin+dp*pow(G4UniformRand(),0.3333333333);
+	    //the polarization of the Cherenkov photon is OnPmt2 x (OnPmt2 x aShower)
+	    G4ThreeVector DisCrossAxis=OnPmt2.cross(primaryShowerAxis);
+	    G4ThreeVector thePolarization=OnPmt2.cross(DisCrossAxis);
+	    //the photon momentum
+
+	    G4DynamicParticle aCerenkovPhoton(G4OpticalPhoton::OpticalPhoton(),OnPmt2);
+	    aCerenkovPhoton.SetPolarization
+	      (thePolarization.unit().x(),
+	       thePolarization.unit().y(),
+	       thePolarization.unit().z());
+	    aCerenkovPhoton.SetKineticEnergy(thePhotonEnergy);
+	    // Generate the track
+	    fastStep.CreateSecondaryTrack(aCerenkovPhoton,secondaryShowerPosition,secondaryShowerTime,local);	  
+	  } // if(Distance2>5*m)
+	}   // if(PhotonsSurviving<MaxNumberOfPhotonsSurviving)
+      }     // for(G4int i=0;i<NumPhotons;i++){
+      if(PhotonsSurviving==MaxNumberOfPhotonsSurviving)G4cout <<"Max number of photons reached:Distance "<<Distance/m
+							      <<" Sec Energy "<<secondaryShowerEnergy
+							      <<" Angle "<<radtodeg*acos(CosTheta)<<G4endl;
+    }       //if(Distance>MaxRadiusOfBenthosArea)
+    else G4cout<<"The photons are not created because they are inside the super benthos   "<<secondaryShowerPosition<<" "<<PMTposition<<G4endl;
+  } //for each super benthos
+}
+
+
+
+//ctype=1 for em cascades and 2 for hadronic
+//Energy in MeV, Distance in mm, ThetaC in rad
+//this function returns the n_photons/mm^2 at the position of the benthos without attenuation included
+G4double KM3EMShowerModel::DACAS(G4double Energy, G4double Distance, G4double CosTheta)
+{
+  if(ctyp==1){    //EM cascade
+    G4double Theta=acos(CosTheta);
+    return (Energy*mylum(Theta-ThetaC)*constEM*(DACASconst1+CosTheta*DACASconst2)/(Distance*Distance) );
+  }
+  else{            //Hadronic cascade
+    G4double Theta=acos(CosTheta);
+    return (Energy*halum(Theta-ThetaC)*constHAD/(Distance*Distance) );    
+  }
+}
+
+//the angular distribution for electromagnetic cascades
+G4double KM3EMShowerModel::mylum(G4double y)
+{ 
+  G4double help1= cemlum[1]+cemlum[2]*y;
+  G4double help2= cemlum[4]+cemlum[5]*y;
+  G4double help3= cemlum[7]+cemlum[8]*y;
+  if(fabs(help1)<=small) help1=small;
+  if(fabs(help2)<=small) help2=small*10;
+  if(fabs(help3)<=small) help3=small*100;
+  help1=y/help1;
+  help2=y/help2;
+  help2=help2*help2;
+  help3=y/help3;
+  help3=help3*help3*help3;
+  return (  cemlum[0]*exp( -fabs(help1) )
+	  + cemlum[3]*exp( -help2 )
+	  + cemlum[6]*exp( -fabs(help3) )
+	  );
+}
+
+//the angular distribution for hadronic cascades
+G4double KM3EMShowerModel::halum(G4double y)
+{ 
+  G4double help1= chalum[1]+chalum[2]*y;
+  G4double help2= chalum[4]+chalum[5]*y;
+  G4double help3= chalum[7]+chalum[8]*y;
+  help1=y/help1;
+  help2=y/help2;
+  help2=help2*help2;
+  help3=y/help3;
+  help3=help3*help3*help3;
+  return (  chalum[0]*exp( -fabs(help1) )
+          + chalum[3]*exp( -help2 )
+	  + chalum[6]*exp( -fabs(help3)) 
+	  );
+}
+
+
+//__#########the following 4 routines calculate the incomplete gamma function####
+G4double KM3EMShowerModel::gammp(G4double a,G4double x)
+{   // Computation of the incomplete gamma function P(a,x)
+        //
+        // The algorithm is based on the formulas and code as denoted in
+        // Numerical Recipes 2nd ed. on p. 210-212 (W.H.Press et al.).
+        //
+        //--- Nve 14-nov-1998 UU-SAP Utrecht
+        if (a <= 0 || x <= 0) return 0;
+        if (x < (a+1)) return GamSer(a,x);
+        else           return GamCf(a,x);
+}
+
+G4double KM3EMShowerModel::GamCf(G4double a,G4double x)
+{
+        // Computation of the incomplete gamma function P(a,x)
+        // via its continued fraction representation.
+        //
+        // The algorithm is based on the formulas and code as denoted in
+        // Numerical Recipes 2nd ed. on p. 210-212 (W.H.Press et al.).
+        //
+        //--- Nve 14-nov-1998 UU-SAP Utrecht
+        G4int itmax    = 100;      // Maximum number of iterations
+        G4double eps   = 3.e-7;    // Relative accuracy
+        G4double fpmin = 1.e-30;   // Smallest double value allowed here
+        if (a <= 0 || x <= 0) return 0;
+        G4double gln = LnGamma(a);
+        G4double b   = x+1-a;
+        G4double c   = 1/fpmin;
+        G4double d   = 1/b;
+        G4double h   = d;
+        G4double an,del;
+        for (G4int i=1; i<=itmax; i++) {
+                an = double(-i)*(double(i)-a);
+                b += 2;
+                d  = an*d+b;
+                if (fabs(d) < fpmin) d = fpmin;
+                c = b+an/c;
+                if (fabs(c) < fpmin) c = fpmin;
+                d   = 1/d;
+                del = d*c;
+                h   = h*del;
+                if (fabs(del-1) < eps) break;
+                //if (i==itmax) cout << "*GamCf(a,x)* a too large or itmax too small" << endl;
+        }
+        G4double v = exp(-x+a*log(x)-gln)*h;
+        return (1-v);
+}
+
+G4double KM3EMShowerModel::GamSer(G4double a,G4double x)
+{
+        // Computation of the incomplete gamma function P(a,x)
+        // via its series representation.
+        //
+        // The algorithm is based on the formulas and code as denoted in
+        // Numerical Recipes 2nd ed. on p. 210-212 (W.H.Press et al.).
+        //
+        //--- Nve 14-nov-1998 UU-SAP Utrecht
+        G4int itmax  = 100;   // Maximum number of iterations
+        G4double eps = 3.e-7; // Relative accuracy
+        if (a <= 0 || x <= 0) return 0;
+        G4double gln = LnGamma(a);
+        G4double ap  = a;
+        G4double sum = 1/a;
+        G4double del = sum;
+        for (G4int n=1; n<=itmax; n++) {
+                ap  += 1;
+                del  = del*x/ap;
+                sum += del;
+                if (fabs(del) < fabs(sum*eps)) break;
+                //if (n==itmax) cout << "*GamSer(a,x)* a too large or itmax too small" << endl;
+        }
+        G4double v = sum*exp(-x+a*log(x)-gln);
+        return v;
+}
+
+G4double KM3EMShowerModel::LnGamma(G4double z)
+{
+        // Computation of ln[gamma(z)] for all z>0.
+        //
+        // The algorithm is based on the article by C.Lanczos [1] as denoted in
+        // Numerical Recipes 2nd ed. on p. 207 (W.H.Press et al.).
+        //
+        // [1] C.Lanczos, SIAM Journal of Numerical Analysis B1 (1964), 86.
+        //
+        // The accuracy of the result is better than 2e-10.
+        //
+        //--- Nve 14-nov-1998 UU-SAP Utrecht
+                                                                                                                            
+        if (z<=0) return 0;
+                                                                                                                            
+        // Coefficients for the series expansion
+        G4double c[7] = { 2.5066282746310005, 76.18009172947146, -86.50532032941677
+                ,24.01409824083091,  -1.231739572450155, 0.1208650973866179e-2
+        ,-0.5395239384953e-5};
+                                                                                                                            
+        G4double x   = z;
+        G4double y   = x;
+        G4double tmp = x+5.5;
+        tmp = (x+0.5)*log(tmp)-tmp;
+        G4double ser = 1.000000000190015;
+        for (G4int i=1; i<7; i++) {
+                y   += 1;
+                ser += c[i]/y;
+        }
+        G4double v = tmp+log(c[0]*ser/x);
+        return v;
+}
+
+//################################################################################
+
+
+//the following is a rotation matrix that rotates a vector initially at the xy plane so that is perpedicular
+//to the vector axis (the same method as the one used in muon event generation)
+G4ThreeVector KM3EMShowerModel::gdrot(G4ThreeVector initial, G4ThreeVector axis)
+{
+  G4double u1,u2,u3,up;
+  u1=axis(0);u2=axis(1);u3=axis(2);
+  up=sqrt(1-u3*u3);
+  if(up==0)return initial;
+  G4ThreeVector final( (initial(0)*u1*u3 - initial(1)*u2)/up + initial(2)*u1,
+		       (initial(0)*u2*u3 + initial(1)*u1)/up + initial(2)*u2,
+		       -initial(0)*up                        + initial(2)*u3);
+  return final;
+
+}

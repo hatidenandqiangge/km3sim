@@ -1,0 +1,914 @@
+//
+#include "KM3SD.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4Step.hh"
+#include "G4ThreeVector.hh"
+#include "G4SDManager.hh"
+#include "G4ios.hh"
+#ifdef G4TRACK_INFORMATION
+#include "KM3TrackInformation.hh"
+#endif
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+KM3SD::KM3SD(G4String name)
+:G4VSensitiveDetector(name)
+{
+  G4String HCname;
+  collectionName.insert(HCname="MyCollection");
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+KM3SD::~KM3SD(){ }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void KM3SD::Initialize(G4HCofThisEvent* HCE)
+{
+  MyCollection = new KM3HitsCollection(SensitiveDetectorName,collectionName[0]); 
+#ifdef G4MYFIT_PARAMETERIZATION
+  for(G4int i=0 ; i<13776 ; i++)ArrayParam[i]=0;
+  for(G4int i=0 ; i<13776 ; i++)ArrayParamAll[i]=0;
+#endif
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4bool KM3SD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
+{
+  //  G4cout<< aStep->GetTrack()->GetDefinition()->GetParticleName()<<G4endl;
+  if (aStep->GetTrack()->GetDefinition()->GetParticleName() != "opticalphoton") //this may have to change (do not kiil every particle on the photocathod)
+  {
+    //    aStep->GetTrack()->SetTrackStatus(fStopAndKill);   //kill every particle except photons that hit the cathod or dead part of OM 
+    //    G4cout<<"STOPPED"<<" particle "<< aStep->GetTrack()->GetDefinition()->GetParticleName() <<G4endl;
+    return false;
+  }
+
+  //next kill photons that are incident on the back end of the pmt. The definition of deadvolume is obsolete. so the following never happens
+  //  if (aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()=="DeadVolume_PV") //for newgeant  add "_PV" at the end of physical volume name
+  //  {
+  //    aStep->GetTrack()->SetTrackStatus(fStopAndKill); //kill a photon that hits the dead part of the OM
+  //    //G4cout<<"STOPPED"<<G4endl;
+  //    return false;
+  //  }
+
+  G4double edep = aStep->GetTrack()->GetTotalEnergy();
+  if(edep==0.)
+    {
+      aStep->GetTrack()->SetTrackStatus(fStopAndKill);  //kill a photon with zero energy (?)
+      return false;
+    }
+
+  //comment about the fit,em,ha parametrizations
+  //In case that the Cathod is composed by water, there is a possibility that the photon
+  //is scatered inside the Cathod. In this case the hit is double in this Cathod. When it enters
+  //and when it leaves. In the setup with ~105000 cathods this increases the hit count by 0.2% when we have
+  //60m scaterin length and 0.6% when we have 20m scattering length. This is negligible and I dont 
+  //take this into account.
+#ifdef G4MYFIT_PARAMETERIZATION
+  /////next is new cathod id finding mode/////
+  G4int Depth=aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
+  G4int History[10];
+  for (G4int idep=0 ; idep < Depth ; idep++){
+    History[idep]=aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(Depth-1-idep);
+  }
+  G4int id=myStDetector->allCathods->GetCathodId(Depth,History) ;
+  G4ThreeVector posPMT=myStDetector->allCathods->GetPosition();
+  G4double time=aStep->GetPostStepPoint()->GetGlobalTime();
+  G4ThreeVector dirPARAM(0.0,0.0,-1.0);
+  G4ThreeVector vertexPARAM(0.0,0.0,350.0*meter);
+  G4double TRes=TResidual(time,posPMT,vertexPARAM,dirPARAM);
+  if(fabs(TRes) < 20.0*ns)ArrayParam[id]++ ;
+  if( (TRes > -20.0*ns) && (TRes < 100.0*ns) )ArrayParamAll[id]++ ;
+#endif
+#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) && !defined(G4MYK40_PARAMETERIZATION) //newha
+  G4int Depth=aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
+  G4int History[10];
+  for (G4int idep=0 ; idep < Depth ; idep++){
+    History[idep]=aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(Depth-1-idep);
+  }
+  G4int idcathod=myStDetector->allCathods->GetCathodId(Depth,History) ;
+  //  G4double CathodRadius=myStDetector->allCathods->GetCathodRadius();
+  G4ThreeVector PosHit=aStep->GetPreStepPoint()->GetPosition();
+  //  G4double theDist1=(aStep->GetPreStepPoint()->GetPosition()-PosPMT).mag()/cm; //tempotest
+  //  G4double theDist2=(aStep->GetPostStepPoint()->GetPosition()-PosPMT).mag()/cm; //tempotest
+  //  G4cout <<"theMyDist "<<aStep->GetTrack()->GetTrackID()<<" "<<id<<" "<<theDist1<<" "<<theDist2<<G4endl;//tempotest
+  G4ThreeVector FromGeneToOM=PosHit; // - myStDetector->MyGenerator->position; //position is always 0,0,0
+  G4double dist = FromGeneToOM.mag();
+  //  if(fabs(dist-CathodRadius)>1.0*mm)G4Exception("KM3SD::ProcessHits in Param distances differ","",FatalException,"");
+  G4ThreeVector Dir=  aStep->GetTrack()->GetMomentumDirection();
+  G4double thetime=aStep->GetPreStepPoint()->GetGlobalTime();
+  G4double cosangle1=(myStDetector->MyGenerator->direction).dot(FromGeneToOM)/dist; // D.z
+  G4double cosangle2=(1.0/dist)*FromGeneToOM.dot(Dir); //d.z
+  G4double cosangle3=-(myStDetector->MyGenerator->direction.dot(Dir) - cosangle2*cosangle1)/
+    sqrt((1.0-cosangle2*cosangle2)*(1.0-cosangle1*cosangle1));
+  if(cosangle3>=1.0)cosangle3=0.0;
+  else if(cosangle3<=-1.0)cosangle3=pi;
+  else cosangle3=acos(cosangle3);
+
+  static G4int ooo=0;
+  if (ooo==0){
+    ooo=1;
+    G4Material* aMaterial = G4Material::GetMaterial("Cathod");
+    G4double MaxQE=-1;
+    G4double PhEneAtMaxQE;
+    G4MaterialPropertyVector* aPropertyVector = aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
+    for(size_t i=0 ; i<aPropertyVector->GetVectorLength() ; i++){
+      G4double ThisQE=(*aPropertyVector)[i];
+      G4double ThisPhEne=aPropertyVector->Energy(i);
+      if(ThisQE > MaxQE){MaxQE=ThisQE;PhEneAtMaxQE=ThisPhEne;}
+    }
+    aMaterial = G4Material::GetMaterial("Water");
+    GroupVel = aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+    thespeedmaxQE=GroupVel->Value(PhEneAtMaxQE); //coresponds to the maximum qe each time. This is the right one
+    VirtualAbsVector = aMaterial->GetMaterialPropertiesTable()->GetProperty("ABSLENGTH");
+    TrueAbsVector = aMaterial->GetMaterialPropertiesTable()->GetProperty("ABSLENGTH_TRUE");
+  }
+  
+  G4double theFastTime = dist/thespeedmaxQE;
+  thetime -= theFastTime;
+
+  //here we calculate the weight of each detected photon, because as simulation abslength we have put a virtual one
+  G4double tracklength=aStep->GetTrack()->GetTrackLength();
+  G4double abs_virtual=VirtualAbsVector->Value(edep);
+  G4double abs_true=TrueAbsVector->Value(edep);
+  G4double weight=exp(-tracklength*(1.0/abs_true-1.0/abs_virtual));
+  //-----------------//
+  
+  if(dist>10*m)fprintf(myStDetector->outfile,"Param %12.4e %12.4e %12.4e %12.4e %12.4e %12.4e\n",  //tempo
+  		       dist/m,cosangle1,cosangle2,cosangle3/degree,thetime,weight);  //tempo
+  //note: The binning in cosangle2,cosangle3 is not good enough
+  //it must be done again
+  //look folder ReBinc2c3 in Work/bin/Linux and below
+  
+  G4int distbin=idcathod; //the distances definition are recorded in the gdml geometry file
+  // if(dist<6*meter){
+  //   distbin=int(dist/meter);} //per 1 m up to 6m.
+  // else if(dist<20*meter){ //per 2 meter from 6m to 20m 
+  //   distbin=int((dist-6.0*meter)/(meter*2.0))+6;}
+  // else if(dist<50*meter){ //per 5 meter from 20 to 50m
+  //   distbin=int((dist-20.0*meter)/(meter*5.0))+13;}
+  // else if(dist<210*meter){ //per 20 meter from 50 to 210m
+  //   distbin=int((dist-50.0*meter)/(meter*20.0))+19;}
+  // else if(dist<510*meter){ //per 50 meter from 210 to 510m
+  //   distbin=int((dist-210.0*meter)/(meter*50.0))+27;}
+  // else distbin=32; //accumulate all above 510m
+  
+  //next we adjust the weight for the incident angle. Later in EventAction we adjust it for normal surface
+  //but first make sure that cosangle2 is not too small
+  if(fabs(cosangle2)<0.001){
+    if(cosangle2>0.0)cosangle2=0.001;
+    else cosangle2=-0.001;
+  }
+  weight/=fabs(cosangle2);
+  //  if(fabs(cosangle2)<1.e-2)G4cout << "ppproblemmm "<<dist/m<<" "<<cosangle1<<" "<<cosangle2<<" "<<cosangle3/degree<<" "<<thetime<<G4endl;
+  G4int cang1bin; //we estimate the theta1 bin
+  //theta bin limits are: -1 -0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.525 0.55 0.575 0.6 0.625 0.65 0.675 0.7 ...
+  if(cosangle1<0.5){
+    cang1bin=int((cosangle1+1.0)/0.1);
+  }
+  else if(cosangle1<0.7){
+    cang1bin=int((cosangle1-0.5)/0.025)+15;
+  }
+  else if(cosangle1<0.8){
+    cang1bin=int((cosangle1-0.7)/0.005)+23;
+  }
+  else if(cosangle1<1.0){
+    cang1bin=int((cosangle1-0.8)/0.025)+43;
+  }
+  else{
+    cang1bin=50;
+  }
+
+  //change to be done
+  //the variance of the distribution vs cosangle3 is due only to the 
+  //no zero length of the shower
+  //this is zero for direct cherenkov, and almost zero for delta rays
+  //however for em showers is not zero
+  //better binning is done for the angle2 and angle3
+  //18 bins in cosangle2 and variable bins in cosangle3
+  //the following:
+
+  cosangle3/=degree;
+  G4int cang23bin;
+  if(cosangle2 > 0.997){
+    if(cosangle3 < 55.0)cang23bin=0;
+    else if(cosangle3 < 105.0)cang23bin=1;
+    else cang23bin=2;
+  }
+  else if(cosangle2 > 0.994){
+    if(cosangle3 < 45.0)cang23bin=3;
+    else if(cosangle3 < 110.0)cang23bin=4;
+    else cang23bin=5;
+  }
+  else if(cosangle2 > 0.99){
+    if(cosangle3 < 45.0)cang23bin=6;
+    else if(cosangle3 < 110.0)cang23bin=7;
+    else cang23bin=8;
+  }
+  else if(cosangle2 > 0.985){
+    if(cosangle3 < 45.0)cang23bin=9;
+    else if(cosangle3 < 95.0)cang23bin=10;
+    else cang23bin=11;
+  }
+  else if(cosangle2 > 0.98){
+    if(cosangle3 < 45.0)cang23bin=12;
+    else if(cosangle3 < 120.0)cang23bin=13;
+    else cang23bin=14;
+  }
+  else if(cosangle2 > 0.97){
+    if(cosangle3 < 45.0)cang23bin=15;
+    else if(cosangle3 < 110.0)cang23bin=16;
+    else cang23bin=17;
+  }
+  else if(cosangle2 > 0.95){
+    if(cosangle3 < 40.0)cang23bin=18;
+    else if(cosangle3 < 75.0)cang23bin=19;
+    else cang23bin=20;
+  }
+  else if(cosangle2 > 0.925){
+    if(cosangle3 < 30.0)cang23bin=21;
+    else if(cosangle3 < 45.0)cang23bin=22;
+    else if(cosangle3 < 95.0)cang23bin=23;
+    else cang23bin=24;
+  }
+  else if(cosangle2 > 0.9){
+    if(cosangle3 < 40.0)cang23bin=25;
+    else if(cosangle3 < 75.0)cang23bin=26;
+    else if(cosangle3 < 110.0)cang23bin=27;
+    else cang23bin=28;
+  }
+  else if(cosangle2 > 0.8){
+    if(cosangle3 < 30.0)cang23bin=29;
+    else if(cosangle3 < 45.0)cang23bin=30;
+    else if(cosangle3 < 85.0)cang23bin=31;
+    else if(cosangle3 < 145.0)cang23bin=32;
+    else cang23bin=33;
+  }
+  else if(cosangle2 > 0.7){
+    if(cosangle3 < 40.0)cang23bin=34;
+    else if(cosangle3 < 75.0)cang23bin=35;
+    else if(cosangle3 < 115.0)cang23bin=36;
+    else cang23bin=37;
+  }
+  else if(cosangle2 > 0.6){
+    if(cosangle3 < 40.0)cang23bin=38;
+    else if(cosangle3 < 95.0)cang23bin=39;
+    else cang23bin=40;
+  }
+  else if(cosangle2 > 0.45){
+    if(cosangle3 < 45.0)cang23bin=41;
+    else if(cosangle3 < 85.0)cang23bin=42;
+    else cang23bin=43;
+  }
+  else if(cosangle2 > 0.0){
+    if(cosangle3 < 40.0)cang23bin=44;
+    else if(cosangle3 < 110.0)cang23bin=45;
+    else cang23bin=46;
+  }
+  else if(cosangle2 > -0.4){
+    if(cosangle3 < 65.0)cang23bin=47;
+    else if(cosangle3 < 120.0)cang23bin=48;
+    else cang23bin=49;
+  }
+  else if(cosangle2 > -0.8){
+    cang23bin=50;
+  }
+  else{
+    cang23bin=51;
+  }
+
+  G4int ibint;
+  if(thetime <10){
+    ibint=int((thetime+10.0)/0.5);
+    if(ibint<0)ibint=0;
+  }
+  else if(thetime < 30){
+    ibint=int(thetime-10.0)+40 ;}
+  else if(thetime < 90){
+    ibint=int((thetime-30.0)/3.0)+60 ;}
+  else if(thetime < 200){
+    ibint=int((thetime-90.0)/11.0)+80 ;}
+  else if(thetime < 1000){
+    ibint=int((thetime-200.0)/50.0)+90 ;}
+  else if(thetime < 2000){
+    ibint=int((thetime-1000.0)/200.0)+106 ;}
+  else ibint=110;
+  
+  G4int ibin_d1=cang1bin+51*distbin;
+  (*myPhotonsNumber)[ibin_d1]+=(long double)weight;
+  G4int ibin_d123=cang23bin+52*ibin_d1;
+  (*myPhotonsCosTh2)[ibin_d123]+=(long double)(weight*cosangle2);
+  (*myPhotonsTh3)[ibin_d123]+=(long double)(weight*cosangle3);
+  (*myPhotonsTh2Th3Num)[ibin_d123]+=(long double)weight;
+  G4int ibin_d123t=ibint+111*ibin_d123;
+  (*myPhotonsTime)[ibin_d123t]+=(long double)weight;
+
+
+#endif
+#ifndef G4MYFIT_PARAMETERIZATION
+#if (!defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)) || defined(G4MYK40_PARAMETERIZATION) //newha
+  if(MyCollection->entries() <10000000){
+    /////next is new cathod id finding mode/////
+    G4int Depth=aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
+    G4int History[10];
+    for (G4int idep=0 ; idep < Depth ; idep++){
+      History[idep]=aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(Depth-1-idep);
+    }
+    G4int id=myStDetector->allCathods->GetCathodId(Depth,History) ;
+    //////check if this photon passes after the angular acceptance//////
+    G4ThreeVector photonDirection=aStep->GetTrack()->GetMomentumDirection();
+    G4ThreeVector PMTDirection=myStDetector->allCathods->GetDirection();
+    if(!AcceptAngle(photonDirection.dot(PMTDirection),false)){
+      //at this point we dont kill the track if it is not accepted due to anglular acceptance
+      //this has an observable effect a few percent only when running simulation with
+      //parametrization turned off and sparce detectors.
+      //However with dense detectors ~0.04 OMs/m^3 there is a 30% effect, and 0.005OMs/m^3 a 3.5% effect, based on the covered solid angle
+      return false;
+    }
+    //    G4cout<<"Accepted"<<G4endl;
+    //    G4cout<<"----------------------------------------------------------------"<<G4endl;
+
+    KM3Hit* newHit = new KM3Hit();
+    newHit->SetCathodId(id);
+    newHit->SetTime(aStep->GetPostStepPoint()->GetGlobalTime());
+
+    G4int originalTrackCreatorProcess;
+    G4int originalParentID;
+#ifdef G4TRACK_INFORMATION
+    KM3TrackInformation* info= (KM3TrackInformation*)(aStep->GetTrack()->GetUserInformation());
+    originalParentID=info->GetOriginalParentID();
+    G4String creator=info->GetOriginalTrackCreatorProcess();
+    if(creator=="KM3Cherenkov")originalTrackCreatorProcess=0;
+    else if(creator=="muPairProd")originalTrackCreatorProcess= 1;
+    else if(creator=="muIoni")originalTrackCreatorProcess= 2;
+    else if(creator=="muBrems")originalTrackCreatorProcess= 3;
+    else if(creator=="muonNuclear")originalTrackCreatorProcess= 4;
+    else if(creator=="Decay")originalTrackCreatorProcess= 8;
+    else if(creator=="muMinusCaptureAtRest")originalTrackCreatorProcess= 9;
+    else originalTrackCreatorProcess= 5;
+#ifdef G4MYLASER_PARAMETERIZATION
+    info->KeepScatteringPosition(aStep->GetPostStepPoint()->GetPosition(),1.0);
+    G4int NumberOfScatters=info->GetNumberOfScatters();
+    newHit->SetIManyScatters(NumberOfScatters-1);
+    for(G4int is=0;is<NumberOfScatters-1;is++){
+      newHit->SetScatteringSteps(is,(info->GetScatteringPosition(is+1)-info->GetScatteringPosition(is)).mag());
+      newHit->SetScatteringAngles(is,info->GetScatteringAngle(is+1));
+    }
+#endif
+#else
+    originalParentID=1;
+    originalTrackCreatorProcess=0;
+#endif
+    G4int originalInfo;
+    originalInfo = (originalParentID-1)*10 + originalTrackCreatorProcess ;
+    //    newHit->SetoriginalInfo(int(1.e6*h_Planck*c_light/aStep->GetTrack()->GetTotalEnergy()));
+    newHit->SetoriginalInfo(originalInfo);
+    newHit->SetMany(1);
+
+    //short    G4ThreeVector posHit=aStep->GetPostStepPoint()->GetPosition();
+    //short    G4ThreeVector posPMT=myStDetector->allCathods->GetPosition();
+    //short    G4ThreeVector posRel=posHit-posPMT;
+
+    //short    G4double angleThetaIncident,anglePhiIncident;
+    //short    G4double angleThetaDirection,anglePhiDirection;
+
+    //short    angleThetaIncident=posRel.theta();
+    //short    anglePhiIncident=posRel.phi();
+    //short    angleThetaDirection=photonDirection.theta();
+    //short    anglePhiDirection=photonDirection.phi();
+    //convert to degrees
+    //short    angleThetaIncident *= 180./M_PI;
+    //short    anglePhiIncident *= 180./M_PI;
+    //short    angleThetaDirection *= 180./M_PI;
+    //short    anglePhiDirection *= 180./M_PI;
+    //short    if(anglePhiIncident < 0.0)anglePhiIncident += 360.0;
+    //short    if(anglePhiDirection < 0.0)anglePhiDirection += 360.0;
+    
+    //short    G4int angleIncident,angleDirection;
+    //short    angleIncident = (G4int)(nearbyint(angleThetaIncident)*1000.0 + nearbyint(anglePhiIncident));
+    //short    angleDirection = (G4int)(nearbyint(angleThetaDirection)*1000.0 + nearbyint(anglePhiDirection));
+
+    //short    newHit->SetangleIncident(angleIncident);
+    //short    newHit->SetangleDirection(angleDirection);
+
+    MyCollection->insert( newHit );
+  }
+#endif
+#endif
+
+#if (!defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)) || defined(G4MYK40_PARAMETERIZATION) //newha
+#ifndef G4MYFIT_PARAMETERIZATION
+  //lookout  aStep->GetTrack()->SetTrackStatus(fStopAndKill); //kill the detected photon
+#endif
+#endif
+ 
+  return true;
+}
+//this method is used to add hits from the EM shower model
+//short void KM3SD::InsertExternalHit(G4int id,G4double time,G4int originalInfo,G4int angleDirection,G4int angleIncident)
+void KM3SD::InsertExternalHit(G4int id,G4double time,G4int originalInfo,G4ThreeVector photonDirection)
+{
+#ifndef G4MYFIT_PARAMETERIZATION
+  if(MyCollection->entries() <10000000){
+    G4ThreeVector PMTDirection=myStDetector->allCathods->GetDirection(id);
+    if(!AcceptAngle(photonDirection.dot(PMTDirection),true)){
+      return; //it is not accepted
+    }
+    KM3Hit* newHit = new KM3Hit();
+    newHit->SetCathodId(id);
+    newHit->SetTime(time);
+    //short    newHit->SetangleIncident(angleIncident);
+    //short    newHit->SetangleDirection(angleDirection);
+    newHit->SetoriginalInfo(originalInfo);
+    newHit->SetMany(1);
+    MyCollection->insert( newHit );
+  }
+#else
+  G4ThreeVector dirPARAM(0.0,0.0,-1.0);
+  G4ThreeVector vertexPARAM(0.0,0.0,350.0*meter);
+  G4ThreeVector posPMT=myStDetector->allCathods->GetPosition(id);
+  G4double TRes=TResidual(time,posPMT,vertexPARAM,dirPARAM);
+  if(fabs(TRes) < 20.0*ns)ArrayParam[id]++ ;
+  if( (TRes > -20.0*ns) && (TRes < 100.0*ns) )ArrayParamAll[id]++ ;
+#endif
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#if (!defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)) || defined(G4MYK40_PARAMETERIZATION) //newha
+void KM3SD::EndOfEvent(G4HCofThisEvent* HCE)
+{
+#ifdef G4MYK40_PARAMETERIZATION
+  //here get access to the primary generation action generation parameters idbeam,ParamEnergy,random_R
+  G4int idbeam=myStDetector->MyGenerator->idbeam;
+  G4double ParamEnergy=myStDetector->MyGenerator->ParamEnergy/keV;
+  G4double random_R=myStDetector->MyGenerator->random_R/meter;
+#ifdef G4MYLASER_PARAMETERIZATION
+  idbeam = G4int(idbeam/myStDetector->Quantum_Efficiency);
+#endif
+#endif
+
+  if (verboseLevel>0)
+  { 
+    G4int TotalNumberOfCathods=myStDetector->allCathods->GetNumberOfCathods();
+#ifdef G4MYFIT_PARAMETERIZATION
+    outfile=myStDetector->outfilePar;
+    G4double ParamMomentum=myStDetector->event_action->centerMomentum[0]/GeV;
+    for(int ica=0;ica<TotalNumberOfCathods;ica++){
+      G4ThreeVector PosPMT = myStDetector->allCathods->GetPosition(ica);
+      G4double ParamDistance=sqrt(PosPMT[0]*PosPMT[0]+PosPMT[1]*PosPMT[1])/meter;
+      fprintf(outfile,"%.4e %.4e %d %d\n",ParamMomentum,ParamDistance,ArrayParam[ica],ArrayParamAll[ica]);
+    }
+#else
+    outfile=myStDetector->outfile;
+    G4int NbHits = MyCollection->entries();
+    static G4int ooo=0;         //count total
+    ooo += NbHits;  //count total
+    G4cout << "Total Hits: " <<ooo<<G4endl; //count total
+    G4cout << "This Event Hits: " <<NbHits << G4endl; //count for this event
+    int i;
+
+    //here we sort MyCollection according to ascending pmt number    
+    std::vector<KM3Hit*>* theCollectionVector=MyCollection->GetVector();
+    QuickSort(0,theCollectionVector,0,NbHits-1);
+    //-------//from now on the hits are sorted in cathod id
+    //next sort according to ascending time for each cathod id
+    if(NbHits>1){
+      G4int prevCathod,currentCathod;
+      G4int istart,istop;
+      istart=0;
+      prevCathod=(*MyCollection)[istart]->GetCathodId();
+      for(i=1;i<NbHits;i++){
+	currentCathod=(*MyCollection)[i]->GetCathodId();
+	if(currentCathod != prevCathod){
+	  istop=i-1;
+	  QuickSort(1,theCollectionVector,istart,istop);
+#ifndef G4MYK40_PARAMETERIZATION
+	  G4double MergeWindow=0.5*ns;
+	  MergeHits(istart,istop+1,MergeWindow);
+#endif
+#ifdef G4MYLASER_PARAMETERIZATION
+	  G4double MergeWindow=0.1*ns;
+	  MergeHits(istart,istop+1,MergeWindow);
+#endif
+	  prevCathod=currentCathod;
+	  istart=i;
+	}
+	else if( (currentCathod == prevCathod) && (i==NbHits-1) ){
+	  istop=i;
+	  QuickSort(1,theCollectionVector,istart,istop);
+#ifndef G4MYK40_PARAMETERIZATION
+	  G4double MergeWindow=0.5*ns;
+	  MergeHits(istart,istop+1,MergeWindow);
+#endif
+#ifdef G4MYLASER_PARAMETERIZATION
+	  G4double MergeWindow=0.1*ns;
+	  MergeHits(istart,istop+1,MergeWindow);
+#endif
+	}
+      }
+    }
+
+    //find the number of hit entries to write
+    G4int NbHitsWrite=0;
+    for(i=0;i<NbHits;i++)if((*MyCollection)[i]->GetMany()>0 )NbHitsWrite++;
+
+    //find earliest hit time
+    G4double timefirst = 1E20;
+    for(i=0;i<NbHits;i++){ 
+      if((*MyCollection)[i]->GetTime()<timefirst &&
+	 (*MyCollection)[i]->GetMany()>0 )timefirst=(*MyCollection)[i]->GetTime();
+    }
+
+    //find how many cathods are hitted
+    int allhit = 0;
+    int prevcathod=-1;
+    for(i=0;i<NbHits;i++){
+      if(prevcathod != (*MyCollection)[i]->GetCathodId())allhit++;
+      prevcathod=(*MyCollection)[i]->GetCathodId();
+    }
+#ifdef G4MYK40_PARAMETERIZATION
+    if(NbHits>0){
+#ifdef G4MYLASER_PARAMETERIZATION
+      fprintf(outfile,"%d\n",idbeam);
+#else
+      fprintf(outfile,"%d %.6e %.6e\n",idbeam,ParamEnergy,random_R);
+#endif
+      fprintf(outfile,"%.7e %d\n",timefirst*1E-9,allhit);
+    }
+#else
+    if(!myStDetector->useANTARESformat)fprintf(outfile,"%.7e %d\n",timefirst*1E-9,allhit);
+    else myStDetector->TheEVTtoWrite->AddNumberOfHits(NbHitsWrite);
+#endif
+
+    //find the last pmt how many hits has
+    G4int LastPmtNumber;
+    G4int LastHitNumber;
+    for(i=NbHits-1;i>=0;i--)if((*MyCollection)[i]->GetMany()>0 ){
+	LastPmtNumber=(*MyCollection)[i]->GetCathodId();
+	LastHitNumber=i;
+	break;
+      }
+    G4int LastPmtNumHits=0;
+    for(i=NbHits-1;i>=0;i--)if((*MyCollection)[i]->GetMany()>0 ){
+	if((*MyCollection)[i]->GetCathodId() == LastPmtNumber)
+	  LastPmtNumHits++;
+	else break;
+      }
+
+    //new
+    int numphotons=0;G4double firstphoton=1.E50;int numpes=0;
+    if(NbHits>0)prevcathod=(*MyCollection)[0]->GetCathodId();
+    int prevstart=0;
+    int numhit=0;
+    for(i=0;i<NbHits;i++){
+      if( (*MyCollection)[i]->GetMany() > 0){
+	if(prevcathod == (*MyCollection)[i]->GetCathodId()){
+	  numphotons++;
+	  numpes+=(*MyCollection)[i]->GetMany();
+	  if((*MyCollection)[i]->GetTime()-timefirst<firstphoton)firstphoton=(*MyCollection)[i]->GetTime()-timefirst;
+	}
+	else{
+	  if(myStDetector->vrmlhits){  //draw hits
+	    G4ThreeVector Cposition=myStDetector->allCathods->GetPosition(prevcathod);
+	    DrawCathodHit(numpes,Cposition);
+	  }
+	  if(!myStDetector->useANTARESformat)fprintf(outfile,"%d %d %.7e\n",prevcathod,numphotons,firstphoton*1E-9);
+	  for (int j=prevstart;j<i;j++){
+	    if( (*MyCollection)[j]->GetMany() > 0){
+	      numhit++;
+	      if(!myStDetector->useANTARESformat){
+		fprintf(outfile,"%.7e %d %d\n",
+			((*MyCollection)[j]->GetTime()-timefirst)*1E-9,
+			(*MyCollection)[j]->GetoriginalInfo(),
+			(*MyCollection)[j]->GetMany());
+#if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
+		G4int IManyScatters=(*MyCollection)[j]->GetIManyScatters();
+		fprintf(outfile,"%d\n",IManyScatters);
+		for(G4int is=0 ; is<IManyScatters ; is++)
+		  fprintf(outfile,"%.3e %.6e\n",(*MyCollection)[j]->GetScatteringSteps(is)/m,(*MyCollection)[j]->GetScatteringAngles(is));
+#endif
+	      }
+	      else{
+		//here write antares format info
+		G4int originalInfo=(*MyCollection)[j]->GetoriginalInfo();
+		G4int originalParticleNumber=originalInfo/10+1;
+		G4int originalTrackCreatorProcess=originalInfo-(originalParticleNumber-1)*10;
+		myStDetector->TheEVTtoWrite->AddHit(numhit,prevcathod,
+						    double( (*MyCollection)[j]->GetMany() ),
+						    (*MyCollection)[j]->GetTime(),
+						    originalParticleNumber,
+						    (*MyCollection)[j]->GetMany(),
+						    (*MyCollection)[j]->GetTime(),
+						    originalTrackCreatorProcess);
+	      }
+	    }
+	  }
+	  prevstart=i;
+	  numphotons=1;firstphoton=(*MyCollection)[i]->GetTime()-timefirst;numpes=(*MyCollection)[i]->GetMany();
+	}      
+	prevcathod=(*MyCollection)[i]->GetCathodId();
+	//	if(i == (NbHits-1) ){
+	//	if(numhit == (NbHitsWrite-1) ){
+	if(numhit == (NbHitsWrite-LastPmtNumHits) && i==LastHitNumber){
+	  if(myStDetector->vrmlhits){  //draw hits
+	    G4ThreeVector Cposition=myStDetector->allCathods->GetPosition((*MyCollection)[i]->GetCathodId());
+	    DrawCathodHit(numpes,Cposition);
+	  }
+	  if(!myStDetector->useANTARESformat)fprintf(outfile,"%d %d %.7e\n",(*MyCollection)[i]->GetCathodId(),numphotons,firstphoton*1E-9);
+	  for (int j=prevstart;j<NbHits;j++){
+	    if( (*MyCollection)[j]->GetMany() > 0){
+	      numhit++;
+	      if(!myStDetector->useANTARESformat){
+		fprintf(outfile,"%.7e %d %d\n",
+			((*MyCollection)[j]->GetTime()-timefirst)*1E-9,
+			(*MyCollection)[j]->GetoriginalInfo(),
+			(*MyCollection)[j]->GetMany());
+#if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
+		G4int IManyScatters=(*MyCollection)[j]->GetIManyScatters();
+		fprintf(outfile,"%d\n",IManyScatters);
+		for(G4int is=0 ; is<IManyScatters ; is++)
+		  fprintf(outfile,"%.3e %.6e\n",(*MyCollection)[j]->GetScatteringSteps(is)/m,(*MyCollection)[j]->GetScatteringAngles(is));
+#endif
+	      }
+	      else{
+		//here write antares format info
+		G4int originalInfo=(*MyCollection)[j]->GetoriginalInfo();
+		G4int originalParticleNumber=originalInfo/10+1;
+		G4int originalTrackCreatorProcess=originalInfo-(originalParticleNumber-1)*10;
+		myStDetector->TheEVTtoWrite->AddHit(numhit,(*MyCollection)[i]->GetCathodId(),
+						    double( (*MyCollection)[j]->GetMany() ),
+						    (*MyCollection)[j]->GetTime(),
+						    originalParticleNumber,
+						    (*MyCollection)[j]->GetMany(),
+						    (*MyCollection)[j]->GetTime(),
+						    originalTrackCreatorProcess);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+    //old
+    // int numphotons;G4double firstphoton;
+    // for(int ica=0;ica<TotalNumberOfCathods;ica++){                                //for all benthos
+    //   numphotons=0;firstphoton=1.E50;
+    //   for(i=0;i<NbHits;i++){
+    // 	if((*MyCollection)[i]->GetCathodId()==ica){
+    // 	  numphotons++;  // hit number for this benthos
+    // 	  if((*MyCollection)[i]->GetTime()-timefirst<firstphoton)firstphoton=(*MyCollection)[i]->GetTime()-timefirst;
+    // 	}
+    //   }
+    //   if(numphotons>0){
+    // 	if(myStDetector->vrmlhits){  //draw hits
+    // 	  G4ThreeVector Cposition=myStDetector->allCathods->GetPosition(ica);
+    // 	  DrawCathodHit(numphotons,Cposition);
+    // 	}
+    // 	fprintf(outfile,"%d %d %.7e %d\n",ica,numphotons,firstphoton*1E-9,numphotons);
+    // 	for (i=0;i<NbHits;i++){
+    // 	  if((*MyCollection)[i]->GetCathodId()==ica)
+    // 	    fprintf(outfile,"%.7e %d %d %d\n",
+    // 		    ((*MyCollection)[i]->GetTime()-timefirst)*1E-9,
+    // 		    (*MyCollection)[i]->GetangleIncident(),
+    // 		    (*MyCollection)[i]->GetangleDirection(),
+    // 		    (*MyCollection)[i]->GetoriginalInfo());
+    // 	}
+    //   }
+    // }
+    //old
+#endif
+    if(myStDetector->vrmlhits){
+      static G4int HCID = -1;
+      if(HCID<0)
+	{ HCID = GetCollectionID(0); }
+      HCE->AddHitsCollection( HCID, MyCollection );
+    }
+    else delete MyCollection;
+
+    //G4cout << "\n-------->Hits Collection: in this event they are " << MyCollection->entries() << G4endl;
+    //for (G4int i=0;i<NbHits;i++) (*MyCollection)[i]->Print();
+  } 
+}
+#else
+void KM3SD::EndOfEvent(G4HCofThisEvent* HCE)
+{
+  delete MyCollection;    
+} 
+#endif
+
+void KM3SD::MergeHits(G4int nfirst,G4int nlast,G4double MergeWindow)
+{
+  if(nlast-nfirst<2)return;
+  G4int iuu,imany;
+  G4int istart=nfirst;
+  G4int istop=nfirst;
+ go77:
+  istart=istop+1;
+  for(iuu=istart+1 ; iuu<=nlast ; iuu++){
+    if( ((*MyCollection)[iuu-1]->GetTime() - (*MyCollection)[istart-1]->GetTime()) > MergeWindow){
+      istop=iuu-1;
+      goto go78;
+    }
+  }
+  istop=iuu-1;
+ go78:
+  if(istart>nlast)return;
+  imany=istop-istart+1;
+  if(imany>1){
+    G4double MeanTime=0.0;
+    for(iuu=istart ; iuu<=istop ; iuu++)MeanTime+=(*MyCollection)[iuu-1]->GetTime();
+    MeanTime/=imany;
+    (*MyCollection)[istart-1]->SetTime(MeanTime);
+    (*MyCollection)[istart-1]->SetMany(imany);
+    for(iuu=istart+1 ; iuu<=istop ; iuu++)(*MyCollection)[iuu-1]->SetMany(0);
+  }
+  goto go77;
+}
+
+#include "G4VisManager.hh"
+#include "G4Circle.hh"
+#include "G4Colour.hh"
+#include "G4VisAttributes.hh"
+
+//Hit Draw Method (colours are descibing the number of photons, blue->red)
+void KM3SD::DrawCathodHit(G4int NumberOfPhotons,G4ThreeVector pos)
+{
+  G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+  if(pVVisManager)
+  {
+    G4Circle circle(pos);
+    circle.SetWorldRadius(220.0);
+    circle.SetFillStyle(G4Circle::filled);
+    G4double nphotons=G4double(NumberOfPhotons);
+    if(nphotons>100.0)nphotons=100.0;
+    G4double redcol=log10(G4double(nphotons))/2.0;
+    G4Colour colour(redcol,0.,1.0-redcol);
+    G4VisAttributes attribs(colour);
+    circle.SetVisAttributes(attribs);
+    pVVisManager->Draw(circle);
+  }
+}
+
+G4int KM3SD::ProcessMyCollection(KM3HitsCollection* aCollection)
+{
+  return(0);
+}
+
+void KM3SD::clear()
+{
+}
+
+void KM3SD::PrintAll()
+{
+}
+
+G4double KM3SD::TResidual(G4double time, const G4ThreeVector& position, const G4ThreeVector& vertex, const G4ThreeVector& dir)
+{
+  G4double tnthc=0.94809493;
+  G4double ag,bg;
+  G4ThreeVector Hit=position-vertex;
+  ag=dir.dot(Hit);
+  Hit -= ag*dir;
+  bg=Hit.mag();
+  return time-(ag+bg*tnthc)/c_light;
+}
+
+//Quick Sort Functions for Ascending Order
+void KM3SD::QuickSort(G4int shorttype, std::vector<KM3Hit*>* theCollectionVector,G4int top, G4int bottom)
+{
+  // top = subscript of beginning of array
+  // bottom = subscript of end of array
+     
+  G4int middle;
+  if (top < bottom)
+    {
+      if(shorttype==0)middle = partition_CathodId(theCollectionVector,top, bottom);
+      else middle = partition_Time(theCollectionVector,top, bottom);
+      QuickSort(shorttype,theCollectionVector,top, middle);   // sort first section
+      QuickSort(shorttype,theCollectionVector,middle+1, bottom);    // sort second section
+    }
+  return;
+}
+
+//Function to determine the partitions
+// partitions the array and returns the middle subscript
+G4int KM3SD::partition_CathodId(std::vector<KM3Hit*>* theCollectionVector,G4int top, G4int bottom)
+{
+  G4int x = (*theCollectionVector)[top]->GetCathodId();
+  G4int i = top - 1;
+  G4int j = bottom + 1;
+  KM3Hit* temp;
+  do
+    {
+      do     
+	{
+	  j --;
+	}while (x < (*theCollectionVector)[j]->GetCathodId() );
+
+      do  
+	{
+	  i++;
+	} while (x > (*theCollectionVector)[i]->GetCathodId() );
+
+      if (i < j)
+	{ 
+	  temp = (*theCollectionVector)[i];   
+	  (*theCollectionVector)[i] = (*theCollectionVector)[j];
+	  (*theCollectionVector)[j] = temp;
+	}
+    }while (i < j);    
+  return j;           // returns middle subscript 
+}
+
+//Function to determine the partitions
+// partitions the array and returns the middle subscript
+G4int KM3SD::partition_Time(std::vector<KM3Hit*>* theCollectionVector,G4int top, G4int bottom)
+{
+  G4double x = (*theCollectionVector)[top]->GetTime();
+  G4int i = top - 1;
+  G4int j = bottom + 1;
+  KM3Hit* temp;
+  do
+    {
+      do     
+	{
+	  j --;
+	}while (x < (*theCollectionVector)[j]->GetTime() );
+
+      do  
+	{
+	  i++;
+	} while (x > (*theCollectionVector)[i]->GetTime() );
+
+      if (i < j)
+	{ 
+	  temp = (*theCollectionVector)[i];   
+	  (*theCollectionVector)[i] = (*theCollectionVector)[j];
+	  (*theCollectionVector)[j] = temp;
+	}
+    }while (i < j);    
+  return j;           // returns middle subscript 
+}
+
+//the angular acceptance is according to the MultiPMT OM (WPD Document January 2011)
+//doing linear interpolation
+//if shapespherical==true then it is from parametrization and take into account only the <<experimental>> angular acceptance
+//if shapespherical==false then it is not from param and take also the simulated angular acceptance of the cathod shape
+G4bool KM3SD::AcceptAngle(G4double cosangle,bool shapespherical)
+{
+  static G4double AngularCos[25]={-1,-0.95,-0.90,-0.85,-0.80,-0.75,-0.70,-0.65,-0.60,-0.55,-0.50,-0.45,-0.40,
+				  -0.35,-0.30,-0.25,-0.20,-0.15,-0.10,-0.05,0.0,0.05,0.1,0.15,0.2};
+
+  //the following is the input <<experimental>> angular acceptance. WPD Document v.2.3
+  static G4double AngularAcc[25]={1.0000000, 0.7500000, 0.6794872, 0.6153846, 0.5833334, 0.5448718, 0.4935898, 
+    				  0.4615385, 0.4294872, 0.3910257, 0.3717949, 0.3333333, 0.3141026, 0.2884615,
+  				  0.2500000, 0.2243590, 0.1987180, 0.1858974, 0.1217949, 0.0641026, 0.0000000,
+  				  0.000000,0.000000,0.000000,0.000000};
+
+//the following is the input <<experimental>> angular acceptance. simulations and astrophysics working Document v.3.1
+//  static G4double AngularAcc[25]={1.0000,0.9284,0.8275,0.7342,0.6473,0.5770,0.5188,0.4716,0.4281,0.3930,0.3591,0.3233,0.2914,
+//				  0.2581,0.2262,0.1974,0.1681,0.1406,0.1137,0.0882,0.0645,0.0441,0.0262,0.0121,0.0026};
+
+
+  //next in is bjorn
+  //  static G4double AngularAcc[25]={1.0000000,0.9251000,0.8521000,0.7731600,0.700000,0.6358500,0.5686600,
+  //				  0.5248300,0.4810100,0.4371900,0.3962900,0.355380,0.3144800,0.2794200,
+  //				  0.2472900,0.2122300,0.1800900,0.1538000,0.124580,0.0953700,0.0690700,
+  //				  0.0457000,0.0252500,0.0000000,0.000000};
+
+  //the following is the simulated angular acceptance (from the shape of the photocathod)
+  //this one is for a circular disk with diameter 9.4924 times more than the thickness
+  static G4double AngularAccSim[25]={1.0000000,0.9918517,0.9582652,0.9207074,0.8806175,0.8387114,0.7958993,
+  				     0.7517480,0.7070897,0.6620994,0.6161698,0.5694584,0.5227678,0.4755860,
+  				     0.4280702,0.3798288,0.3314666,0.2824911,0.2334168,0.1841306,0.1343228,
+  				     0.1839785,0.2335161,0.2826064,0.3313080};
+
+  //this one is for a circular disk with diameter 8.8182 times more than the thickness
+  //  static G4double AngularAccSim[25]={1.0000000,0.9950235,0.9629343,0.9261518,0.8864812,0.8454356,0.8033587,
+  //				     0.7598795,0.7153894,0.6707810,0.6250511,0.5787409,0.5323161,0.4855171,
+  //				     0.4375992,0.3897139,0.3414902,0.2929878,0.2436389,0.1941186,0.1443325,
+  //				     0.1941678,0.2437506,0.2926468,0.3413485};
+
+  static G4double AngularAccNorm[25];
+  static G4int flag=-1;
+  if(flag<0){
+    flag=1;
+    for(G4int ib=0 ; ib<25 ; ib++)AngularAccNorm[ib]=AngularAcc[ib]/AngularAccSim[ib];
+  }
+
+  if(cosangle >= 0.2)return false;
+  if(cosangle <=-1.0)return true;
+  int ib1;
+  for(ib1=23 ; ib1>=0 ; ib1--)if(cosangle>=AngularCos[ib1])break;
+  int ib2=ib1+1;
+  G4double AngAcc;
+  if(shapespherical)AngAcc=AngularAcc[ib1]+(cosangle-AngularCos[ib1])*(AngularAcc[ib2]-AngularAcc[ib1])/(AngularCos[ib2]-AngularCos[ib1]);
+  else AngAcc=AngularAccNorm[ib1]+(cosangle-AngularCos[ib1])*(AngularAccNorm[ib2]-AngularAccNorm[ib1])/(AngularCos[ib2]-AngularCos[ib1]);
+  if(G4UniformRand()<=AngAcc)return true;
+  return false;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+

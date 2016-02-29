@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gdml xmlns:gdml="http://cern.ch/2001/Schemas/GDML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/afs/cern.ch/sw/geant4/releases/share/geant4.9.5/source/persistency/gdml/schema/gdml.xsd" >
+<!-- OM is a multi-pmt OM containing 31 small pmts.
+     a detector for neutrino oscillations. 115 strings with 18 OMs each
+     OMs at a vertical distance of 6m
+     The positions of the string start from a regular hexagonal geometry 
+     with 20m inter-string distance and randomized flately with 2 meters
+     The lowest OM is 50 meters above sea bed
+-->
+<define>
+  <rotation name="identity"/>
+  <position name="zero"/>
+
+<!-- The Cathods positions and rotations in Multi-PMT OM  -->
+  <position name="CathodPosition1" unit="m" x="0.000000" y="0.000000" z="-0.200000"/>
+  <rotation name="CathodRotation1"  unit="deg" x="180.000000" y="0.000000" z="0.0"/>
+  <position name="CathodPosition2" unit="m" x="0.092000" y="0.053000" z="-0.169000"/>
+  <rotation name="CathodRotation2"  unit="deg" x="162.565125" y="-27.390596" z="0.0"/>
+  <position name="CathodPosition3" unit="m" x="0.000000" y="0.106000" z="-0.169000"/>
+  <rotation name="CathodRotation3"  unit="deg" x="147.915638" y="0.000000" z="0.0"/>
+  <position name="CathodPosition4" unit="m" x="-0.092000" y="0.053000" z="-0.169000"/>
+  <rotation name="CathodRotation4"  unit="deg" x="162.565125" y="27.390596" z="0.0"/>
+  <position name="CathodPosition5" unit="m" x="-0.092000" y="-0.053000" z="-0.169000"/>
+  <rotation name="CathodRotation5"  unit="deg" x="197.434875" y="27.390596" z="0.0"/>
+  <position name="CathodPosition6" unit="m" x="0.000000" y="-0.106000" z="-0.169000"/>
+  <rotation name="CathodRotation6"  unit="deg" x="212.084362" y="0.000000" z="0.0"/>
+  <position name="CathodPosition7" unit="m" x="0.092000" y="-0.053000" z="-0.169000"/>
+  <rotation name="CathodRotation7"  unit="deg" x="197.434875" y="-27.390596" z="0.0"/>
+  <position name="CathodPosition8" unit="m" x="0.166000" y="0.000000" z="-0.111000"/>
+  <rotation name="CathodRotation8"  unit="deg" x="180.000000" y="-56.135057" z="0.0"/>
+  <position name="CathodPosition9" unit="m" x="0.083000" y="0.144000" z="-0.111000"/>
+  <rotation name="CathodRotation9"  unit="deg" x="127.764481" y="-24.526703" z="0.0"/>
+  <position name="CathodPosition10" unit="m" x="-0.083000" y="0.144000" z="-0.111000"/>
+  <rotation name="CathodRotation10"  unit="deg" x="127.764481" y="24.526703" z="0.0"/>
+  <position name="CathodPosition11" unit="m" x="-0.166000" y="0.000000" z="-0.111000"/>
+  <rotation name="CathodRotation11"  unit="deg" x="180.000000" y="56.135057" z="0.0"/>
+  <position name="CathodPosition12" unit="m" x="-0.083000" y="-0.144000" z="-0.111000"/>
+  <rotation name="CathodRotation12"  unit="deg" x="232.235519" y="24.526703" z="0.0"/>
+  <position name="CathodPosition13" unit="m" x="0.083000" y="-0.144000" z="-0.111000"/>
+  <rotation name="CathodRotation13"  unit="deg" x="232.235519" y="-24.526703" z="0.0"/>
+  <position name="CathodPosition14" unit="m" x="0.165000" y="0.096000" z="-0.059000"/>
+  <rotation name="CathodRotation14"  unit="deg" x="121.767732" y="-55.790566" z="0.0"/>
+  <position name="CathodPosition15" unit="m" x="0.000000" y="0.191000" z="-0.059000"/>
+  <rotation name="CathodRotation15"  unit="deg" x="107.220699" y="0.000000" z="0.0"/>
+  <position name="CathodPosition16" unit="m" x="-0.165000" y="0.096000" z="-0.059000"/>
+  <rotation name="CathodRotation16"  unit="deg" x="121.767732" y="55.790566" z="0.0"/>
+  <position name="CathodPosition17" unit="m" x="-0.165000" y="-0.096000" z="-0.059000"/>
+  <rotation name="CathodRotation17"  unit="deg" x="238.232268" y="55.790566" z="0.0"/>
+  <position name="CathodPosition18" unit="m" x="0.000000" y="-0.191000" z="-0.059000"/>
+  <rotation name="CathodRotation18"  unit="deg" x="252.779301" y="0.000000" z="0.0"/>
+  <position name="CathodPosition19" unit="m" x="0.165000" y="-0.096000" z="-0.059000"/>
+  <rotation name="CathodRotation19"  unit="deg" x="238.232268" y="-55.790566" z="0.0"/>
+  <position name="CathodPosition20" unit="m" x="0.191000" y="0.000000" z="0.059000"/>
+  <rotation name="CathodRotation20"  unit="deg" x="0.000000" y="-72.779301" z="0.0"/>
+  <position name="CathodPosition21" unit="m" x="0.096000" y="0.165000" z="0.059000"/>
+  <rotation name="CathodRotation21"  unit="deg" x="70.306686" y="-28.554408" z="0.0"/>
+  <position name="CathodPosition22" unit="m" x="-0.096000" y="0.165000" z="0.059000"/>
+  <rotation name="CathodRotation22"  unit="deg" x="70.306686" y="28.554408" z="0.0"/>
+  <position name="CathodPosition23" unit="m" x="-0.191000" y="0.000000" z="0.059000"/>
+  <rotation name="CathodRotation23"  unit="deg" x="0.000000" y="72.779301" z="0.0"/>
+  <position name="CathodPosition24" unit="m" x="-0.096000" y="-0.165000" z="0.059000"/>
+  <rotation name="CathodRotation24"  unit="deg" x="289.693314" y="28.554408" z="0.0"/>
+  <position name="CathodPosition25" unit="m" x="0.096000" y="-0.165000" z="0.059000"/>
+  <rotation name="CathodRotation25"  unit="deg" x="289.693314" y="-28.554408" z="0.0"/>
+  <position name="CathodPosition26" unit="m" x="0.144000" y="0.083000" z="0.111000"/>
+  <rotation name="CathodRotation26"  unit="deg" x="36.688426" y="-45.988735" z="0.0"/>
+  <position name="CathodPosition27" unit="m" x="0.000000" y="0.166000" z="0.111000"/>
+  <rotation name="CathodRotation27"  unit="deg" x="56.135057" y="0.000000" z="0.0"/>
+  <position name="CathodPosition28" unit="m" x="-0.144000" y="0.083000" z="0.111000"/>
+  <rotation name="CathodRotation28"  unit="deg" x="36.688426" y="45.988735" z="0.0"/>
+  <position name="CathodPosition29" unit="m" x="-0.144000" y="-0.083000" z="0.111000"/>
+  <rotation name="CathodRotation29"  unit="deg" x="323.311574" y="45.988735" z="0.0"/>
+  <position name="CathodPosition30" unit="m" x="0.000000" y="-0.166000" z="0.111000"/>
+  <rotation name="CathodRotation30"  unit="deg" x="303.864943" y="0.000000" z="0.0"/>
+  <position name="CathodPosition31" unit="m" x="0.144000" y="-0.083000" z="0.111000"/>
+  <rotation name="CathodRotation31"  unit="deg" x="323.311574" y="-45.988735" z="0.0"/>
+
+<!-- a shift so that the mean cathode positions to be at zero-->
+  <position name="OMShift" unit="m" x="0" y="0" z="0.0392"/>
+
+<!-- The Floor Positions -->
+  <position name="OMPosition1" unit="m" x="0" y="0" z="0"/>
+
+<!-- The foot print of the inner detector-->
+  <position name="PosString1" unit="m" x="0" y="0" z="0"/>
+
+</define>
+<materials>
+</materials>
+<solids>
+  <box name="WorldBox" lunit="m" x="2.5" y="2.5" z="2.5"/>
+
+  <box name="TowerBox" lunit="m" x="1" y="1" z="1"/>
+
+  <box name="StoreyBox" lunit="m" x="0.6" y="0.6" z="0.6"/>
+
+  <sphere name="OMSphere" lunit="cm" aunit="deg" rmin="0.0" rmax="21.6" startphi="0.0" deltaphi="360.0" starttheta="0.0" deltatheta="180.0"/>
+  <tube name="CathodTube" lunit="cm" aunit="deg" rmin="0.0" rmax="4.7462" z="0.5" startphi="0.0" deltaphi="360.0"/>
+
+</solids>
+
+<structure>
+  <volume name="CathodVolume">
+    <materialref ref="Cathod"/>
+    <solidref ref="CathodTube"/>
+  </volume>
+
+<!-- OMVolume construction -->
+  <volume name="OMVolume">
+    <materialref ref="Water"/>
+    <solidref ref="OMSphere"/>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition1"/>
+      <rotationref ref="CathodRotation1"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition2"/>
+      <rotationref ref="CathodRotation2"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition3"/>
+      <rotationref ref="CathodRotation3"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition4"/>
+      <rotationref ref="CathodRotation4"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition5"/>
+      <rotationref ref="CathodRotation5"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition6"/>
+      <rotationref ref="CathodRotation6"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition7"/>
+      <rotationref ref="CathodRotation7"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition8"/>
+      <rotationref ref="CathodRotation8"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition9"/>
+      <rotationref ref="CathodRotation9"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition10"/>
+      <rotationref ref="CathodRotation10"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition11"/>
+      <rotationref ref="CathodRotation11"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition12"/>
+      <rotationref ref="CathodRotation12"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition13"/>
+      <rotationref ref="CathodRotation13"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition14"/>
+      <rotationref ref="CathodRotation14"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition15"/>
+      <rotationref ref="CathodRotation15"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition16"/>
+      <rotationref ref="CathodRotation16"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition17"/>
+      <rotationref ref="CathodRotation17"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition18"/>
+      <rotationref ref="CathodRotation18"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition19"/>
+      <rotationref ref="CathodRotation19"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition20"/>
+      <rotationref ref="CathodRotation20"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition21"/>
+      <rotationref ref="CathodRotation21"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition22"/>
+      <rotationref ref="CathodRotation22"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition23"/>
+      <rotationref ref="CathodRotation23"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition24"/>
+      <rotationref ref="CathodRotation24"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition25"/>
+      <rotationref ref="CathodRotation25"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition26"/>
+      <rotationref ref="CathodRotation26"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition27"/>
+      <rotationref ref="CathodRotation27"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition28"/>
+      <rotationref ref="CathodRotation28"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition29"/>
+      <rotationref ref="CathodRotation29"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition30"/>
+      <rotationref ref="CathodRotation30"/>
+    </physvol>
+
+    <physvol>
+      <volumeref ref="CathodVolume"/>
+      <positionref ref="CathodPosition31"/>
+      <rotationref ref="CathodRotation31"/>
+    </physvol>
+
+  </volume>
+
+<!-- StoreyVolume construction -->
+  <volume name="StoreyVolume">
+    <materialref ref="Water"/>
+    <solidref ref="StoreyBox"/>
+    <physvol>
+      <volumeref ref="OMVolume"/>
+      <positionref ref="OMShift"/>
+      <rotationref ref="identity"/>
+    </physvol>
+  </volume>
+
+<!-- TowerVolume construction -->
+  <volume name="TowerVolume">
+    <materialref ref="Water"/>
+    <solidref ref="TowerBox"/>
+
+    <physvol>
+      <volumeref ref="StoreyVolume"/>
+      <positionref ref="OMPosition1"/>
+      <rotationref ref="identity"/>
+    </physvol>
+
+  </volume>
+
+<!-- World Volume construction-->
+  <volume name="WorldVolume">
+    <materialref ref="Water"/>
+    <solidref ref="WorldBox"/>
+
+    <!-- here goes the positioning of the strings (towers) -->
+
+    <physvol>
+      <volumeref ref="TowerVolume"/>
+      <positionref ref="PosString1"/>
+      <rotationref ref="identity"/>
+    </physvol>
+
+  </volume>
+
+</structure>
+
+<setup name="Default" version="1.0">
+  <world ref="WorldVolume"/>
+</setup>
+</gdml>
