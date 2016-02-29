@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iomanip>
 
+#include "docopt.h"
+
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
@@ -36,6 +38,13 @@ static const char USAGE[] =
 )";
 
 int main(int argc, char *argv[]) {
+  str::map<std::string, doctopt::value> args =
+    doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
+  for (auto const& arg: args) {
+    std::cout << arg.fist << arg.second << std::endl;
+  }
+
+
   // check and input the seed
   if (argv[2] == NULL) {
     std::cout << "You must give a random seed\n";
