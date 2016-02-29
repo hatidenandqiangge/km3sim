@@ -6,9 +6,9 @@
 #include "G4UItcsh.hh"
 #include "G4UnitsTable.hh"
 #ifdef G4VIS_USE
-#include "G4VisExecutive.hh"
-#include "G4TrajectoryDrawByParticleID.hh"
-#include "G4TrajectoryParticleFilter.hh"
+  #include "G4VisExecutive.hh"
+  #include "G4TrajectoryDrawByParticleID.hh"
+  #include "G4TrajectoryParticleFilter.hh"
 #endif
 
 #include "KM3Sim.h"
@@ -20,9 +20,9 @@
 #include "KM3EventAction.hh"
 
 #ifdef G4MYHAMUONS_PARAMETERIZATION
-#include <iostream>
-#include <fstream>
-#include <iomanip>
+  #include <iostream>
+  #include <fstream>
+  #include <iomanip>
 #endif
 
 static const char USAGE[] =
