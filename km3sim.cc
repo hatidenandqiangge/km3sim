@@ -42,7 +42,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   G4long myseed = atol(argv[2]);
-  std::cout << myseed << G4endl;
   CLHEP::HepRandom::setTheSeed(myseed);
 
   // check for the output file
@@ -85,8 +84,7 @@ int main(int argc, char *argv[]) {
     }
     fileParticles = argv[9];
     if (argv[10] == NULL) {
-      std::cout << "You must give a file with particle information from pythia"
-             << G4endl;
+      std::cout << "You must give a file with particle information from pythia\n";
       return 1;
     }
     filePythiaParticles = argv[10];
@@ -118,8 +116,7 @@ int main(int argc, char *argv[]) {
       ParamNumber = atoi(argv[11]);
     }
     if (argv[12] == NULL) {
-      std::cout << "You must give the PDG code of the particle for Param"
-             << G4endl;
+      std::cout << "You must give the PDG code of the particle for Param\n";
       return 1;
     } else {
       ParamParticle = atoi(argv[12]);
@@ -139,22 +136,19 @@ int main(int argc, char *argv[]) {
     }
     fileParticles = argv[9];
     if (argv[10] == NULL) {
-      std::cout << "You must give a file with particle information from pythia"
-             << G4endl;
+      std::cout << "You must give a file with particle information from pythia\n";
       return 1;
     }
     filePythiaParticles = argv[10];
     if (argv[11] == NULL) {
       std::cout << "You must give a file to write high energy muon information "
-                "for HA parameterization"
-             << G4endl;
+                "for HA parameterization\n";
       return 1;
     }
     fileParamHAmuons = argv[11]; // this is fed to stacking and generator
     if (argv[12] == NULL) {
       std::cout << "You must give a file to write photon information for HA "
-                "parameterization"
-             << G4endl;
+                "parameterization\n";
       return 1;
     } else {
       if ((outfilePar = fopen(argv[12], "w")) ==
@@ -220,8 +214,7 @@ int main(int argc, char *argv[]) {
       ParamNumber = atoi(argv[11]);
     }
     if (argv[12] == NULL) {
-      std::cout << "You must give the PDG code of the particle for Param"
-             << G4endl;
+      std::cout << "You must give the PDG code of the particle for Param\n";
       return 1;
     } else {
       ParamParticle = atoi(argv[12]);
@@ -255,8 +248,7 @@ int main(int argc, char *argv[]) {
 #ifdef G4MYHAMUONS_PARAMETERIZATION
   if (fileParamHAmuons == NULL) {
     std::cout << "G4MYHA_PARAMETERIZATION preprocessor flag must be combined with "
-              "ParamHA 7th command line argument"
-           << G4endl;
+              "ParamHA 7th command line argument\n";
     return 1;
   }
 #endif
