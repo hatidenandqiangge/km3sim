@@ -5,11 +5,6 @@
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
 #include "G4UnitsTable.hh"
-#ifdef G4VIS_USE
-  #include "G4VisExecutive.hh"
-  #include "G4TrajectoryDrawByParticleID.hh"
-  #include "G4TrajectoryParticleFilter.hh"
-#endif
 
 #include "KM3Sim.h"
 #include "KM3Physics.hh"
@@ -71,7 +66,7 @@ int main(int argc, char *argv[]) {
   // read the name of the HA parametrization
   char *HAParametrization_FILE = argv[7];
 
-  //------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   // check the rest of the command line and input filenames
   G4bool useHEPEvt;
   G4bool useANTARESformat;
@@ -268,7 +263,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 #endif
-  //--------------------------------------------------------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   // open the output file
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
@@ -290,8 +285,6 @@ int main(int argc, char *argv[]) {
   KM3Physics *MyPhys = new KM3Physics;
   runManager->SetUserInitialization(MyPhys);
   MyPhys->aDetector = Mydet;
-  Mydet->vrmlhits = visuale;
-  Mydet->DrawDetector = visual;
   Mydet->Geometry_File = Geometry_File;
   Mydet->Parameter_File = Parameter_File;
   Mydet->EMParametrization_FILE = EMParametrization_FILE;
@@ -340,34 +333,6 @@ int main(int argc, char *argv[]) {
   Mydet->myPhotonsTh3 = myPhotonsTh3;
 #endif
 
-#ifdef G4VIS_USE
-  // Visualization, if you choose to have it!
-  // ftest  G4VisManager* visManager = new KM3Visualisation;
-  // ftest  visManager->Initialize();
-
-  G4VisManager *visManager = new G4VisExecutive;
-  visManager->Initialize();
-  G4TrajectoryDrawByParticleID *model =
-      new G4TrajectoryDrawByParticleID("KM3TrajectoryModel");
-  model->SetDefault(G4Colour(1.0, 1.0, 1.0, 0.0)); // transparent white
-  model->Set("mu-", "red"); // assign red to mu-
-  model->Set("mu+", "red"); // also to mu+
-  //  model->Set("e+", "magenta");
-  // model->Set("e-", "magenta");
-  //  model->Set("gamma", "green");
-  // model->Set("opticalphoton", "green");
-  visManager->RegisterModel(model);
-  visManager->SelectTrajectoryModel(model->Name());
-  G4TrajectoryParticleFilter *modelFilter =
-      new G4TrajectoryParticleFilter("KM3TrajectoryFilterModel");
-  modelFilter->Add("mu-"); // show the mu- trajectories
-  modelFilter->Add("mu+"); // also the mu+
-  //  modelFilter->Add("e+");
-  //  modelFilter->Add("e-");
-  //  modelFilter->Add("gamma");
-  // modelFilter->Add("opticalphoton");
-  visManager->RegisterModel(modelFilter);
-#endif
 
   // set mandatory user action class
   runManager->SetNumberOfEventsToBeStored(0);
@@ -462,20 +427,6 @@ int main(int argc, char *argv[]) {
   //    UI->ApplyCommand("/process/verbose 1");
   // UI->ApplyCommand("/hits/verbose 1");
 
-  if (visual) {
-    UI->ApplyCommand("/vis/open VRML2FILE");
-    // UI->ApplyCommand("/vis/open DAWNFILE");
-    UI->ApplyCommand("/vis/scene/create");
-    UI->ApplyCommand("/vis/drawVolume");
-    if (visuale) {
-      UI->ApplyCommand("/vis/scene/add/trajectories");
-      //      UI->ApplyCommand("/vis/scene/add/hits");
-      UI->ApplyCommand("/vis/sceneHandler/attach");
-      UI->ApplyCommand("/tracking/storeTrajectory 1");
-    } else {
-      UI->ApplyCommand("/vis/viewer/flush");
-    }
-  }
 #ifdef G4DISABLE_PARAMETRIZATION
   // inactivate the parametrization
   UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
@@ -524,9 +475,6 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
-  if (visual && visuale) {
-    UI->ApplyCommand("/vis/viewer/flush");
-  }
   //   session->SessionStart();
   // delete session;
 
@@ -546,10 +494,6 @@ int main(int argc, char *argv[]) {
   outMuonHAFile->close();
 #endif
 
-#ifdef G4VIS_USE
-  // Visualization, if you choose to have it!
-  delete visManager;
-#endif
   delete runManager;
   return 0;
 }
