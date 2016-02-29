@@ -33,7 +33,14 @@ static const char USAGE[] =
     km3sim --version
 
   Options:
-    -h --help   Show this screen.
+    --seed=<sd>       Set the seed for the random number generator.
+    --geometry=<gf>   File with detector geometry.
+    -o --output       File to write into.
+    -i --input        File with input parameters.
+    --em=<ef>         File with ElectoMagnetic parametrization.
+    --hadronic=<hf>   File with Hadronic parametrization.
+    -h --help         Show this screen.
+    --version         Display the current version.
 )";
 
 int main(int argc, char *argv[]) {
