@@ -32,8 +32,6 @@ static const char USAGE[] =
     --geometry=<gf>   File with detector geometry.
     -o --output       File to write into.
     -i --input        File with input parameters.
-    --em=<ef>         File with ElectoMagnetic parametrization.
-    --hadronic=<hf>   File with Hadronic parametrization.
     -h --help         Show this screen.
     --version         Display the current version.
 )";
@@ -50,12 +48,9 @@ int main(int argc, char *argv[]) {
 
   char *Geometry_File = argv[4];
   char *Parameter_File = argv[5];
-  char *EMParametrization_FILE = argv[6];
-  char *HAParametrization_FILE = argv[7];
 
   G4bool useHEPEvt;
   char *fileParticles;
-  char *fileParamHAmuons = NULL;
   FILE *outfilePar;
   G4double ParamEnergy;
   G4int ParamNumber;
@@ -76,8 +71,6 @@ int main(int argc, char *argv[]) {
   MyPhys->aDetector = Mydet;
   Mydet->Geometry_File = Geometry_File;
   Mydet->Parameter_File = Parameter_File;
-  Mydet->EMParametrization_FILE = EMParametrization_FILE;
-  Mydet->HAParametrization_FILE = HAParametrization_FILE;
   Mydet->outfilePar = outfilePar;
 
   // set mandatory user action class
