@@ -186,13 +186,6 @@ int main(int argc, char *argv[]) {
   runManager->SetUserAction(myStepping);
   // Initialize G4 kernel
   runManager->Initialize();
-  //   for (G4int iom=0 ; iom < Mydet->allOMs->size() ; iom++){
-  //     std::cout << G4BestUnit((*(Mydet->allOMs))[iom]->position(0),"Length")
-  // 	   << G4BestUnit((*(Mydet->allOMs))[iom]->position(1),"Length")
-  // 	   << G4BestUnit((*(Mydet->allOMs))[iom]->position(2),"Length")
-  // 	   << G4BestUnit((*(Mydet->allOMs))[iom]->radius,"Length") <<"   "<< iom
-  // <<"\n";
-  //   }
 
   // get the pointer to the UI manager and set verbosities
   G4UImanager *UI = G4UImanager::GetUIpointer();
@@ -203,13 +196,6 @@ int main(int argc, char *argv[]) {
   session = new G4UIterminal();
 #endif
 
-  // UI->ApplyCommand("/control/execute myrun.mac");
-
-  //  UI->ApplyCommand("/event/verbose 0");
-  //  UI->ApplyCommand("/control/verbose 0");
-  //    UI->ApplyCommand("/tracking/verbose 1");
-  //    UI->ApplyCommand("/process/verbose 1");
-  // UI->ApplyCommand("/hits/verbose 1");
 
 #ifdef G4DISABLE_PARAMETRIZATION
   // inactivate the parametrization
@@ -217,10 +203,6 @@ int main(int argc, char *argv[]) {
   std::cout << "the shower parametrization not used\n";
 #endif
 
-  //  UI->ApplyCommand("/geometry/test/grid_test true");
-
-  // start a run
-  // UI->ApplyCommand("/control/suppressAbortion 2");
   runManager->SetVerboseLevel(1);
 #ifdef G4MYFIT_PARAMETERIZATION
   runManager->BeamOn(ParamNumber);
@@ -258,9 +240,6 @@ int main(int argc, char *argv[]) {
       fprintf(outfilePar, "%.20Le\n", (*myPhotonsTime)[j]);
   }
 #endif
-
-  //   session->SessionStart();
-  // delete session;
 
   // job termination
   delete TheEVTtoWrite;
