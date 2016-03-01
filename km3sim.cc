@@ -69,10 +69,9 @@ int main(int argc, char *argv[]) {
   //------------------------------------------------------------------------------------------------------------------------------------------------
   G4RunManager *runManager = new G4RunManager;
 
-  // UserInitialization classes (mandatory)
   KM3Detector *Mydet = new KM3Detector;
-  runManager->SetUserInitialization(Mydet);
   KM3Physics *MyPhys = new KM3Physics;
+  runManager->SetUserInitialization(Mydet);
   runManager->SetUserInitialization(MyPhys);
   MyPhys->aDetector = Mydet;
   Mydet->Geometry_File = Geometry_File;
@@ -122,7 +121,6 @@ int main(int argc, char *argv[]) {
   Mydet->myPhotonsTh2 = myPhotonsTh2;
   Mydet->myPhotonsTh3 = myPhotonsTh3;
 #endif
-
 
   // set mandatory user action class
   runManager->SetNumberOfEventsToBeStored(0);
@@ -191,11 +189,7 @@ int main(int argc, char *argv[]) {
   // get the pointer to the UI manager and set verbosities
   G4UImanager *UI = G4UImanager::GetUIpointer();
   G4UIsession *session = 0;
-#ifdef G4UI_USE_TCSH
-  session = new G4UIterminal(new G4UItcsh);
-#else
   session = new G4UIterminal();
-#endif
 
 
 #ifdef G4DISABLE_PARAMETRIZATION
