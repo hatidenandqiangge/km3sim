@@ -17,6 +17,7 @@
 #include "KM3TrackingAction.hh"
 #include "KM3SteppingAction.hh"
 #include "KM3EventAction.hh"
+#include "KM3Detector.hh"
 
 
 static const char USAGE[] =
