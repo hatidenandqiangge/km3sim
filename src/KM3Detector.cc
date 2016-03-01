@@ -81,14 +81,6 @@ KM3Detector::~KM3Detector() {
 #endif
 }
 
-// newgeant void KM3Detector::sxpInitialize()
-// newgeant{
-// newgeant  //sax
-// newgeant  sxp.Initialize();
-// newgeant  config.SetURI( Geometry_File );
-// newgeant  config.SetSetupName( "Default" );
-// newgeant  sxp.Configure( &config );
-// newgeant}
 
 void KM3Detector::FindDetectorRadius() {
   G4double absdetectorRadius = 0.0;
@@ -216,18 +208,6 @@ void KM3Detector::SetUpVariables() {
         fscanf(infile, "%s\n", expression);
         ABSORPTION_WATER[NUMENTRIES - 1] =
             Water_Transparency / fCalc.evaluate(expression);
-#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
-    !defined(G4MYK40_PARAMETERIZATION)
-        // here we put a virtual absorption length (300m) to a large value to
-        // have more photons detected on large distances
-        // next in KM3SD we calculate the probability of the photons according
-        // to the true absorption length we keep
-        // in the water properties
-        for (G4int i = 0; i < NUMENTRIES; i++) {
-          ABSORPTION_WATER_TRUE[i] = ABSORPTION_WATER[i];
-          ABSORPTION_WATER[i] = 500.0 * m;
-        }
-#endif
       } else if (thename == String5) {
         readvalues[5] = 1;
         if (NUMENTRIES < 0)
@@ -621,11 +601,6 @@ void KM3Detector::ConstructMaterials() {
   Properties_Water->AddProperty("RINDEX", PPCKOV, RINDEX_WATER, NUMENTRIES);
   Properties_Water->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_WATER,
                                 NUMENTRIES);
-#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
-    !defined(G4MYK40_PARAMETERIZATION)
-  Properties_Water->AddProperty("ABSLENGTH_TRUE", PPCKOV, ABSORPTION_WATER_TRUE,
-                                NUMENTRIES);
-#endif
   Properties_Water->AddProperty("MIELENGTH", PPCKOV, SCATTER_WATER, NUMENTRIES);
   Properties_Water->AddConstProperty("MIEPHASE", MieModel);
   Water->SetMaterialPropertiesTable(Properties_Water);
@@ -866,13 +841,6 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   KM3SD *aMySD = new KM3SD(MySDname);
   aMySD->SetVerboseLevel(1);
   aMySD->myStDetector = this;
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
-  aMySD->myPhotonsNumber = myPhotonsNumber;
-  aMySD->myPhotonsTime = myPhotonsTime;
-  aMySD->myPhotonsTh2Th3Num = myPhotonsTh2Th3Num;
-  aMySD->myPhotonsTh2 = myPhotonsTh2;
-  aMySD->myPhotonsTh3 = myPhotonsTh3;
-#endif
   SDman->AddNewDetector(aMySD);
 
   // next find the Cathod && Dead logical volumes and assign them the sensitive
@@ -987,30 +955,15 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   G4int nnn1 = 1;
   G4int nben = allCathods->GetNumberOfCathods();
 
-  // here in case of antares evt format I should write something general about
-  // simulation
-  if (useANTARESformat)
-    TheEVTtoWrite->ReadRunHeader();
-
-  if (outfile == NULL && !useANTARESformat)
+  if (outfile == NULL)
     G4cout << "ERROR OUTFILE\n" << G4endl;
 
 #ifdef G4PRINT_HEADER
-  if (!useANTARESformat) {
-    fprintf(outfile, "%d %d %d %d %d %d %d %d %d %d %f %f %d %d\n", nnn0, nnn1,
-            nnn1, nnn1, nben, nnn0, nnn0, nnn0, nnn0, nnn0, Water_Transparency,
-            Quantum_Efficiency, nnn0, nnn0);
-    allCathods->PrintAllCathods(outfile);
-  } else {
-    FILE *oofile = fopen("PmtPositionsAndDirections", "w");
-    fprintf(oofile, "%d %f\n", nben, Quantum_Efficiency);
-    allCathods->PrintAllCathods(oofile);
-    fclose(oofile);
-  }
+  fprintf(outfile, "%d %d %d %d %d %d %d %d %d %d %f %f %d %d\n", nnn0, nnn1,
+          nnn1, nnn1, nben, nnn0, nnn0, nnn0, nnn0, nnn0, Water_Transparency,
+          Quantum_Efficiency, nnn0, nnn0);
+  allCathods->PrintAllCathods(outfile);
 #endif
-
-  if (useANTARESformat)
-    TheEVTtoWrite->WriteRunHeader();
 
 #if !defined(G4ENABLE_MIE) ||                                                  \
     (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
