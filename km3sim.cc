@@ -1,15 +1,14 @@
-#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
+#include "docopt.h"
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
 #include "G4UnitsTable.hh"
-#ifdef G4VIS_USE
-#include "G4VisExecutive.hh"
-#include "G4TrajectoryDrawByParticleID.hh"
-#include "G4TrajectoryParticleFilter.hh"
-#endif
 
 #include "KM3Sim.h"
 #include "KM3Physics.hh"
@@ -19,11 +18,6 @@
 #include "KM3SteppingAction.hh"
 #include "KM3EventAction.hh"
 
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#endif
 
 static const char USAGE[] =
     R"(km3sim.
@@ -33,22 +27,35 @@ static const char USAGE[] =
     km3sim --version
 
   Options:
-    -h --help   Show this screen.
+    --seed=<sd>       Set the seed for the random number generator.
+    --geometry=<gf>   File with detector geometry.
+    -o --output       File to write into.
+    -i --input        File with input parameters.
+    --em=<ef>         File with ElectoMagnetic parametrization.
+    --hadronic=<hf>   File with Hadronic parametrization.
+    -h --help         Show this screen.
+    --version         Display the current version.
 )";
 
 int main(int argc, char *argv[]) {
+  str::map<std::string, doctopt::value> args =
+    doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
+  for (auto const& arg: args) {
+    std::cout << arg.fist << arg.second << std::endl;
+  }
+
+
   // check and input the seed
   if (argv[2] == NULL) {
-    G4cout << "You must give a random seed" << G4endl;
+    std::cout << "You must give a random seed\n";
     return 1;
   }
   G4long myseed = atol(argv[2]);
-  G4cout << myseed << G4endl;
   CLHEP::HepRandom::setTheSeed(myseed);
 
   // check for the output file
   if (argv[3] == NULL) {
-    G4cout << "You must give an output file" << G4endl;
+    std::cout << "You must give an output file\n";
     return 1;
   }
 
@@ -64,7 +71,7 @@ int main(int argc, char *argv[]) {
   // read the name of the HA parametrization
   char *HAParametrization_FILE = argv[7];
 
-  //------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   // check the rest of the command line and input filenames
   G4bool useHEPEvt;
   G4bool useANTARESformat;
@@ -81,13 +88,12 @@ int main(int argc, char *argv[]) {
     useHEPEvt = true;
     useANTARESformat = false;
     if (argv[9] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
+      std::cout << "You must give an input file\n";
       return 1;
     }
     fileParticles = argv[9];
     if (argv[10] == NULL) {
-      G4cout << "You must give a file with particle information from pythia"
-             << G4endl;
+      std::cout << "You must give a file with particle information from pythia\n";
       return 1;
     }
     filePythiaParticles = argv[10];
@@ -98,29 +104,28 @@ int main(int argc, char *argv[]) {
     useHEPEvt = false;
     useANTARESformat = false;
     if (argv[9] == NULL) {
-      G4cout << "You must give an output param file" << G4endl;
+      std::cout << "You must give an output param file\n";
       return 1;
     } else {
       if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-        printf("Error open output Param file\n");
+        std::cout << "Error open output Param file\n";
         return 1;
       }
     }
     if (argv[10] == NULL) {
-      G4cout << "You must give an energy in GeV for Param" << G4endl;
+      std::cout << "You must give an energy in GeV for Param\n";
       return 1;
     } else {
       ParamEnergy = GeV * atof(argv[10]);
     }
     if (argv[11] == NULL) {
-      G4cout << "You must give the number of events for Param" << G4endl;
+      std::cout << "You must give the number of events for Param\n";
       return 1;
     } else {
       ParamNumber = atoi(argv[11]);
     }
     if (argv[12] == NULL) {
-      G4cout << "You must give the PDG code of the particle for Param"
-             << G4endl;
+      std::cout << "You must give the PDG code of the particle for Param\n";
       return 1;
     } else {
       ParamParticle = atoi(argv[12]);
@@ -135,33 +140,30 @@ int main(int argc, char *argv[]) {
     useHEPEvt = true;
     useANTARESformat = false;
     if (argv[9] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
+      std::cout << "You must give an input file\n";
       return 1;
     }
     fileParticles = argv[9];
     if (argv[10] == NULL) {
-      G4cout << "You must give a file with particle information from pythia"
-             << G4endl;
+      std::cout << "You must give a file with particle information from pythia\n";
       return 1;
     }
     filePythiaParticles = argv[10];
     if (argv[11] == NULL) {
-      G4cout << "You must give a file to write high energy muon information "
-                "for HA parameterization"
-             << G4endl;
+      std::cout << "You must give a file to write high energy muon information "
+                "for HA parameterization\n";
       return 1;
     }
     fileParamHAmuons = argv[11]; // this is fed to stacking and generator
     if (argv[12] == NULL) {
-      G4cout << "You must give a file to write photon information for HA "
-                "parameterization"
-             << G4endl;
+      std::cout << "You must give a file to write photon information for HA "
+                "parameterization\n";
       return 1;
     } else {
       if ((outfilePar = fopen(argv[12], "w")) ==
           NULL) { // this works the same way as in ParamEM
-        printf("Error open output Param photon file for Hadronic "
-               "parameterization\n");
+        std::cout << "Error open output Param photon file for Hadronic "
+               "parameterization\n";
         return 1;
       }
     }
@@ -173,22 +175,22 @@ int main(int argc, char *argv[]) {
     useHEPEvt = false;
     useANTARESformat = false;
     if (argv[9] == NULL) {
-      G4cout << "You must give an output param file" << G4endl;
+      std::cout << "You must give an output param file\n";
       return 1;
     } else {
       if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-        printf("Error open output Param file\n");
+        std::cout << "Error open output Param file\n";
         return 1;
       }
     }
     if (argv[10] == NULL) {
-      G4cout << "You must give an energy in GeV for Param" << G4endl;
+      std::cout << "You must give an energy in GeV for Param\n";
       return 1;
     } else {
       ParamEnergy = GeV * atof(argv[10]);
     }
     if (argv[11] == NULL) {
-      G4cout << "You must give the number of events for Param" << G4endl;
+      std::cout << "You must give the number of events for Param\n";
       return 1;
     } else {
       ParamNumber = atoi(argv[11]);
@@ -200,29 +202,28 @@ int main(int argc, char *argv[]) {
     useHEPEvt = false;
     useANTARESformat = false;
     if (argv[9] == NULL) {
-      G4cout << "You must give an output param file" << G4endl;
+      std::cout << "You must give an output param file\n";
       return 1;
     } else {
       if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-        printf("Error open output Param file\n");
+        std::cout << "Error open output Param file\n";
         return 1;
       }
     }
     if (argv[10] == NULL) {
-      G4cout << "You must give an energy in GeV for Param" << G4endl;
+      std::cout << "You must give an energy in GeV for Param\n";
       return 1;
     } else {
       ParamEnergy = GeV * atof(argv[10]);
     }
     if (argv[11] == NULL) {
-      G4cout << "You must give the number of events for Param" << G4endl;
+      std::cout << "You must give the number of events for Param\n";
       return 1;
     } else {
       ParamNumber = atoi(argv[11]);
     }
     if (argv[12] == NULL) {
-      G4cout << "You must give the PDG code of the particle for Param"
-             << G4endl;
+      std::cout << "You must give the PDG code of the particle for Param\n";
       return 1;
     } else {
       ParamParticle = atoi(argv[12]);
@@ -240,13 +241,13 @@ int main(int argc, char *argv[]) {
     useHEPEvt = true;
     useANTARESformat = true;
     if (argv[9] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
+      std::cout << "You must give an input file\n";
       return 1;
     }
     fileParticles = argv[9];
   } else {
     if (argv[8] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
+      std::cout << "You must give an input file\n";
       return 1;
     }
     useHEPEvt = false;
@@ -255,19 +256,18 @@ int main(int argc, char *argv[]) {
   }
 #ifdef G4MYHAMUONS_PARAMETERIZATION
   if (fileParamHAmuons == NULL) {
-    G4cout << "G4MYHA_PARAMETERIZATION preprocessor flag must be combined with "
-              "ParamHA 7th command line argument"
-           << G4endl;
+    std::cout << "G4MYHA_PARAMETERIZATION preprocessor flag must be combined with "
+              "ParamHA 7th command line argument\n";
     return 1;
   }
 #endif
-  //--------------------------------------------------------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   // open the output file
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
   if (!useANTARESformat) {
     if ((savefile = fopen(argv[3], "w")) == NULL) {
-      printf("Error open file\n");
+      std::cout << "Error open file\n";
       return 1;
     }
   } else {
@@ -283,8 +283,6 @@ int main(int argc, char *argv[]) {
   KM3Physics *MyPhys = new KM3Physics;
   runManager->SetUserInitialization(MyPhys);
   MyPhys->aDetector = Mydet;
-  Mydet->vrmlhits = visuale;
-  Mydet->DrawDetector = visual;
   Mydet->Geometry_File = Geometry_File;
   Mydet->Parameter_File = Parameter_File;
   Mydet->EMParametrization_FILE = EMParametrization_FILE;
@@ -333,34 +331,6 @@ int main(int argc, char *argv[]) {
   Mydet->myPhotonsTh3 = myPhotonsTh3;
 #endif
 
-#ifdef G4VIS_USE
-  // Visualization, if you choose to have it!
-  // ftest  G4VisManager* visManager = new KM3Visualisation;
-  // ftest  visManager->Initialize();
-
-  G4VisManager *visManager = new G4VisExecutive;
-  visManager->Initialize();
-  G4TrajectoryDrawByParticleID *model =
-      new G4TrajectoryDrawByParticleID("KM3TrajectoryModel");
-  model->SetDefault(G4Colour(1.0, 1.0, 1.0, 0.0)); // transparent white
-  model->Set("mu-", "red"); // assign red to mu-
-  model->Set("mu+", "red"); // also to mu+
-  //  model->Set("e+", "magenta");
-  // model->Set("e-", "magenta");
-  //  model->Set("gamma", "green");
-  // model->Set("opticalphoton", "green");
-  visManager->RegisterModel(model);
-  visManager->SelectTrajectoryModel(model->Name());
-  G4TrajectoryParticleFilter *modelFilter =
-      new G4TrajectoryParticleFilter("KM3TrajectoryFilterModel");
-  modelFilter->Add("mu-"); // show the mu- trajectories
-  modelFilter->Add("mu+"); // also the mu+
-  //  modelFilter->Add("e+");
-  //  modelFilter->Add("e-");
-  //  modelFilter->Add("gamma");
-  // modelFilter->Add("opticalphoton");
-  visManager->RegisterModel(modelFilter);
-#endif
 
   // set mandatory user action class
   runManager->SetNumberOfEventsToBeStored(0);
@@ -431,7 +401,7 @@ int main(int argc, char *argv[]) {
   // Initialize G4 kernel
   runManager->Initialize();
   //   for (G4int iom=0 ; iom < Mydet->allOMs->size() ; iom++){
-  //     G4cout << G4BestUnit((*(Mydet->allOMs))[iom]->position(0),"Length")
+  //     std::cout << G4BestUnit((*(Mydet->allOMs))[iom]->position(0),"Length")
   // 	   << G4BestUnit((*(Mydet->allOMs))[iom]->position(1),"Length")
   // 	   << G4BestUnit((*(Mydet->allOMs))[iom]->position(2),"Length")
   // 	   << G4BestUnit((*(Mydet->allOMs))[iom]->radius,"Length") <<"   "<< iom
@@ -455,24 +425,10 @@ int main(int argc, char *argv[]) {
   //    UI->ApplyCommand("/process/verbose 1");
   // UI->ApplyCommand("/hits/verbose 1");
 
-  if (visual) {
-    UI->ApplyCommand("/vis/open VRML2FILE");
-    // UI->ApplyCommand("/vis/open DAWNFILE");
-    UI->ApplyCommand("/vis/scene/create");
-    UI->ApplyCommand("/vis/drawVolume");
-    if (visuale) {
-      UI->ApplyCommand("/vis/scene/add/trajectories");
-      //      UI->ApplyCommand("/vis/scene/add/hits");
-      UI->ApplyCommand("/vis/sceneHandler/attach");
-      UI->ApplyCommand("/tracking/storeTrajectory 1");
-    } else {
-      UI->ApplyCommand("/vis/viewer/flush");
-    }
-  }
 #ifdef G4DISABLE_PARAMETRIZATION
   // inactivate the parametrization
   UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
-  G4cout << "the shower parametrization not used" << G4endl;
+  std::cout << "the shower parametrization not used\n";
 #endif
 
   //  UI->ApplyCommand("/geometry/test/grid_test true");
@@ -517,9 +473,6 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
-  if (visual && visuale) {
-    UI->ApplyCommand("/vis/viewer/flush");
-  }
   //   session->SessionStart();
   // delete session;
 
@@ -539,10 +492,6 @@ int main(int argc, char *argv[]) {
   outMuonHAFile->close();
 #endif
 
-#ifdef G4VIS_USE
-  // Visualization, if you choose to have it!
-  delete visManager;
-#endif
   delete runManager;
   return 0;
 }
