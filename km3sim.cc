@@ -53,7 +53,6 @@ int main(int argc, char *argv[]) {
   char *HAParametrization_FILE = argv[7];
 
   G4bool useHEPEvt;
-  G4bool useANTARESformat;
   char *fileParticles;
   char *fileParamHAmuons = NULL;
   FILE *outfilePar;
@@ -65,14 +64,7 @@ int main(int argc, char *argv[]) {
   // open the output file
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
-  if (!useANTARESformat) {
-    if ((savefile = fopen(argv[3], "w")) == NULL) {
-      std::cout << "Error open file\n";
-      return 1;
-    }
-  } else {
-    TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
-  }
+  TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
   //------------------------------------------------------------------------------------------------------------------------------------------------
   G4RunManager *runManager = new G4RunManager;
 
@@ -137,7 +129,6 @@ int main(int argc, char *argv[]) {
   KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
   myGeneratorAction->outfile = savefile;
   myGeneratorAction->useHEPEvt = useHEPEvt;
-  myGeneratorAction->useANTARESformat = useANTARESformat;
   myGeneratorAction->fileParticles = fileParticles;
   myGeneratorAction->ParamEnergy = ParamEnergy;
   myGeneratorAction->idbeam = ParamParticle;
@@ -145,7 +136,6 @@ int main(int argc, char *argv[]) {
 
   KM3TrackingAction *myTracking = new KM3TrackingAction;
   myTracking->TheEVTtoWrite = TheEVTtoWrite;
-  myTracking->useANTARESformat = useANTARESformat;
   myGeneratorAction->myTracking =
       myTracking; // link between generator and tracking (to provide number of
                   // initial particles to trackingAction
@@ -156,7 +146,6 @@ int main(int argc, char *argv[]) {
   runManager->SetUserAction(event_action);
   event_action->outfile = savefile;
   event_action->TheEVTtoWrite = TheEVTtoWrite;
-  event_action->useANTARESformat = useANTARESformat;
 #if !defined(G4MYEM_PARAMETERIZATION) &&                                       \
     !defined(G4MYHA_PARAMETERIZATION) // newha
   myGeneratorAction->event_action = event_action; // generator knows event to
@@ -180,7 +169,6 @@ int main(int argc, char *argv[]) {
 
   Mydet->outfile = savefile;
   Mydet->TheEVTtoWrite = TheEVTtoWrite;
-  Mydet->useANTARESformat = useANTARESformat;
 
   KM3StackingAction *myStacking = new KM3StackingAction;
   KM3SteppingAction *myStepping = new KM3SteppingAction;
@@ -275,10 +263,7 @@ int main(int argc, char *argv[]) {
   // delete session;
 
   // job termination
-  if (!useANTARESformat)
-    fclose(savefile);
-  else
-    delete TheEVTtoWrite;
+  delete TheEVTtoWrite;
 #ifdef G4MYFIT_PARAMETERIZATION
   fclose(outfilePar);
 #endif
