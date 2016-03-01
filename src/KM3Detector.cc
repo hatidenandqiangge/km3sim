@@ -39,10 +39,6 @@ KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();
   allStoreys = new std::vector<StoreysPositions *>;
   allOMs = new std::vector<OMPositions *>;
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
-    !defined(G4DISABLE_PARAMETRIZATION)
-  allTowers = new std::vector<TowersPositions *>; // new towers
-#endif
 }
 KM3Detector::~KM3Detector() {
   // newgeant  sxp.Finalize();
@@ -64,16 +60,6 @@ KM3Detector::~KM3Detector() {
   allStoreys->clear();
   delete allStoreys;
 
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
-    !defined(G4DISABLE_PARAMETRIZATION)
-  for (size_t i = 0; i < allTowers->size(); i++) {
-    (*allTowers)[i]->BenthosIDs->clear();
-    delete (*allTowers)[i]->BenthosIDs;
-    free((*allTowers)[i]);
-  }
-  allTowers->clear();
-  delete allTowers;
-#endif
 
   delete myEMShowerModel;
 #ifdef G4HADRONIC_COMPILE
@@ -643,10 +629,6 @@ void KM3Detector::ConstructMaterials() {
 G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   static G4int Cathods = 0;
   static G4int Storeys = 0;
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
-    !defined(G4DISABLE_PARAMETRIZATION)
-  static G4int Towers = 0; // new towers
-#endif
   static G4int OMs = 0;
   static G4AffineTransform AffineTrans;
   static G4RotationMatrix RotationMatr;
@@ -654,12 +636,6 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   static G4int Hist[20];
   static std::vector<G4int>
       *aBenthosIDs; // static in order to load the benthos (OMs)
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
-    !defined(G4DISABLE_PARAMETRIZATION)
-  static std::vector<G4int> *aTowerBenthosIDs; // static in order to load the
-                                               // benthos (OMs) in towers //new
-                                               // towers
-#endif
   static std::vector<G4int>
       *aCathodsIDs; // static in order to load the cathods (Cathods)
 
@@ -752,10 +728,6 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       }
       allOMs->push_back(aOM);
       aBenthosIDs->push_back(OMs);
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
-    !defined(G4DISABLE_PARAMETRIZATION)
-      aTowerBenthosIDs->push_back(OMs); // new towers
-#endif
       OMs++;
     }
     if ((aPVolume->GetName())
@@ -770,21 +742,6 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       allStoreys->push_back(aStorey);
       Storeys++;
     }
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
-    !defined(G4DISABLE_PARAMETRIZATION)
-    if ((aPVolume->GetName())
-            .contains("TowerVolume")) { // new towers //for newgeant  add "_PV"
-                                        // at the end of physical volume name
-      TowersPositions *aTower =
-          (TowersPositions *)malloc(sizeof(TowersPositions));
-      aTower->position =
-          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-      aTowerBenthosIDs = new std::vector<G4int>;
-      aTower->BenthosIDs = aTowerBenthosIDs;
-      allTowers->push_back(aTower);
-      Towers++;
-    }
-#endif
     G4AffineTransform tempoaffine(aPVolume->GetObjectRotationValue().inverse(),
                                   aPVolume->GetObjectTranslation());
     AffineTrans = tempoaffine * AffineTrans;
@@ -986,6 +943,11 @@ G4VPhysicalVolume *KM3Detector::Construct() {
       G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld");
   myEMShowerModel = new KM3EMShowerModel("emShowerModel", defRegion);
   myEMShowerModel->myStDetector = this;
+  // TODO:
+  // Why the hell do these lines even exist? EM/HA parametrization
+  // has been commented out for the last 3 version, including this one.
+  // Probably an `#ifdef HA_PARAM` or something is missing here.
+  // TO_DELETE
   myEMShowerModel->InitializeFlux(EMParametrization_FILE, Quantum_Efficiency,
                                   TotCathodArea);
   myEMShowerModel->aMySD = aMySD;

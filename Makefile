@@ -6,7 +6,7 @@
 name := KM3Sim
 G4TARGET := $(name)
 G4EXLIB := true
-G4WORKDIR := WORK
+G4WORKDIR := ./
 CLHEP_BASE_DIR := /sps/km3net/users/tsirigot/HOURS/geant4.9.6.p02-install/
 CLHEP_INCLUDE_DIR := /sps/km3net/users/tsirigot/HOURS/geant4.9.6.p02-install/include
 CLHEP_LIB_DIR := /sps/km3net/users/tsirigot/HOURS/geant4.9.6.p02-install/lib64
