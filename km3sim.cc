@@ -44,223 +44,23 @@ int main(int argc, char *argv[]) {
     std::cout << arg.fist << arg.second << std::endl;
   }
 
-
-  // check and input the seed
-  if (argv[2] == NULL) {
-    std::cout << "You must give a random seed\n";
-    return 1;
-  }
   G4long myseed = atol(argv[2]);
   CLHEP::HepRandom::setTheSeed(myseed);
 
-  // check for the output file
-  if (argv[3] == NULL) {
-    std::cout << "You must give an output file\n";
-    return 1;
-  }
-
-  // read the name of the geometry file
   char *Geometry_File = argv[4];
-
-  // read  the name of the parametres file
   char *Parameter_File = argv[5];
-
-  // read the name of the EM parametrization
   char *EMParametrization_FILE = argv[6];
-
-  // read the name of the HA parametrization
   char *HAParametrization_FILE = argv[7];
 
-  //--------------------------------------------------------------------------
-  // check the rest of the command line and input filenames
   G4bool useHEPEvt;
   G4bool useANTARESformat;
   char *fileParticles;
-  char *filePythiaParticles;
   char *fileParamHAmuons = NULL;
   FILE *outfilePar;
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
-  if ((argv[8][0] == 'P') && (argv[8][1] == 'y') && (argv[8][2] == 't') &&
-      (argv[8][3] == 'h') && (argv[8][4] == 'i') && (argv[8][5] == 'a') &&
-      (argv[8][6] == '\0')) {
-    useHEPEvt = true;
-    useANTARESformat = false;
-    if (argv[9] == NULL) {
-      std::cout << "You must give an input file\n";
-      return 1;
-    }
-    fileParticles = argv[9];
-    if (argv[10] == NULL) {
-      std::cout << "You must give a file with particle information from pythia\n";
-      return 1;
-    }
-    filePythiaParticles = argv[10];
-  } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
-             (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
-             (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
-             (argv[8][6] == 'A') && (argv[8][7] == '\0')) {
-    useHEPEvt = false;
-    useANTARESformat = false;
-    if (argv[9] == NULL) {
-      std::cout << "You must give an output param file\n";
-      return 1;
-    } else {
-      if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-        std::cout << "Error open output Param file\n";
-        return 1;
-      }
-    }
-    if (argv[10] == NULL) {
-      std::cout << "You must give an energy in GeV for Param\n";
-      return 1;
-    } else {
-      ParamEnergy = GeV * atof(argv[10]);
-    }
-    if (argv[11] == NULL) {
-      std::cout << "You must give the number of events for Param\n";
-      return 1;
-    } else {
-      ParamNumber = atoi(argv[11]);
-    }
-    if (argv[12] == NULL) {
-      std::cout << "You must give the PDG code of the particle for Param\n";
-      return 1;
-    } else {
-      ParamParticle = atoi(argv[12]);
-    }
-  } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
-             (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
-             (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
-             (argv[8][6] == 'A') && (argv[8][7] == 'M') &&
-             (argv[8][8] == 'u') && (argv[8][9] == 'o') &&
-             (argv[8][10] == 'n') && (argv[8][11] == 's') &&
-             (argv[8][12] == '\0')) {
-    useHEPEvt = true;
-    useANTARESformat = false;
-    if (argv[9] == NULL) {
-      std::cout << "You must give an input file\n";
-      return 1;
-    }
-    fileParticles = argv[9];
-    if (argv[10] == NULL) {
-      std::cout << "You must give a file with particle information from pythia\n";
-      return 1;
-    }
-    filePythiaParticles = argv[10];
-    if (argv[11] == NULL) {
-      std::cout << "You must give a file to write high energy muon information "
-                "for HA parameterization\n";
-      return 1;
-    }
-    fileParamHAmuons = argv[11]; // this is fed to stacking and generator
-    if (argv[12] == NULL) {
-      std::cout << "You must give a file to write photon information for HA "
-                "parameterization\n";
-      return 1;
-    } else {
-      if ((outfilePar = fopen(argv[12], "w")) ==
-          NULL) { // this works the same way as in ParamEM
-        std::cout << "Error open output Param photon file for Hadronic "
-               "parameterization\n";
-        return 1;
-      }
-    }
-  } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
-             (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
-             (argv[8][4] == 'm') && (argv[8][5] == 'F') &&
-             (argv[8][6] == 'i') && (argv[8][7] == 't') &&
-             (argv[8][8] == '\0')) {
-    useHEPEvt = false;
-    useANTARESformat = false;
-    if (argv[9] == NULL) {
-      std::cout << "You must give an output param file\n";
-      return 1;
-    } else {
-      if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-        std::cout << "Error open output Param file\n";
-        return 1;
-      }
-    }
-    if (argv[10] == NULL) {
-      std::cout << "You must give an energy in GeV for Param\n";
-      return 1;
-    } else {
-      ParamEnergy = GeV * atof(argv[10]);
-    }
-    if (argv[11] == NULL) {
-      std::cout << "You must give the number of events for Param\n";
-      return 1;
-    } else {
-      ParamNumber = atoi(argv[11]);
-    }
-  } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
-             (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
-             (argv[8][4] == 'm') && (argv[8][5] == 'E') &&
-             (argv[8][6] == 'M') && (argv[8][7] == '\0')) {
-    useHEPEvt = false;
-    useANTARESformat = false;
-    if (argv[9] == NULL) {
-      std::cout << "You must give an output param file\n";
-      return 1;
-    } else {
-      if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-        std::cout << "Error open output Param file\n";
-        return 1;
-      }
-    }
-    if (argv[10] == NULL) {
-      std::cout << "You must give an energy in GeV for Param\n";
-      return 1;
-    } else {
-      ParamEnergy = GeV * atof(argv[10]);
-    }
-    if (argv[11] == NULL) {
-      std::cout << "You must give the number of events for Param\n";
-      return 1;
-    } else {
-      ParamNumber = atoi(argv[11]);
-    }
-    if (argv[12] == NULL) {
-      std::cout << "You must give the PDG code of the particle for Param\n";
-      return 1;
-    } else {
-      ParamParticle = atoi(argv[12]);
-    }
-  } else if ((argv[8][0] == 'A') && (argv[8][1] == 'N') &&
-             (argv[8][2] == 'T') && (argv[8][3] == 'A') &&
-             (argv[8][4] == 'R') && (argv[8][5] == 'E') &&
-             (argv[8][6] == 'S') && (argv[8][7] == '_') &&
-             (argv[8][8] == 'E') && (argv[8][9] == 'V') &&
-             (argv[8][10] == 'T') && (argv[8][11] == '_') &&
-             (argv[8][12] == 'F') && (argv[8][13] == 'O') &&
-             (argv[8][14] == 'R') && (argv[8][15] == 'M') &&
-             (argv[8][16] == 'A') && (argv[8][17] == 'T') &&
-             (argv[8][18] == '\0')) {
-    useHEPEvt = true;
-    useANTARESformat = true;
-    if (argv[9] == NULL) {
-      std::cout << "You must give an input file\n";
-      return 1;
-    }
-    fileParticles = argv[9];
-  } else {
-    if (argv[8] == NULL) {
-      std::cout << "You must give an input file\n";
-      return 1;
-    }
-    useHEPEvt = false;
-    useANTARESformat = false;
-    fileParticles = argv[8];
-  }
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-  if (fileParamHAmuons == NULL) {
-    std::cout << "G4MYHA_PARAMETERIZATION preprocessor flag must be combined with "
-              "ParamHA 7th command line argument\n";
-    return 1;
-  }
-#endif
+
   //--------------------------------------------------------------------------
   // open the output file
   FILE *savefile;
@@ -274,7 +74,6 @@ int main(int argc, char *argv[]) {
     TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
   }
   //------------------------------------------------------------------------------------------------------------------------------------------------
-  // Run manager
   G4RunManager *runManager = new G4RunManager;
 
   // UserInitialization classes (mandatory)
@@ -340,7 +139,6 @@ int main(int argc, char *argv[]) {
   myGeneratorAction->useHEPEvt = useHEPEvt;
   myGeneratorAction->useANTARESformat = useANTARESformat;
   myGeneratorAction->fileParticles = fileParticles;
-  myGeneratorAction->filePythiaParticles = filePythiaParticles;
   myGeneratorAction->ParamEnergy = ParamEnergy;
   myGeneratorAction->idbeam = ParamParticle;
   Mydet->MyGenerator = myGeneratorAction;
