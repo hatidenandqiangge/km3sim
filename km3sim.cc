@@ -24,15 +24,16 @@ static const char USAGE[] =
     R"(km3sim.
 
   Usage:
+    km3sim [--seed=<sd>] (-i PARAMS) (-d DETECTOR) (-o OUTFILE)
     km3sim (-h | --help)
     km3sim --version
 
   Options:
-    --seed=<sd>       Set the seed for the random number generator.
-    --geometry=<gf>   File with detector geometry.
-    -o --output       File to write into.
-    -i --input        File with input parameters.
+    -i PARAMS         File with physics (seawater etc.) input parameters.
+    -d DETECTOR       File with detector geometry.
+    -o OUTFILE        File to write events to.
     -h --help         Show this screen.
+    --seed=<sd>       Set the RNG seed [default: 42].
     --version         Display the current version.
 )";
 
