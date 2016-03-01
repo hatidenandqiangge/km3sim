@@ -81,7 +81,7 @@
 // Constructors
 /////////////////
 
-G4OpBoundaryProcess::G4OpBoundaryProcess(const G4String &processName,
+G4OpBoundaryProcess::G4OpBoundaryProcess(const std::string &processName,
                                          G4ProcessType type)
     : G4VDiscreteProcess(processName, type) {
   if (verboseLevel > 0) {
@@ -178,7 +178,7 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
       pPreStepPoint->GetPhysicalVolume(), pPostStepPoint->GetPhysicalVolume());
 
   if (Surface == NULL) {
-    G4bool enteredDaughter =
+    bool enteredDaughter =
         (pPostStepPoint->GetPhysicalVolume()->GetMotherLogical() ==
          pPreStepPoint->GetPhysicalVolume()->GetLogicalVolume());
     if (enteredDaughter) {
@@ -307,7 +307,7 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
 
   G4ThreeVector theLocalNormal; // Normal points back into volume
 
-  G4bool valid;
+  bool valid;
   theLocalNormal = theNavigator->GetLocalExitNormal(&valid);
 
   if (valid) {
@@ -405,29 +405,29 @@ G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector &Momentum,
        is a gaussian distribution with mean 0 and standard deviation
        sigma_alpha.  */
 
-    G4double alpha;
+    double alpha;
 
-    G4double sigma_alpha = 0.0;
+    double sigma_alpha = 0.0;
     if (OpticalSurface)
       sigma_alpha = OpticalSurface->GetSigmaAlpha();
 
-    G4double f_max = std::min(1.0, 4. * sigma_alpha);
+    double f_max = std::min(1.0, 4. * sigma_alpha);
 
     do {
       do {
         alpha = G4RandGauss::shoot(0.0, sigma_alpha);
       } while (G4UniformRand() * f_max > std::sin(alpha) || alpha >= halfpi);
 
-      G4double phi = G4UniformRand() * twopi;
+      double phi = G4UniformRand() * twopi;
 
-      G4double SinAlpha = std::sin(alpha);
-      G4double CosAlpha = std::cos(alpha);
-      G4double SinPhi = std::sin(phi);
-      G4double CosPhi = std::cos(phi);
+      double SinAlpha = std::sin(alpha);
+      double CosAlpha = std::cos(alpha);
+      double SinPhi = std::sin(phi);
+      double CosPhi = std::cos(phi);
 
-      G4double unit_x = SinAlpha * CosPhi;
-      G4double unit_y = SinAlpha * SinPhi;
-      G4double unit_z = CosAlpha;
+      double unit_x = SinAlpha * CosPhi;
+      double unit_y = SinAlpha * SinPhi;
+      double unit_z = CosAlpha;
 
       FacetNormal.setX(unit_x);
       FacetNormal.setY(unit_y);
@@ -439,7 +439,7 @@ G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector &Momentum,
     } while (Momentum * FacetNormal >= 0.0);
   } else {
 
-    G4double polish = 1.0;
+    double polish = 1.0;
     if (OpticalSurface)
       polish = OpticalSurface->GetPolish();
 
@@ -463,7 +463,7 @@ G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector &Momentum,
 }
 
 void G4OpBoundaryProcess::DielectricMetal() {
-  G4int n = 0;
+  int n = 0;
 
   do {
 
@@ -495,9 +495,9 @@ void G4OpBoundaryProcess::DielectricMetal() {
           if (theStatus == LobeReflection)
             theFacetNormal = GetFacetNormal(OldMomentum, theGlobalNormal);
 
-          G4double PdotN = OldMomentum * theFacetNormal;
+          double PdotN = OldMomentum * theFacetNormal;
           NewMomentum = OldMomentum - (2. * PdotN) * theFacetNormal;
-          G4double EdotN = OldPolarization * theFacetNormal;
+          double EdotN = OldPolarization * theFacetNormal;
           NewPolarization = -OldPolarization + (2. * EdotN) * theFacetNormal;
         }
       }
@@ -510,15 +510,15 @@ void G4OpBoundaryProcess::DielectricMetal() {
 }
 
 void G4OpBoundaryProcess::DielectricDielectric() {
-  G4bool Inside = false;
-  G4bool Swap = false;
-  G4int irepeat;
+  bool Inside = false;
+  bool Swap = false;
+  int irepeat;
   irepeat = 0;
 
 leap:
 
-  G4bool Through = false;
-  G4bool Done = false;
+  bool Through = false;
+  bool Done = false;
 
   do {
 
@@ -538,8 +538,8 @@ leap:
       theFacetNormal = theGlobalNormal;
     }
 
-    G4double PdotN = OldMomentum * theFacetNormal;
-    G4double EdotN = OldPolarization * theFacetNormal;
+    double PdotN = OldMomentum * theFacetNormal;
+    double EdotN = OldPolarization * theFacetNormal;
 
     cost1 = -PdotN;
     if (std::abs(cost1) < 1.0 - kCarTolerance) {
@@ -585,7 +585,7 @@ leap:
       }
 
       G4ThreeVector A_trans, A_paral, E1pp, E1pl;
-      G4double E1_perp, E1_parl;
+      double E1_perp, E1_parl;
 
       if (sint1 > 0.0) {
         A_trans = OldMomentum.cross(theFacetNormal);
@@ -603,15 +603,15 @@ leap:
         E1_parl = 1.0;
       }
 
-      G4double s1 = Rindex1 * cost1;
-      G4double E2_perp =
+      double s1 = Rindex1 * cost1;
+      double E2_perp =
           2. * s1 * E1_perp / (Rindex1 * cost1 + Rindex2 * cost2);
-      G4double E2_parl =
+      double E2_parl =
           2. * s1 * E1_parl / (Rindex2 * cost1 + Rindex1 * cost2);
-      G4double E2_total = E2_perp * E2_perp + E2_parl * E2_parl;
-      G4double s2 = Rindex2 * cost2 * E2_total;
+      double E2_total = E2_perp * E2_perp + E2_parl * E2_parl;
+      double s2 = Rindex2 * cost2 * E2_total;
 
-      G4double TransCoeff;
+      double TransCoeff;
 
       if (cost1 != 0.0) {
         TransCoeff = s2 / s1;
@@ -619,7 +619,7 @@ leap:
         TransCoeff = 0.0;
       }
 
-      G4double E2_abs, C_parl, C_perp;
+      double E2_abs, C_parl, C_perp;
 
       if (!G4BooleanRand(TransCoeff)) {
 
@@ -677,7 +677,7 @@ leap:
 
         if (sint1 > 0.0) { // incident ray oblique
 
-          G4double alpha = cost1 - cost2 * (Rindex2 / Rindex1);
+          double alpha = cost1 - cost2 * (Rindex2 / Rindex1);
           NewMomentum = OldMomentum + alpha * theFacetNormal;
           NewMomentum = NewMomentum.unit();
           PdotN = -cost2;
@@ -739,7 +739,7 @@ leap:
 // GetMeanFreePath
 // ---------------
 //
-G4double G4OpBoundaryProcess::GetMeanFreePath(const G4Track &, G4double,
+double G4OpBoundaryProcess::GetMeanFreePath(const G4Track &, double,
                                               G4ForceCondition *condition) {
   *condition = Forced;
 

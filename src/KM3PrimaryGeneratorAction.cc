@@ -39,27 +39,27 @@
 #endif
 
 #ifdef G4MYK40_PARAMETERIZATION
-G4double KM3PrimaryGeneratorAction::beta(G4double x) {
-  G4double b = sqrt(x * x + 2 * x * 511.) * powf(1300. - x, 2.0) *
+double KM3PrimaryGeneratorAction::beta(double x) {
+  double b = sqrt(x * x + 2 * x * 511.) * powf(1300. - x, 2.0) *
                (x + 511.); // see for example hyperphysics
   // "A simple relation for the Fermi function", eq 7
-  G4double Z = 20.0;
-  G4double E = x + 511.0;
-  G4double P = sqrt(E * E - 511.0 * 511.0);
-  G4double eta = (Z / 137.0) * E / P;
-  G4double fermin =
+  double Z = 20.0;
+  double E = x + 511.0;
+  double P = sqrt(E * E - 511.0 * 511.0);
+  double eta = (Z / 137.0) * E / P;
+  double fermin =
       fabs(2.0 * 3.14159 * eta / (1.0 - exp(-2.0 * 3.14159 * eta)));
-  G4double w = x + 511.0;
-  G4double g = Z / 137.0;
-  G4double s = sqrt(1.0 - powf(Z / 137.0, 2.0)) - 1.0;
-  G4double fermi = fermin * powf(w * w * (1.0 + 4.0 * g * g) - 1.0, s);
+  double w = x + 511.0;
+  double g = Z / 137.0;
+  double s = sqrt(1.0 - powf(Z / 137.0, 2.0)) - 1.0;
+  double fermi = fermin * powf(w * w * (1.0 + 4.0 * g * g) - 1.0, s);
   b = b * fermi;
   // half-life determination of K40 by LSC Malonda,Carles, Applied Radiation and
   // Isotopes 56 (2002) 153-156
   w = x / 511. + 1.0;
-  G4double wm = 1300. / 511. + 1.0;
-  G4double p = sqrt(w * w - 1.0);
-  G4double q = wm - w;
+  double wm = 1300. / 511. + 1.0;
+  double p = sqrt(w * w - 1.0);
+  double q = wm - w;
   s = powf(p, 6.0) + 7 * powf(p, 4.0) * powf(q, 2.0) +
       7 * powf(p, 2.0) * powf(q, 4.0) + powf(q, 6.0);
   b = b * s;
@@ -110,7 +110,7 @@ void KM3PrimaryGeneratorAction::Initialize() {
     infile = fopen(fileParticles, "r"); // it contains the number of events, the
                                         // particle type, the vertex and
                                         // momentum information
-    G4double runtime;
+    double runtime;
     fscanf(infile, "%d %lf\n", &nevents, &runtime);
   }
 #endif
@@ -131,16 +131,16 @@ void KM3PrimaryGeneratorAction::Initialize() {
 // neutrino interaction events (single vertex) are supported
 // that covers almost everything, except exotic particles (monopoles etc)
 void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
-  static G4int ievent = 0;
-  G4int idneu; // type of neutrino interacting (PDG Code)
-  G4int idtarget; // type of target if neutrino interaction (PDG Code)
-  G4double xneu, yneu, zneu; // neutrino vertex (cm) if neutrino interaction
-  G4double pxneu, pyneu,
+  static int ievent = 0;
+  int idneu; // type of neutrino interacting (PDG Code)
+  int idtarget; // type of target if neutrino interaction (PDG Code)
+  double xneu, yneu, zneu; // neutrino vertex (cm) if neutrino interaction
+  double pxneu, pyneu,
       pzneu; // neutrino momentum (GeV/c) if neutrino interaction
-  G4double xx0, yy0, zz0; // Vertex of injected or produced particles (in cm)
-  G4double pxx0, pyy0,
+  double xx0, yy0, zz0; // Vertex of injected or produced particles (in cm)
+  double pxx0, pyy0,
       pzz0; // Momentum of injected or produced particles (in GeV/c)
-  G4double t0; // initial time of injected particles(ns)
+  double t0; // initial time of injected particles(ns)
   ievent++;
 #ifndef G4MYFIT_PARAMETERIZATION
 #ifndef G4MYEM_PARAMETERIZATION
@@ -175,12 +175,12 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 #ifdef G4MYMUON_PARAMETERIZATION
     // newcode for muon param vs distance // applicable only for simulation of
     // atmospheric muons from EAS
-    G4int idbeams[210000];
-    G4double t0s[210000], energies[210000], distances[210000];
+    int idbeams[210000];
+    double t0s[210000], energies[210000], distances[210000];
     std::vector<G4ThreeVector> theMuonsPositions;
     std::vector<G4ThreeVector> theMuonsMomenta;
     std::vector<G4ThreeVector> theMuonsDirections;
-    for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
+    for (int ipart = 0; ipart < numberofParticles; ipart++) {
       if (useANTARESformat) {
         antaresHEPEvt->GetParticleInfo(idbeams[ipart], xx0, yy0, zz0, pxx0,
                                        pyy0, pzz0, t0s[ipart]);
@@ -196,11 +196,11 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       // here find the distance to cross the can
 
       G4ThreeVector distanceV = theMuonsPositions[ipart] - detectorCenter;
-      G4double RRR2 = detectorMaxRho * detectorMaxRho;
+      double RRR2 = detectorMaxRho * detectorMaxRho;
 
       distances[ipart] = -1.0;
       // next check if is going to hit the top of the detector
-      G4double Ttop = (detectorMaxz - theMuonsPositions[ipart][2]) /
+      double Ttop = (detectorMaxz - theMuonsPositions[ipart][2]) /
                       theMuonsDirections[ipart][2];
       if (Ttop > 0) {
         G4ThreeVector PointOnTop(
@@ -208,25 +208,25 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
             distanceV[1] + Ttop * theMuonsDirections[ipart][1],
             distanceV[2] + Ttop * theMuonsDirections[ipart][2]);
 
-        G4double dRhoTop =
+        double dRhoTop =
             PointOnTop[0] * PointOnTop[0] + PointOnTop[1] * PointOnTop[1];
         if (dRhoTop < RRR2)
           distances[ipart] = Ttop;
 
         // next check if is going to hit the side of the detector
-        G4double c =
+        double c =
             distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1] - RRR2;
         if (c > 0.0 && distances[ipart] < 0) {
-          G4double a =
+          double a =
               theMuonsDirections[ipart][0] * theMuonsDirections[ipart][0] +
               theMuonsDirections[ipart][1] * theMuonsDirections[ipart][1];
-          G4double b = distanceV[0] * theMuonsDirections[ipart][0] +
+          double b = distanceV[0] * theMuonsDirections[ipart][0] +
                        distanceV[1] * theMuonsDirections[ipart][1];
-          G4double dia = b * b - a * c;
+          double dia = b * b - a * c;
           if (dia > 0) {
             dia = sqrt(dia);
-            G4double SideDist1 = (-b - dia) / a;
-            G4double sidez1 = theMuonsPositions[ipart][2] +
+            double SideDist1 = (-b - dia) / a;
+            double sidez1 = theMuonsPositions[ipart][2] +
                               SideDist1 * theMuonsDirections[ipart][2];
             if ((sidez1 > bottomPosition) && (sidez1 < detectorMaxz) &&
                 (SideDist1 > 0))
@@ -236,8 +236,8 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       }
     }
     // check if there is any muon that can cross the detector
-    G4double distancemax = -1.e9;
-    for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
+    double distancemax = -1.e9;
+    for (int ipart = 0; ipart < numberofParticles; ipart++) {
       if (distances[ipart] > distancemax)
         distancemax = distances[ipart];
     }
@@ -269,15 +269,15 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       }
     } else { // there are some particles moving to the detector. Consider only
              // the ones that move to.
-      for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
+      for (int ipart = 0; ipart < numberofParticles; ipart++) {
         if (distances[ipart] >= 0.0)
           myMuonParam->AddMuon(energies[ipart], distances[ipart]);
       }
       myMuonParam->Initialize();
       // find if there are any capable particles
-      G4int numcapable = 0;
-      G4int ip = 0;
-      for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
+      int numcapable = 0;
+      int ip = 0;
+      for (int ipart = 0; ipart < numberofParticles; ipart++) {
         if (distances[ipart] >= 0.0) {
           if (myMuonParam->IsCapable(ip))
             numcapable++;
@@ -313,11 +313,11 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         }
       } else { // there are some muons capable to reach the detector. Consider
                // only the ones that can.
-        G4int numberofParticleskeep = numberofParticles;
+        int numberofParticleskeep = numberofParticles;
         do {
           numberofParticles = 0;
           ip = 0;
-          for (G4int ipart = 0; ipart < numberofParticleskeep; ipart++) {
+          for (int ipart = 0; ipart < numberofParticleskeep; ipart++) {
             if (distances[ipart] >= 0.0) {
               if (myMuonParam->IsCapable(ip)) {
                 distances[ipart] = myMuonParam->GetDistance(ip);
@@ -334,7 +334,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         if (!useANTARESformat)
           fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
         ip = 0;
-        for (G4int ipart = 0; ipart < numberofParticleskeep; ipart++) {
+        for (int ipart = 0; ipart < numberofParticleskeep; ipart++) {
           if (distances[ipart] >= 0.0) {
             if (energies[ipart] > 0.0) {
               G4cout << "FERtest " << distances[ipart] << " " << energies[ipart]
@@ -388,7 +388,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     EventWeight = 1.0;
     if (!useANTARESformat)
       fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
-    for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
+    for (int ipart = 0; ipart < numberofParticles; ipart++) {
       // define the particle object and properties from the particle PDG code
       // idbeam
       if (useANTARESformat) {
@@ -430,7 +430,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   if (!useHEPEvt) {
     numberofParticles = 1;
     idbeam = 13; // muon minus
-    G4double startz = -600.0 * meter;
+    double startz = -600.0 * meter;
     G4PrimaryParticle *initialParticle =
         new G4PrimaryParticle(idbeam, 0.0, 0.0, ParamEnergy);
     G4PrimaryVertex *vertex =
@@ -449,7 +449,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     direction[0] = 0.0;
     direction[1] = 0.0;
     direction[2] = 1.0;
-    G4double zpos = 3.46; // it is the shift for 100.0GeV pion and kaon zero
+    double zpos = 3.46; // it is the shift for 100.0GeV pion and kaon zero
                           // long. see also the EM parametrization section in
                           // here
     G4ThreeVector thisPosition = position - zpos * m * direction;
@@ -488,11 +488,11 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     ParamEnergy = sqrt(powf(PositronEnergy, 2.0) - powf(0.511, 2.0)) * MeV;
 
     /// direction
-    G4double phi = 2.0 * pi * G4UniformRand();
-    G4double costheta = cos(theta * deg);
-    G4double sintheta = sqrt(1.0 - costheta * costheta);
-    G4double cosphi = cos(phi);
-    G4double sinphi = sin(phi);
+    double phi = 2.0 * pi * G4UniformRand();
+    double costheta = cos(theta * deg);
+    double sintheta = sqrt(1.0 - costheta * costheta);
+    double cosphi = cos(phi);
+    double sinphi = sin(phi);
     direction[0] = sintheta * cosphi; // direction x
     direction[1] = sintheta * sinphi; // direction y
     direction[2] = costheta;
@@ -515,7 +515,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     direction.rotateUz(NeutrinoDirection);
 
     //////////////POSITION
-    G4double rmax;
+    double rmax;
     do {
       random_R = G4UniformRand() * SNRadius;
       rmax = G4UniformRand() * powf(SNRadius, 2.0);
@@ -555,17 +555,17 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     if (QECathod == NULL) {
       const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
       for (size_t J = 0; J < theMaterialTable->size(); J++) {
-        if ((*theMaterialTable)[J]->GetName() == G4String("Cathod")) {
+        if ((*theMaterialTable)[J]->GetName() == std::string("Cathod")) {
           G4MaterialPropertiesTable *aMaterialPropertiesTable =
               (*theMaterialTable)[J]->GetMaterialPropertiesTable();
           QECathod = aMaterialPropertiesTable->GetProperty("Q_EFF");
         }
 #ifdef G4MY_TRANSPARENCIES
-        else if ((*theMaterialTable)[J]->GetName() == G4String("Glass")) {
+        else if ((*theMaterialTable)[J]->GetName() == std::string("Glass")) {
           G4MaterialPropertiesTable *aMaterialPropertiesTable =
               (*theMaterialTable)[J]->GetMaterialPropertiesTable();
           AbsBenth = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-        } else if ((*theMaterialTable)[J]->GetName() == G4String("Gell")) {
+        } else if ((*theMaterialTable)[J]->GetName() == std::string("Gell")) {
           G4MaterialPropertiesTable *aMaterialPropertiesTable =
               (*theMaterialTable)[J]->GetMaterialPropertiesTable();
           AbsGell = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
@@ -577,12 +577,12 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     /// initialization//////////////////////////////////////////////////////
     // input: number of photons, wavelength, laser position
     // the DOM is located at (0,0,0).
-    G4int Num_Laser_Photons = 100000;
+    int Num_Laser_Photons = 100000;
     idbeam = Num_Laser_Photons; // Optical Photon . Here we put the number of
                                 // photons for writing purposes on output file
-    G4double Wavelength_Laser_Photons = ParamEnergy * nanometer / GeV;
-    G4double photonEnergy = h_Planck * c_light / Wavelength_Laser_Photons;
-    G4double LaserX, LaserY, LaserZ, LaserDX, LaserDY, LaserDZ;
+    double Wavelength_Laser_Photons = ParamEnergy * nanometer / GeV;
+    double photonEnergy = h_Planck * c_light / Wavelength_Laser_Photons;
+    double LaserX, LaserY, LaserZ, LaserDX, LaserDY, LaserDZ;
     if (ievent == 1) {
       FILE *LaserData = fopen("LaserData.dat", "r");
       if (LaserData == NULL)
@@ -605,24 +605,24 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         G4OpticalPhoton::OpticalPhotonDefinition();
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, 0.0);
     numberofParticles = 0;
-    for (G4int ip = 0; ip < Num_Laser_Photons;
+    for (int ip = 0; ip < Num_Laser_Photons;
          ip++) { // Num_Laser_Photons is the number of photns before the
                  // relative QE and transparencies
-      G4double qeProb = QECathod->Value(photonEnergy);
+      double qeProb = QECathod->Value(photonEnergy);
 #ifdef G4MY_TRANSPARENCIES
       qeProb *= exp(-15.0 / AbsBenth->Value(photonEnergy) -
                     10.0 / AbsGell->Value(photonEnergy));
 #endif
       if (G4UniformRand() < qeProb) {
         numberofParticles++;
-        G4double px = photonEnergy * direction[0];
-        G4double py = photonEnergy * direction[1];
-        G4double pz = photonEnergy * direction[2];
+        double px = photonEnergy * direction[0];
+        double py = photonEnergy * direction[1];
+        double pz = photonEnergy * direction[2];
 
         // polarization is normal to direction
-        G4double sx = 1.0;
-        G4double sy = 0.0;
-        G4double sz = 0.0;
+        double sx = 1.0;
+        double sy = 0.0;
+        double sz = 0.0;
         G4ThreeVector photonPolarization(sx, sy, sz);
         photonPolarization.rotateUz(direction);
         sx = photonPolarization[0];
@@ -653,16 +653,16 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     position[0] = 0.0; // vertex position x
     position[1] = 0.0; // vertex position y
     position[2] = 0.0; // vertex position z
-    G4double phi = 2.0 * pi * G4UniformRand();
-    G4double costheta = 2.0 * G4UniformRand() - 1.0;
-    G4double sintheta = sqrt(1.0 - costheta * costheta);
-    G4double cosphi = cos(phi);
-    G4double sinphi = sin(phi);
+    double phi = 2.0 * pi * G4UniformRand();
+    double costheta = 2.0 * G4UniformRand() - 1.0;
+    double sintheta = sqrt(1.0 - costheta * costheta);
+    double cosphi = cos(phi);
+    double sinphi = sin(phi);
     direction[0] = sintheta * cosphi; // direction x
     direction[1] = sintheta * sinphi; // direction y
     direction[2] = costheta; // direction z
 
-    G4double rmax;
+    double rmax;
     do {
       random_R = G4UniformRand() * K40Radius;
       rmax = G4UniformRand() * powf(K40Radius, 2.0);
@@ -677,10 +677,10 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     position[2] = random_R * costheta; // position z
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, 0.0);
 
-    G4double BR = G4UniformRand();
+    double BR = G4UniformRand();
     if (BR <= 0.89338) {
-      G4double bmax = 0.24647E15;
-      G4double random_T, Tmax;
+      double bmax = 0.24647E15;
+      double random_T, Tmax;
       do {
         random_T = G4UniformRand() * 1300.0;
         Tmax = G4UniformRand() * bmax;
@@ -722,8 +722,8 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     if (ParamEnergy > 0.0) {
       // next we tranfer the particle backwards, in order the maximum (median)
       // cherenkov emmision to happen at 0.0
-      G4double enepos = log10(ParamEnergy / GeV);
-      G4double zpos;
+      double enepos = log10(ParamEnergy / GeV);
+      double zpos;
       if (idbeam == 11 || idbeam == -11) {
         if (enepos < 0)
           zpos = 0.90653 + enepos * (0.96676 + enepos * 0.26983);
@@ -751,25 +751,25 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       vertex->SetPrimary(initialParticle);
     } else if (ParamEnergy == -1000.0) { // here is the parametrization for
                                          // delta rays of low energy
-      static G4double specin = -0.9832; // this is the (1+a) where a=-1.9832 the
+      static double specin = -0.9832; // this is the (1+a) where a=-1.9832 the
                                         // spectral index of muIoni generated
                                         // electrons (kinetic energy)
-      static G4double emin = pow(0.24, specin); // minimum kinetic energy
+      static double emin = pow(0.24, specin); // minimum kinetic energy
                                                 // 0.24MeV (threshold for
                                                 // cherenkov production
-      static G4double emax = pow(31.6, specin); // maximum kinetic energy (above
+      static double emax = pow(31.6, specin); // maximum kinetic energy (above
                                                 // that em parametrization takes
                                                 // over)
       numberofParticles = 10000;
       idbeam = 11; // electron
-      for (G4int ip = 0; ip < numberofParticles; ip++) {
-        G4double enekin = emin + G4UniformRand() * (emax - emin);
+      for (int ip = 0; ip < numberofParticles; ip++) {
+        double enekin = emin + G4UniformRand() * (emax - emin);
         enekin = pow(enekin, 1.0 / specin);
-        G4double SpecMom =
+        double SpecMom =
             sqrt((enekin + 0.511) * (enekin + 0.511) -
                  0.511 * 0.511); // 0.511 is the electron mass in MeV
-        G4double enelog = log10(enekin);
-        G4double costheta =
+        double enelog = log10(enekin);
+        double costheta =
             0.70351 +
             enelog *
                 (0.40702 +
@@ -781,10 +781,10 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
                                      0.98130e-2 * enelog)))); // angle vs kinene
         if (costheta > 1.0)
           costheta = 1.0;
-        G4double sintheta = sqrt(1.0 - costheta * costheta);
-        G4double phi = 2.0 * pi * G4UniformRand();
-        G4double cosphi = cos(phi);
-        G4double sinphi = sin(phi);
+        double sintheta = sqrt(1.0 - costheta * costheta);
+        double phi = 2.0 * pi * G4UniformRand();
+        double cosphi = cos(phi);
+        double sinphi = sin(phi);
         G4ThreeVector electronMomentum(SpecMom * sintheta * cosphi,
                                        SpecMom * sintheta * sinphi,
                                        SpecMom * costheta);
@@ -807,21 +807,21 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         const G4MaterialTable *theMaterialTable =
             G4Material::GetMaterialTable();
         for (size_t J = 0; J < theMaterialTable->size(); J++) {
-          if ((*theMaterialTable)[J]->GetName() == G4String("Cathod")) {
+          if ((*theMaterialTable)[J]->GetName() == std::string("Cathod")) {
             G4MaterialPropertiesTable *aMaterialPropertiesTable =
                 (*theMaterialTable)[J]->GetMaterialPropertiesTable();
             QECathod = aMaterialPropertiesTable->GetProperty("Q_EFF");
-          } else if ((*theMaterialTable)[J]->GetName() == G4String("Water")) {
+          } else if ((*theMaterialTable)[J]->GetName() == std::string("Water")) {
             G4MaterialPropertiesTable *aMaterialPropertiesTable =
                 (*theMaterialTable)[J]->GetMaterialPropertiesTable();
             Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
           }
 #ifdef G4MY_TRANSPARENCIES
-          else if ((*theMaterialTable)[J]->GetName() == G4String("Glass")) {
+          else if ((*theMaterialTable)[J]->GetName() == std::string("Glass")) {
             G4MaterialPropertiesTable *aMaterialPropertiesTable =
                 (*theMaterialTable)[J]->GetMaterialPropertiesTable();
             AbsBenth = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-          } else if ((*theMaterialTable)[J]->GetName() == G4String("Gell")) {
+          } else if ((*theMaterialTable)[J]->GetName() == std::string("Gell")) {
             G4MaterialPropertiesTable *aMaterialPropertiesTable =
                 (*theMaterialTable)[J]->GetMaterialPropertiesTable();
             AbsGell = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
@@ -836,28 +836,28 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       numberofParticles = 0;
       idbeam = 0; // Optical Photon . is not used , because it has not a
                   // pdgcoding in geant4
-      for (G4int ip = 0; ip < 100000;
+      for (int ip = 0; ip < 100000;
            ip++) { // 100000 is the number of photns before the QE and
                    // transparencies
 
         // sample an optical
         // photon//////////////////////////////////////////////
-        G4double nMax = Rindex->GetMaxValue();
-        G4double maxCos = 1.0 / nMax;
-        G4double Pmin = Rindex->GetMinLowEdgeEnergy();
-        G4double Pmax = Rindex->GetMaxLowEdgeEnergy();
-        G4double dp = Pmax - Pmin;
-        G4double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
+        double nMax = Rindex->GetMaxValue();
+        double maxCos = 1.0 / nMax;
+        double Pmin = Rindex->GetMinLowEdgeEnergy();
+        double Pmax = Rindex->GetMaxLowEdgeEnergy();
+        double dp = Pmax - Pmin;
+        double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
 
-        G4double rand;
-        G4double sampledMomentum, sampledRI;
-        G4double cosTheta, sin2Theta;
+        double rand;
+        double sampledMomentum, sampledRI;
+        double cosTheta, sin2Theta;
 
         // sample a phi
         rand = G4UniformRand();
-        G4double phi = 2.0 * pi * rand;
-        G4double sinPhi = sin(phi);
-        G4double cosPhi = cos(phi);
+        double phi = 2.0 * pi * rand;
+        double sinPhi = sin(phi);
+        double cosPhi = cos(phi);
 
         // Determine photon momentum
         // sample a momentum
@@ -872,17 +872,17 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
           rand = G4UniformRand();
 
         } while (rand * maxSin2 > sin2Theta);
-        G4double qeProb = QECathod->Value(sampledMomentum);
+        double qeProb = QECathod->Value(sampledMomentum);
 #ifdef G4MY_TRANSPARENCIES
         qeProb *= exp(-15.0 / AbsBenth->Value(sampledMomentum) -
                       10.0 / AbsGell->Value(sampledMomentum));
 #endif
         if (G4UniformRand() < qeProb) {
           numberofParticles++;
-          G4double sinTheta = sqrt(sin2Theta);
-          G4double px = sampledMomentum * sinTheta * cosPhi;
-          G4double py = sampledMomentum * sinTheta * sinPhi;
-          G4double pz = sampledMomentum * cosTheta;
+          double sinTheta = sqrt(sin2Theta);
+          double px = sampledMomentum * sinTheta * cosPhi;
+          double py = sampledMomentum * sinTheta * sinPhi;
+          double pz = sampledMomentum * cosTheta;
 
           // Create photon momentum direction vector
           // The momentum direction is still with respect
@@ -897,9 +897,9 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
           photonMomentum.rotateUz(direction);
           // Determine polarization of new photon
 
-          G4double sx = cosTheta * cosPhi;
-          G4double sy = cosTheta * sinPhi;
-          G4double sz = -sinTheta;
+          double sx = cosTheta * cosPhi;
+          double sy = cosTheta * sinPhi;
+          double sz = -sinTheta;
 
           G4ThreeVector photonPolarization(sx, sy, sz);
 
@@ -942,9 +942,9 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       HEPEvt->GeneratePrimaryVertex(anEvent);
     // Change the position of the vertex of the event
     anEvent->GetPrimaryVertex(0)->SetPosition(xneu * cm, yneu * cm, zneu * cm);
-    G4int numberofVertices = anEvent->GetNumberOfPrimaryVertex();
+    int numberofVertices = anEvent->GetNumberOfPrimaryVertex();
     numberofParticles = 0;
-    for (G4int iv = 0; iv < numberofVertices; iv++)
+    for (int iv = 0; iv < numberofVertices; iv++)
       numberofParticles += anEvent->GetPrimaryVertex(iv)->GetNumberOfParticle();
     if (!useANTARESformat) {
       fprintf(outfile, "%d %d %d\n", ievent, idneu,
@@ -956,9 +956,9 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     EventWeight = 1.0;
     if (!useANTARESformat)
       fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
-    G4int ipart = 0;
-    for (G4int iv = 0; iv < numberofVertices; iv++) {
-      for (G4int ip = 0;
+    int ipart = 0;
+    for (int iv = 0; iv < numberofVertices; iv++) {
+      for (int ip = 0;
            ip < anEvent->GetPrimaryVertex(iv)->GetNumberOfParticle(); ip++) {
         idbeam = anEvent->GetPrimaryVertex(iv)->GetPrimary(ip)->GetPDGcode();
         pxx0 = anEvent->GetPrimaryVertex(iv)->GetPrimary(ip)->GetPx() / GeV;
@@ -984,8 +984,8 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     // vertex
     // but first calculate the energy of hadrons
     direction = G4ThreeVector(0.0, 0.0, 0.0);
-    G4double HadronicEnergy = 0.0;
-    for (G4int ipart = 0;
+    double HadronicEnergy = 0.0;
+    for (int ipart = 0;
          ipart < anEvent->GetPrimaryVertex(0)->GetNumberOfParticle();
          ipart++) { // only the first vertex which is neutrino vertex
       idbeam =
@@ -994,9 +994,9 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
           idbeam != 111) { // disregard em particles
         G4ThreeVector thisMomentum =
             anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetMomentum();
-        G4double thisMass =
+        double thisMass =
             anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetMass();
-        G4double Energy = sqrt(thisMomentum.mag2() + thisMass * thisMass);
+        double Energy = sqrt(thisMomentum.mag2() + thisMass * thisMass);
         direction += thisMomentum;
         HadronicEnergy += Energy;
       }
@@ -1005,10 +1005,10 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       direction = direction.unit();
       HadronicEnergy -= 938.92 * MeV;
       HadronicEnergy /= GeV;
-      G4int NumOfMuonsFromHAVertex =
+      int NumOfMuonsFromHAVertex =
           aHAVertexMuons->GetNumberOfMuons(HadronicEnergy);
       // create the vertexes and add the muons
-      for (G4int iadd = 0; iadd < NumOfMuonsFromHAVertex; iadd++) {
+      for (int iadd = 0; iadd < NumOfMuonsFromHAVertex; iadd++) {
         aHAVertexMuons->ReadMuon();
         // first get the vertex from the class container
         G4ThreeVector aPosition = aHAVertexMuons->GetPosition();
@@ -1066,17 +1066,17 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     anEvent->GetPrimaryVertex(0)->SetPosition(0.0, 0.0, 0.0);
     numberofParticles = anEvent->GetPrimaryVertex(0)->GetNumberOfParticle();
     direction = G4ThreeVector(0.0, 0.0, 0.0);
-    G4float HadronicEnergy = 0.0;
-    for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
+    float HadronicEnergy = 0.0;
+    for (int ipart = 0; ipart < numberofParticles; ipart++) {
       idbeam =
           fabs(anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetPDGcode());
       if (idbeam != 22 && idbeam != 13 && idbeam != 11 && idbeam != 15 &&
           idbeam != 111) { // disregard em particles
         G4ThreeVector thisMomentum =
             anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetMomentum();
-        G4double thisMass =
+        double thisMass =
             anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetMass();
-        G4double Energy = sqrt(thisMomentum.mag2() + thisMass * thisMass);
+        double Energy = sqrt(thisMomentum.mag2() + thisMass * thisMass);
         direction += thisMomentum;
         HadronicEnergy += (float)Energy;
       }

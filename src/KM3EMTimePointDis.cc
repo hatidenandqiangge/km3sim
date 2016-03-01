@@ -6,16 +6,16 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   TimeBins = 111;
   OMSolidAngleBins = 834;
   TimeTimeSolidAngleBins = TimeSolidAngleBins * TimeBins;
-  keepDis = new std::vector<G4float>;
+  keepDis = new std::vector<float>;
   keepDis->reserve(TimeTimeSolidAngleBins);
-  keepTh2Th3Num = new std::vector<G4float>;
+  keepTh2Th3Num = new std::vector<float>;
   keepTh2Th3Num->reserve(OMSolidAngleBins);
-  keepExpoTh2 = new std::vector<G4float>;
+  keepExpoTh2 = new std::vector<float>;
   keepExpoTh2->reserve(OMSolidAngleBins);
-  keepExpoTh3 = new std::vector<G4float>;
+  keepExpoTh3 = new std::vector<float>;
   keepExpoTh3->reserve(OMSolidAngleBins);
 
-  G4float val;
+  float val;
   char valC[4];
   infile.read(valC, 4);
   angle = double(*(float *)valC);
@@ -28,7 +28,7 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   FluxRMS = FluxRMS * FluxRMS;
   Flux = log(Flux);
   FluxRMS = log(FluxRMS);
-  for (G4int i = 0; i < OMSolidAngleBins; i++) {
+  for (int i = 0; i < OMSolidAngleBins; i++) {
     infile.read(valC, 4);
     val = *(float *)valC;
     keepTh2Th3Num->push_back(val);
@@ -39,7 +39,7 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
     val = *(float *)valC;
     keepExpoTh3->push_back(val);
   }
-  for (G4int i = 0; i < TimeTimeSolidAngleBins; i++) {
+  for (int i = 0; i < TimeTimeSolidAngleBins; i++) {
     infile.read(valC, 4);
     val = *(float *)valC;
     keepDis->push_back(val);
@@ -59,8 +59,8 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
     keepDis = NULL;
   }
 
-  for (G4int it23 = 0; it23 < TimeSolidAngleBins; it23++) {
-    G4int ilast = it23 * TimeBins + TimeBins - 1;
+  for (int it23 = 0; it23 < TimeSolidAngleBins; it23++) {
+    int ilast = it23 * TimeBins + TimeBins - 1;
     time_ok[it23] = ((*keepDis)[ilast] > 0.999);
     if (!time_ok[it23])
       G4cout << "Time bin is null " << it23 << G4endl;
@@ -70,38 +70,38 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   // definition of bins limits for direction sampling
   // definition of two solid angle areas, one with 3 degrees binning and the
   // second with 6 degrees binning
-  G4int NumberOfThetas1 = 34;
-  G4int NumberOfThetas2 = 13;
-  G4double Theta1Min = 0.0;
-  G4double Theta1Max = 102.0;
-  G4double Theta2Min = 102.0;
-  G4double Theta2Max = 180.0;
+  int NumberOfThetas1 = 34;
+  int NumberOfThetas2 = 13;
+  double Theta1Min = 0.0;
+  double Theta1Max = 102.0;
+  double Theta2Min = 102.0;
+  double Theta2Max = 180.0;
 
-  G4int NumberOfThetas = NumberOfThetas1 + NumberOfThetas2;
-  G4int ibinNum_Tot = 0;
+  int NumberOfThetas = NumberOfThetas1 + NumberOfThetas2;
+  int ibinNum_Tot = 0;
   // first solid angle area
-  G4double dtheta = (Theta1Max - Theta1Min) / NumberOfThetas1;
-  G4double cosdtheta = cos(dtheta * degree);
-  for (G4int ith = 0; ith < NumberOfThetas1; ith++) {
-    G4double thetalow = Theta1Min + dtheta * ith;
-    G4double thetahigh = thetalow + dtheta;
-    G4double costhetalow = fabs(cos(thetalow * degree));
-    G4double costhetahigh = fabs(cos(thetahigh * degree));
-    G4double cosmin;
+  double dtheta = (Theta1Max - Theta1Min) / NumberOfThetas1;
+  double cosdtheta = cos(dtheta * degree);
+  for (int ith = 0; ith < NumberOfThetas1; ith++) {
+    double thetalow = Theta1Min + dtheta * ith;
+    double thetahigh = thetalow + dtheta;
+    double costhetalow = fabs(cos(thetalow * degree));
+    double costhetahigh = fabs(cos(thetahigh * degree));
+    double cosmin;
     if (costhetalow < costhetahigh)
       cosmin = costhetalow;
     else
       cosmin = costhetahigh;
     cosmin = cosmin * cosmin;
-    G4double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
-    G4double dphi = acos(cosdphi) / degree;
+    double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
+    double dphi = acos(cosdphi) / degree;
     if (dphi < 9.0)
       dphi = 9.0;
-    G4int NumberOfPhis = int(ceil(180.0 / dphi));
+    int NumberOfPhis = int(ceil(180.0 / dphi));
     dphi = 180.0 / NumberOfPhis;
-    for (G4int iph = 0; iph < NumberOfPhis; iph++) {
-      G4double philow = dphi * iph;
-      G4double phihigh = philow + dphi;
+    for (int iph = 0; iph < NumberOfPhis; iph++) {
+      double philow = dphi * iph;
+      double phihigh = philow + dphi;
       theta_Low[ibinNum_Tot] = thetalow;
       theta_High[ibinNum_Tot] = thetahigh;
       if (ith == NumberOfThetas1 - 1)
@@ -116,26 +116,26 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   // second solid angle area
   dtheta = (Theta2Max - Theta2Min) / NumberOfThetas2;
   cosdtheta = cos(dtheta * degree);
-  for (G4int ith = NumberOfThetas1; ith < NumberOfThetas; ith++) {
-    G4double thetalow = Theta2Min + dtheta * (ith - NumberOfThetas1);
-    G4double thetahigh = thetalow + dtheta;
-    G4double costhetalow = fabs(cos(thetalow * degree));
-    G4double costhetahigh = fabs(cos(thetahigh * degree));
-    G4double cosmin;
+  for (int ith = NumberOfThetas1; ith < NumberOfThetas; ith++) {
+    double thetalow = Theta2Min + dtheta * (ith - NumberOfThetas1);
+    double thetahigh = thetalow + dtheta;
+    double costhetalow = fabs(cos(thetalow * degree));
+    double costhetahigh = fabs(cos(thetahigh * degree));
+    double cosmin;
     if (costhetalow < costhetahigh)
       cosmin = costhetalow;
     else
       cosmin = costhetahigh;
     cosmin = cosmin * cosmin;
-    G4double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
-    G4double dphi = acos(cosdphi) / degree;
+    double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
+    double dphi = acos(cosdphi) / degree;
     if (dphi < 9.0)
       dphi = 9.0;
-    G4int NumberOfPhis = int(ceil(180.0 / dphi));
+    int NumberOfPhis = int(ceil(180.0 / dphi));
     dphi = 180.0 / NumberOfPhis;
-    for (G4int iph = 0; iph < NumberOfPhis; iph++) {
-      G4double philow = dphi * iph;
-      G4double phihigh = philow + dphi;
+    for (int iph = 0; iph < NumberOfPhis; iph++) {
+      double philow = dphi * iph;
+      double phihigh = philow + dphi;
       theta_Low[ibinNum_Tot] = thetalow;
       theta_High[ibinNum_Tot] = thetahigh;
       if (ith == NumberOfThetas - 1)
@@ -169,16 +169,16 @@ KM3EMTimePointDis::~KM3EMTimePointDis() {
 // gives the random values. Sampling based on sorting the pdf
 onePE KM3EMTimePointDis::GetSamplePoint() {
   onePE aPE;
-  G4double time;
-  G4double costh;
-  G4double theta, phi;
+  double time;
+  double costh;
+  double theta, phi;
   if (!IsThisValid)
     G4Exception("Error sampling point and time for null distribution\n", "",
                 FatalException, "");
   // first we sample a direction point using the cumulative keepTh2Th3Num
   // [0-833]
-  G4double rrr = G4UniformRand();
-  G4int ibinNum23;
+  double rrr = G4UniformRand();
+  int ibinNum23;
   for (ibinNum23 = 0; ibinNum23 < OMSolidAngleBins; ibinNum23++) {
     if (rrr < (*keepTh2Th3Num)[ibinNum23])
       break;
@@ -241,13 +241,13 @@ onePE KM3EMTimePointDis::GetSamplePoint() {
                                                         // TimeSolidAngleBins
   static int indexes[18] = {0,  3,  6,  9,  12, 15, 18, 21, 25,
                             29, 34, 38, 41, 44, 47, 50, 51, 52};
-  G4int ith;
+  int ith;
   for (ith = 0; ith < 17; ith++)
     if (theta < maxth2[ith])
       break;
   if (ith > 16)
     ith = 16;
-  G4int iph;
+  int iph;
   for (iph = indexes[ith]; iph < indexes[ith + 1]; iph++)
     if (phi < maxth3[iph])
       break;
@@ -257,9 +257,9 @@ onePE KM3EMTimePointDis::GetSamplePoint() {
   ////here we must check that the iph time bin in not null and find another
   ////////////////////////////
 
-  G4int cang23bin = iph;
+  int cang23bin = iph;
   rrr = G4UniformRand();
-  G4int ibint;
+  int ibint;
   for (ibint = TimeBins * cang23bin; ibint < TimeBins * cang23bin + TimeBins;
        ibint++) {
     if (rrr < (*keepDis)[ibint])

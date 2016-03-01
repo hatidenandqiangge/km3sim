@@ -72,7 +72,7 @@
 // Constructors
 /////////////////
 
-G4OpMie::G4OpMie(const G4String &processName, G4ProcessType type)
+G4OpMie::G4OpMie(const std::string &processName, G4ProcessType type)
     : G4VDiscreteProcess(processName, type) {
 
   if (verboseLevel > 0) {
@@ -135,19 +135,19 @@ G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
 
   // find polar angle of new direction w.r.t. old direction
 
-  G4double CosTheta = std::cos(SampleAngle());
-  // G4double CosTheta=std::cos(PhaseRand->shoot()*pi);
-  G4double SinTheta = std::sqrt(1. - CosTheta * CosTheta);
+  double CosTheta = std::cos(SampleAngle());
+  // double CosTheta=std::cos(PhaseRand->shoot()*pi);
+  double SinTheta = std::sqrt(1. - CosTheta * CosTheta);
 
   // find azimuthal angle of new direction w.r.t. old direction
-  G4double rand = G4UniformRand();
-  G4double Phi = twopi * rand;
-  G4double SinPhi = std::sin(Phi);
-  G4double CosPhi = std::cos(Phi);
+  double rand = G4UniformRand();
+  double Phi = twopi * rand;
+  double SinPhi = std::sin(Phi);
+  double CosPhi = std::cos(Phi);
 
-  G4double unit_x = SinTheta * CosPhi;
-  G4double unit_y = SinTheta * SinPhi;
-  G4double unit_z = CosTheta;
+  double unit_x = SinTheta * CosPhi;
+  double unit_y = SinTheta * SinPhi;
+  double unit_z = CosTheta;
 
   G4ThreeVector NewMomentumDirection(unit_x, unit_y, unit_z);
   G4ThreeVector OldMomentumDirection = aParticle->GetMomentumDirection();
@@ -189,7 +189,7 @@ G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
 //
 void G4OpMie::BuildThePhysicsTable() {
   // first load Phase factors
-  G4double c0, c1, c2, c3, c4, c5, c6;
+  double c0, c1, c2, c3, c4, c5, c6;
   if (!thePhaseFactors) {
     thePhaseFactors = new std::vector<PhaseFactors *>;
     FILE *infilePF;
@@ -197,7 +197,7 @@ void G4OpMie::BuildThePhysicsTable() {
       G4Exception("Error open input Mie Phase Factors file\n", "",
                   FatalException, "");
     } else {
-      for (G4int i = 0; i < 56; i++) { // read the phase functions from
+      for (int i = 0; i < 56; i++) { // read the phase functions from
                                        // measurements in shallow waters
         fscanf(infilePF, "%lf %lf %lf %lf %lf %lf %lf\n", &c0, &c1, &c2, &c3,
                &c4, &c5, &c6);
@@ -245,32 +245,32 @@ void G4OpMie::BuildThePhysicsTable() {
 
   // loop for materials
   const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
-  G4int numOfMaterials = G4Material::GetNumberOfMaterials();
+  int numOfMaterials = G4Material::GetNumberOfMaterials();
 
-  for (G4int i = 0; i < numOfMaterials; i++) {
+  for (int i = 0; i < numOfMaterials; i++) {
     if ((*theMaterialTable)[i]->GetName() == "Water") {
       G4MaterialPropertiesTable *aMaterialPropertiesTable =
           (*theMaterialTable)[i]->GetMaterialPropertiesTable();
 
       if (aMaterialPropertiesTable) {
-        G4double DIndexPhaseFunction = 0.0;
+        double DIndexPhaseFunction = 0.0;
         DIndexPhaseFunction =
             aMaterialPropertiesTable->GetConstProperty("MIEPHASE");
-        IndexPhaseFunction = (G4int)DIndexPhaseFunction - 1;
+        IndexPhaseFunction = (int)DIndexPhaseFunction - 1;
       }
     }
   }
   // next build the array, step 0.1 degrees
-  for (G4int i = 0; i <= 1800; i++) {
-    G4double angle = G4double(i) / 10.0;
+  for (int i = 0; i <= 1800; i++) {
+    double angle = double(i) / 10.0;
     PhaseArray[i] = PhaseFunction(angle * degree);
   }
   PhaseRand = new CLHEP::RandGeneral(PhaseArray, 1801);
 }
 
-G4double G4OpMie::SampleAngle(void) {
-  G4double angle;
-  G4double angleval, randomval;
+double G4OpMie::SampleAngle(void) {
+  double angle;
+  double angleval, randomval;
   do {
     angle = pi * G4UniformRand();
     angleval = PhaseFunction(angle);
@@ -280,10 +280,10 @@ G4double G4OpMie::SampleAngle(void) {
 }
 
 // phase function*sin(theta) with maximum 1
-G4double G4OpMie::PhaseFunction(G4double angle) {
-  G4double val;
-  G4double x;
-  G4double c0, c1, c2, c3, c4, c5, c6;
+double G4OpMie::PhaseFunction(double angle) {
+  double val;
+  double x;
+  double c0, c1, c2, c3, c4, c5, c6;
   if (IndexPhaseFunction < 56) {
     x = sqrt(angle);
     c0 = (*(thePhaseFactors))[IndexPhaseFunction]->c0;
@@ -317,14 +317,14 @@ G4double G4OpMie::PhaseFunction(G4double angle) {
 // GetMeanFreePath()
 // -----------------
 //
-G4double G4OpMie::GetMeanFreePath(const G4Track &aTrack, G4double,
+double G4OpMie::GetMeanFreePath(const G4Track &aTrack, double,
                                   G4ForceCondition *) {
   const G4DynamicParticle *aParticle = aTrack.GetDynamicParticle();
   const G4Material *aMaterial = aTrack.GetMaterial();
 
-  G4double thePhotonMomentum = aParticle->GetTotalMomentum();
+  double thePhotonMomentum = aParticle->GetTotalMomentum();
 
-  G4double AttenuationLength = DBL_MAX;
+  double AttenuationLength = DBL_MAX;
 
   G4MaterialPropertiesTable *aMaterialPropertyTable =
       aMaterial->GetMaterialPropertiesTable();

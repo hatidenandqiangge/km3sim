@@ -38,10 +38,10 @@ public:
   KM3EventAction *event_action;
 
 private:
-  G4double MuonRange(G4double);
-  G4double P7[8];
-  G4double P1LOW[2];
-  G4double P1HIGH[2];
+  double MuonRange(double);
+  double P7[8];
+  double P1LOW[2];
+  double P1HIGH[2];
 };
 
 #endif

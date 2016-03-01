@@ -69,7 +69,7 @@ KM3Detector::~KM3Detector() {
 
 
 void KM3Detector::FindDetectorRadius() {
-  G4double absdetectorRadius = 0.0;
+  double absdetectorRadius = 0.0;
   lowestStorey = 0.0;
   highestStorey = 0.0;
   outerStorey = 0.0;
@@ -78,15 +78,15 @@ void KM3Detector::FindDetectorRadius() {
   detectorCenter = G4ThreeVector(0.0, 0.0, 0.0);
   for (size_t isto = 0; isto < allStoreys->size(); isto++) {
     G4ThreeVector pos = (*(allStoreys))[isto]->position;
-    G4double radius = (*(allStoreys))[isto]->radius;
-    G4double dist = pos.mag() + radius;
+    double radius = (*(allStoreys))[isto]->radius;
+    double dist = pos.mag() + radius;
     if (absdetectorRadius < dist)
       absdetectorRadius = dist;
     if (pos[2] < lowestStorey)
       lowestStorey = pos[2];
     if (pos[2] > highestStorey)
       highestStorey = pos[2];
-    G4double distRho = sqrt(pos[0] * pos[0] + pos[1] * pos[1]) + radius;
+    double distRho = sqrt(pos[0] * pos[0] + pos[1] * pos[1]) + radius;
     if (outerStorey < distRho)
       outerStorey = distRho;
   }
@@ -104,7 +104,7 @@ void KM3Detector::FindDetectorRadius() {
 
 void KM3Detector::SetUpVariables() {
   FILE *infile;
-  G4double MaxRelDist;
+  double MaxRelDist;
   NUMENTRIES = -10;
   NUMENTRIES_ANGLEACC = -10;
 
@@ -113,32 +113,32 @@ void KM3Detector::SetUpVariables() {
   } else {
     char varname[50];
     char expression[50];
-    G4int readvalues[18] = {18 * 0};
-    G4String String0 = G4String("detectorDepth");
-    G4String String1 = G4String("bottomPosition");
-    G4String String2 = G4String("PPCKOV");
-    G4String String3 = G4String("RINDEX_WATER");
-    G4String String4 = G4String("ABSORPTION_WATER");
-    G4String String5 = G4String("RINDEX_GLASS");
-    G4String String6 = G4String("ABSORPTION_GLASS");
-    G4String String7 = G4String("RINDEX_GELL");
-    G4String String8 = G4String("ABSORPTION_GELL");
-    G4String String9 = G4String("RINDEX_AIR");
-    G4String String10 = G4String("ABSORPTION_AIR");
-    G4String String11 = G4String("RINDEX_CATH");
-    G4String String12 = G4String("ABSORPTION_CATH");
-    G4String String13 = G4String("Q_EFF");
-    G4String String14 = G4String("MIE_WATER");
-    G4String String15 = G4String("MIE_MODEL");
-    G4String String16 = G4String("COS_ANGLES");
-    G4String String17 = G4String("ANG_ACCEPT");
+    int readvalues[18] = {18 * 0};
+    std::string String0 = std::string("detectorDepth");
+    std::string String1 = std::string("bottomPosition");
+    std::string String2 = std::string("PPCKOV");
+    std::string String3 = std::string("RINDEX_WATER");
+    std::string String4 = std::string("ABSORPTION_WATER");
+    std::string String5 = std::string("RINDEX_GLASS");
+    std::string String6 = std::string("ABSORPTION_GLASS");
+    std::string String7 = std::string("RINDEX_GELL");
+    std::string String8 = std::string("ABSORPTION_GELL");
+    std::string String9 = std::string("RINDEX_AIR");
+    std::string String10 = std::string("ABSORPTION_AIR");
+    std::string String11 = std::string("RINDEX_CATH");
+    std::string String12 = std::string("ABSORPTION_CATH");
+    std::string String13 = std::string("Q_EFF");
+    std::string String14 = std::string("MIE_WATER");
+    std::string String15 = std::string("MIE_MODEL");
+    std::string String16 = std::string("COS_ANGLES");
+    std::string String17 = std::string("ANG_ACCEPT");
 
     HepTool::Evaluator fCalc;
     fCalc.setSystemOfUnits(
         1.e+3, 1. / 1.60217733e-25, 1.e+9, 1. / 1.60217733e-10, 1.0, 1.0,
         1.0); // asign default variables to evaluator (Geant4 Units)
     while (fscanf(infile, "%s", varname) != EOF) {
-      G4String thename = G4String(varname);
+      std::string thename = std::string(varname);
       if (thename == String0) {
         readvalues[0] = 1;
         fscanf(infile, "%s\n", expression);
@@ -156,8 +156,8 @@ void KM3Detector::SetUpVariables() {
       else if (thename == String2) {
         readvalues[2] = 1;
         fscanf(infile, "%s", expression);
-        NUMENTRIES = (G4int)fCalc.evaluate(expression);
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        NUMENTRIES = (int)fCalc.evaluate(expression);
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           PPCKOV[i] = h_Planck * c_light / fCalc.evaluate(expression);
         }
@@ -170,7 +170,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_WATER[i] = fCalc.evaluate(expression);
         }
@@ -187,7 +187,7 @@ void KM3Detector::SetUpVariables() {
         fscanf(infile, "%s", expression);
         MaxRelDist = fCalc.evaluate(expression); // How many absorption lengths
                                                  // optical photons can cross
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_WATER[i] = Water_Transparency / fCalc.evaluate(expression);
         }
@@ -200,7 +200,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_GLASS[i] = fCalc.evaluate(expression);
         }
@@ -212,7 +212,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_GLASS[i] = fCalc.evaluate(expression);
         }
@@ -224,7 +224,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_GELL[i] = fCalc.evaluate(expression);
         }
@@ -236,7 +236,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_GELL[i] = fCalc.evaluate(expression);
         }
@@ -248,7 +248,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_AIR[i] = fCalc.evaluate(expression);
         }
@@ -260,7 +260,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_AIR[i] = fCalc.evaluate(expression);
         }
@@ -272,7 +272,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_CATH[i] = fCalc.evaluate(expression);
         }
@@ -284,7 +284,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_CATH[i] = fCalc.evaluate(expression);
         }
@@ -299,7 +299,7 @@ void KM3Detector::SetUpVariables() {
         fscanf(infile, "%s", expression);
         Quantum_Efficiency = fCalc.evaluate(
             expression); // maximum quantum efficienscy, used in KM3Cherenkov
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           Q_EFF[i] = fCalc.evaluate(expression);
         }
@@ -311,7 +311,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Wavelengths of Optical Photons must be set before "
                       "setting any other Optical Property (PPCKOV keyword)",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
+        for (int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           SCATTER_WATER[i] = fCalc.evaluate(expression);
         }
@@ -325,8 +325,8 @@ void KM3Detector::SetUpVariables() {
       else if (thename == String16) {
         readvalues[16] = 1;
         fscanf(infile, "%s", expression);
-        NUMENTRIES_ANGLEACC = (G4int)fCalc.evaluate(expression);
-        for (G4int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
+        NUMENTRIES_ANGLEACC = (int)fCalc.evaluate(expression);
+        for (int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
           fscanf(infile, "%s", expression);
           COSANGLES[i] = fCalc.evaluate(expression);
         }
@@ -338,7 +338,7 @@ void KM3Detector::SetUpVariables() {
           G4Exception("Cosine angles values must be set before setting angular "
                       "acceptance values",
                       "", FatalException, "");
-        for (G4int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
+        for (int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
           fscanf(infile, "%s", expression);
           ACCEPTANCE[i] = fCalc.evaluate(expression);
         }
@@ -348,7 +348,7 @@ void KM3Detector::SetUpVariables() {
         G4Exception("Not a keyword I can recognize\n", "", FatalException, "");
     }
     fclose(infile);
-    for (G4int i = 0; i < 18; i++) {
+    for (int i = 0; i < 18; i++) {
       if (readvalues[i] == 0) {
         switch (i) {
         case 0:
@@ -417,20 +417,20 @@ void KM3Detector::SetUpVariables() {
 void KM3Detector::ConstructMaterials() {
   // All Basic Elements
   // --------------------------------------------------------------------------
-  G4double weightH = 1.007940 * g / mole;
-  G4double weightO = 15.999400 * g / mole;
-  G4double weightCl = 35.453000 * g / mole;
-  G4double weightMg = 24.305000 * g / mole;
-  G4double weightNa = 22.989770 * g / mole;
-  G4double weightSi = 28.085500 * g / mole;
-  G4double weightB = 10.811000 * g / mole;
-  G4double weightAl = 26.981538 * g / mole;
-  G4double weightC = 12.010700 * g / mole;
-  G4double weightN = 14.006700 * g / mole;
-  G4double weightCa = 40.078000 * g / mole;
-  G4double weightK = 39.098300 * g / mole;
-  G4double weightS = 32.065000 * g / mole;
-  G4double weightFe = 55.845000 * g / mole;
+  double weightH = 1.007940 * g / mole;
+  double weightO = 15.999400 * g / mole;
+  double weightCl = 35.453000 * g / mole;
+  double weightMg = 24.305000 * g / mole;
+  double weightNa = 22.989770 * g / mole;
+  double weightSi = 28.085500 * g / mole;
+  double weightB = 10.811000 * g / mole;
+  double weightAl = 26.981538 * g / mole;
+  double weightC = 12.010700 * g / mole;
+  double weightN = 14.006700 * g / mole;
+  double weightCa = 40.078000 * g / mole;
+  double weightK = 39.098300 * g / mole;
+  double weightS = 32.065000 * g / mole;
+  double weightFe = 55.845000 * g / mole;
   G4Element *elementH = new G4Element("Hydrogen", "H", 1., weightH);
   G4Element *elementO = new G4Element("Oxygen", "O", 8., weightO);
   G4Element *elementCl = new G4Element("Chlorine", "Cl", 17., weightCl);
@@ -466,16 +466,16 @@ void KM3Detector::ConstructMaterials() {
   // Pylos Greece, pp614-630)
   // based on the composition of ocean seawater for 35o/oo
   // www.soest.hawaii.edu/oceanography we have
-  G4double abundanceNa = 469.0e-3 * mole / kg;
-  G4double abundanceMg = 52.8e-3 * mole / kg;
-  G4double abundanceCa = 10.3e-3 * mole / kg;
-  G4double abundanceK = 10.2e-3 * mole / kg;
-  G4double abundanceCl = 545.9e-3 * mole / kg;
-  G4double abundanceSO4 = 28.2e-3 * mole / kg;
-  G4double abundanceHCO3 = 2.33e-3 * mole / kg;
+  double abundanceNa = 469.0e-3 * mole / kg;
+  double abundanceMg = 52.8e-3 * mole / kg;
+  double abundanceCa = 10.3e-3 * mole / kg;
+  double abundanceK = 10.2e-3 * mole / kg;
+  double abundanceCl = 545.9e-3 * mole / kg;
+  double abundanceSO4 = 28.2e-3 * mole / kg;
+  double abundanceHCO3 = 2.33e-3 * mole / kg;
   // The Mediterranean Salinity is about 40o/oo (gr/kgr of seawater)
   // we scale these abundances for 40o/oo salinity
-  G4double scale = 40.0 / 35.0;
+  double scale = 40.0 / 35.0;
   abundanceNa *= scale;
   abundanceMg *= scale;
   abundanceCa *= scale;
@@ -492,7 +492,7 @@ void KM3Detector::ConstructMaterials() {
   abundanceCl *= weightCl;
   abundanceSO4 *= (weightS + 4 * weightO);
   abundanceHCO3 *= (weightH + weightC + 3 * weightO);
-  G4double abundanceH2O =
+  double abundanceH2O =
       1.0 - (abundanceNa + abundanceMg + abundanceCa + abundanceK +
              abundanceCl + abundanceSO4 + abundanceHCO3);
   //------------------the composites of sea
@@ -512,10 +512,10 @@ void KM3Detector::ConstructMaterials() {
   // calculate the density of sea water using the compressibility (Apostolis
   // Thesis appendix C)
   // and the detector depth (in meters : not water equivalent)
-  G4double Compressibility = 4.29e-5 / bar;
-  G4double gravity = 9.8 * m / (s * s);
-  G4double surfaceDensity = 1.029 * g / cm3;
-  G4double seawaterDensity =
+  double Compressibility = 4.29e-5 / bar;
+  double gravity = 9.8 * m / (s * s);
+  double surfaceDensity = 1.029 * g / cm3;
+  double seawaterDensity =
       surfaceDensity *
       exp(gravity * surfaceDensity * Compressibility * detectorDepth);
   //-----------------------------------------------------------------
@@ -626,17 +626,17 @@ void KM3Detector::ConstructMaterials() {
 
 #include "G4VoxelLimits.hh"
 
-G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
-  static G4int Cathods = 0;
-  static G4int Storeys = 0;
-  static G4int OMs = 0;
+int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
+  static int Cathods = 0;
+  static int Storeys = 0;
+  static int OMs = 0;
   static G4AffineTransform AffineTrans;
   static G4RotationMatrix RotationMatr;
-  static G4int Depth = 0;
-  static G4int Hist[20];
-  static std::vector<G4int>
+  static int Depth = 0;
+  static int Hist[20];
+  static std::vector<int>
       *aBenthosIDs; // static in order to load the benthos (OMs)
-  static std::vector<G4int>
+  static std::vector<int>
       *aCathodsIDs; // static in order to load the cathods (Cathods)
 
   //  G4cout <<Depth<<" "<<aPVolume->GetCopyNo()<<"
@@ -654,14 +654,14 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
     G4Transform3D trans(RotationMatr, Position);
     // estimate cathod radius///////////////////////////////
-    G4double CathodRadius = 0.0;
-    G4double CathodHeight = -1.0 * mm; // set default to begative, since it is
+    double CathodRadius = 0.0;
+    double CathodHeight = -1.0 * mm; // set default to begative, since it is
                                        // not applicable to spherical cathods
     if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        G4String("G4Sphere")) {
+        std::string("G4Sphere")) {
       CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
                          ->GetOuterRadius();
-      G4double InnerRadius =
+      double InnerRadius =
           ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
               ->GetInnerRadius();
       if ((CathodRadius - InnerRadius) < 1.001 * mm)
@@ -669,7 +669,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
             0.5 * (CathodRadius +
                    InnerRadius); // applicable mainly to shell type cathods (EM)
     } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-               G4String("G4Tubs")) {
+               std::string("G4Tubs")) {
       CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
                          ->GetOuterRadius(); // applicable to thin tube cathods
                                              // (normal run)
@@ -680,7 +680,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     ///////////////////////////////////////////
     allCathods->addCathod(trans, Position, Direction, CathodRadius,
                           CathodHeight, Depth - 1);
-    for (G4int i = 1; i < Depth; i++)
+    for (int i = 1; i < Depth; i++)
       allCathods->addToTree(Hist[i]);
     // G4cout << Depth <<" "<<Hist[0]<<" "<<Hist[1]<<" "<<Hist[2]<<"
     // "<<Hist[3]<<" "<<Hist[4]<<" "<<Hist[5]<<G4endl; //tempotest
@@ -694,27 +694,27 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
       aOM->position =
           AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-      aCathodsIDs = new std::vector<G4int>;
+      aCathodsIDs = new std::vector<int>;
       aOM->CathodsIDs = aCathodsIDs;
       // if OM is sphere then set the outer radius as radius,
       // if it is tubs then set the proper radius
       // else set the geometrical sum of the extend on the three axis
       //(maximum extend. Exact only for Boxes)
       if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-          G4String("G4Sphere")) {
+          std::string("G4Sphere")) {
         aOM->radius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
                           ->GetOuterRadius();
       } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-                 G4String("G4Tubs")) {
-        G4double zLength = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+                 std::string("G4Tubs")) {
+        double zLength = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
                                ->GetZHalfLength();
-        G4double oRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+        double oRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
                                ->GetOuterRadius();
         aOM->radius = sqrt(zLength * zLength + oRadius * oRadius);
       } else {
         G4VoxelLimits voxelLimits; // Defaults to "infinite" limits.
         G4AffineTransform affineTransform; // no transform
-        G4double xmin, xmax, ymin, ymax, zmin, zmax;
+        double xmin, xmax, ymin, ymax, zmin, zmax;
         aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
             kXAxis, voxelLimits, affineTransform, xmin, xmax);
         aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
@@ -737,7 +737,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
           (StoreysPositions *)malloc(sizeof(StoreysPositions));
       aStorey->position =
           AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-      aBenthosIDs = new std::vector<G4int>;
+      aBenthosIDs = new std::vector<int>;
       aStorey->BenthosIDs = aBenthosIDs;
       allStoreys->push_back(aStorey);
       Storeys++;
@@ -745,7 +745,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     G4AffineTransform tempoaffine(aPVolume->GetObjectRotationValue().inverse(),
                                   aPVolume->GetObjectTranslation());
     AffineTrans = tempoaffine * AffineTrans;
-    for (G4int i = 0; i < aPVolume->GetLogicalVolume()->GetNoDaughters(); i++) {
+    for (int i = 0; i < aPVolume->GetLogicalVolume()->GetNoDaughters(); i++) {
       // the following is to fix new GDML that does not apply a copyNumber to
       // physical volumes
       aPVolume->GetLogicalVolume()->GetDaughter(i)->SetCopyNo(i);
@@ -783,8 +783,8 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   G4cout << "Total Cathods " << TotalPMTEntities(fWorld) << G4endl;
 
-  //  G4int History[10]={20,20,18,0,2,0,0,0,0,0};
-  //  G4int dep=5;
+  //  int History[10]={20,20,18,0,2,0,0,0,0,0};
+  //  int dep=5;
   //  G4cout <<"123456 "<<allCathods->GetCathodId(dep,History)<<G4endl;
   //  History[3]=1;
   //  G4cout <<"123456 "<<allCathods->GetCathodId(dep,History)<<G4endl;
@@ -794,7 +794,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   //------------------------------------------------
 
   G4SDManager *SDman = G4SDManager::GetSDMpointer();
-  G4String MySDname = "mydetector1/MySD";
+  std::string MySDname = "mydetector1/MySD";
   KM3SD *aMySD = new KM3SD(MySDname);
   aMySD->SetVerboseLevel(1);
   aMySD->myStDetector = this;
@@ -804,8 +804,8 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // detectors
   G4LogicalVolume *aLogicalVolume;
   std::vector<G4LogicalVolume *> *aLogicalStore;
-  G4String aString1("CathodVolume");
-  G4String aString2("DeadVolume");
+  std::string aString1("CathodVolume");
+  std::string aString2("DeadVolume");
   size_t theSize = G4LogicalVolumeStore::GetInstance()->size();
   aLogicalStore = G4LogicalVolumeStore::GetInstance();
   if (DrawDetector) {
@@ -823,29 +823,29 @@ G4VPhysicalVolume *KM3Detector::Construct() {
       G4cout << aLogicalVolume->GetName() << G4endl;
       G4cout << "Enter Color" << G4endl;
       scanf("%s", Colour);
-      G4String colour(Colour);
-      if (colour == G4String("none"))
+      std::string colour(Colour);
+      if (colour == std::string("none"))
         aLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
       else {
         G4VisAttributes *MyVis;
-        G4bool ok = true;
-        if (colour == G4String("white"))
+        bool ok = true;
+        if (colour == std::string("white"))
           MyVis = new G4VisAttributes(G4Colour::White());
-        else if (colour == G4String("gray") || colour == G4String("grey"))
+        else if (colour == std::string("gray") || colour == std::string("grey"))
           MyVis = new G4VisAttributes(G4Colour::Gray());
-        else if (colour == G4String("black"))
+        else if (colour == std::string("black"))
           MyVis = new G4VisAttributes(G4Colour::Black());
-        else if (colour == G4String("red"))
+        else if (colour == std::string("red"))
           MyVis = new G4VisAttributes(G4Colour::Red());
-        else if (colour == G4String("green"))
+        else if (colour == std::string("green"))
           MyVis = new G4VisAttributes(G4Colour::Green());
-        else if (colour == G4String("blue"))
+        else if (colour == std::string("blue"))
           MyVis = new G4VisAttributes(G4Colour::Blue());
-        else if (colour == G4String("cyan"))
+        else if (colour == std::string("cyan"))
           MyVis = new G4VisAttributes(G4Colour::Cyan());
-        else if (colour == G4String("magenta"))
+        else if (colour == std::string("magenta"))
           MyVis = new G4VisAttributes(G4Colour::Magenta());
-        else if (colour == G4String("yellow"))
+        else if (colour == std::string("yellow"))
           MyVis = new G4VisAttributes(G4Colour::Yellow());
         else
           ok = false;
@@ -890,13 +890,13 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // Next find from OM positions and radius in each store the storey radius
   for (size_t istorey = 0; istorey < allStoreys->size(); istorey++) {
     G4ThreeVector storeyposition = (*allStoreys)[istorey]->position;
-    G4double MAXdist = 0.0;
+    double MAXdist = 0.0;
     size_t OMnumber = (*allStoreys)[istorey]->BenthosIDs->size();
     for (size_t iom = 0; iom < OMnumber; iom++) {
-      G4int iOM = (*((*allStoreys)[istorey]->BenthosIDs))[iom];
+      int iOM = (*((*allStoreys)[istorey]->BenthosIDs))[iom];
       G4ThreeVector OMposition = (*allOMs)[iOM]->position;
-      G4double OMradius = (*allOMs)[iOM]->radius;
-      G4double dist = (storeyposition - OMposition).mag() + OMradius;
+      double OMradius = (*allOMs)[iOM]->radius;
+      double dist = (storeyposition - OMposition).mag() + OMradius;
       if (dist > MAXdist)
         MAXdist = dist;
     }
@@ -908,9 +908,9 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   //--------Write the header of the outfile and the Cathods Position, Direction
   //and History Tree
-  G4int nnn0 = 0;
-  G4int nnn1 = 1;
-  G4int nben = allCathods->GetNumberOfCathods();
+  int nnn0 = 0;
+  int nnn1 = 1;
+  int nben = allCathods->GetNumberOfCathods();
 
   if (outfile == NULL)
     G4cout << "ERROR OUTFILE\n" << G4endl;
@@ -929,7 +929,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 #endif
 
   // find the total photocathod area on a OM
-  G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
+  int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
   TotCathodArea =
       CaPerOM * pi * allCathods->GetCathodRadius(0) *
       allCathods->GetCathodRadius(0); // this is valid only if at simulation
@@ -981,22 +981,22 @@ void KM3Detector::initializeSpheres(void) {
 // split spheres with clustering methods.
 void KM3Detector::splitSpheresCluster(
     std::vector<StoreysPositions *> *allmyStoreys, Spheres *mySphere) {
-  static G4int depth = 0;
+  static int depth = 0;
   G4cout << "Depth in split " << depth << G4endl;
   depth++;
   // find the center of mass of the detector
   G4ThreeVector center(0.0, 0.0, 0.0);
-  G4int howmanyStoreys = allmyStoreys->size();
-  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
+  int howmanyStoreys = allmyStoreys->size();
+  for (int isto = 0; isto < howmanyStoreys; isto++) {
     center += (*allmyStoreys)[isto]->position;
   }
   center /= double(howmanyStoreys);
 
   // find the maximum distance
-  G4double maxDistance = -1.0;
-  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
+  double maxDistance = -1.0;
+  for (int isto = 0; isto < howmanyStoreys; isto++) {
     G4ThreeVector pos = (*allmyStoreys)[isto]->position - center;
-    G4double distance = pos.mag() + (*allmyStoreys)[isto]->radius;
+    double distance = pos.mag() + (*allmyStoreys)[isto]->radius;
     if (distance > maxDistance) {
       maxDistance = distance;
     }
@@ -1014,7 +1014,7 @@ void KM3Detector::splitSpheresCluster(
     size_t OMnumber = (*allmyStoreys)[0]->BenthosIDs->size();
     for (size_t iom = 0; iom < OMnumber; iom++) {
       Spheres *mySpherenext = (Spheres *)malloc(sizeof(Spheres));
-      G4int iOM = (*((*allmyStoreys)[0]->BenthosIDs))[iom];
+      int iOM = (*((*allmyStoreys)[0]->BenthosIDs))[iom];
       mySpherenext->center = (*allOMs)[iOM]->position;
       mySpherenext->radius = (*allOMs)[iOM]->radius;
       std::vector<Spheres *> *thenextnext = new std::vector<Spheres *>;
@@ -1026,16 +1026,16 @@ void KM3Detector::splitSpheresCluster(
 
   // load all benthos indexing in array ALLSTOREYS[1000] (needed only for
   // clustering)
-  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
+  for (int isto = 0; isto < howmanyStoreys; isto++) {
     ALLSTOREYS[isto] = -1;
   }
   //----here is the implementation of the clustering
   // first time choose randomly the centers inside the initial sphere
-  G4double centers[4][3];
-  G4int imanystoreysarr[4];
-  G4int numofCenters = 2;
-  G4double radiusRANDOM, thetaRANDOM, phiRANDOM;
-  for (G4int i = 0; i < numofCenters; i++) {
+  double centers[4][3];
+  int imanystoreysarr[4];
+  int numofCenters = 2;
+  double radiusRANDOM, thetaRANDOM, phiRANDOM;
+  for (int i = 0; i < numofCenters; i++) {
     radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
     thetaRANDOM = M_PI * drand48();
     phiRANDOM = 2 * M_PI * drand48();
@@ -1047,11 +1047,11 @@ void KM3Detector::splitSpheresCluster(
   }
 
   // next find the minimum and maximum number of storeys in each subdetector
-  G4int nmove = 10;
-  G4int jmin;
-  G4double distm, dist;
-  G4int imanymin, imanymax, igood;
-  G4int imanyminMAX = -10;
+  int nmove = 10;
+  int jmin;
+  double distm, dist;
+  int imanymin, imanymax, igood;
+  int imanyminMAX = -10;
   if (div(howmanyStoreys, 2).rem == 0) {
     imanymin = howmanyStoreys / 2;
     imanymax = howmanyStoreys - imanymin;
@@ -1059,15 +1059,15 @@ void KM3Detector::splitSpheresCluster(
     imanymin = (howmanyStoreys - 1) / 2;
     imanymax = howmanyStoreys - imanymin;
   }
-  G4int iter = 0;
+  int iter = 0;
   while (nmove > 0) { // while the iteration process has not converged to an
                       // acceptable solution
     nmove = 0;
-    for (G4int i = 0; i < howmanyStoreys;
+    for (int i = 0; i < howmanyStoreys;
          i++) { // find each storey to what center belongs (is closer)
       G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
       distm = 1.0e20;
-      for (G4int j = 0; j < numofCenters; j++) {
+      for (int j = 0; j < numofCenters; j++) {
         dist = (centers[j][0] - StoPos[0]) * (centers[j][0] - StoPos[0]) +
                (centers[j][1] - StoPos[1]) * (centers[j][1] - StoPos[1]) +
                (centers[j][2] - StoPos[2]) * (centers[j][2] - StoPos[2]);
@@ -1084,13 +1084,13 @@ void KM3Detector::splitSpheresCluster(
 
     igood = 1;
     if (nmove == 0) { // if it has converged see if the solution is acceptable
-      for (G4int j = 0; j < numofCenters; j++) {
+      for (int j = 0; j < numofCenters; j++) {
         imanystoreysarr[j] = 0;
-        for (G4int i = 0; i < howmanyStoreys; i++)
+        for (int i = 0; i < howmanyStoreys; i++)
           if (ALLSTOREYS[i] == j)
             imanystoreysarr[j]++;
       }
-      for (G4int j = 0; j < numofCenters; j++) {
+      for (int j = 0; j < numofCenters; j++) {
         if ((imanystoreysarr[j] < imanymin) || (imanystoreysarr[j] > imanymax))
           igood = 0;
       }
@@ -1104,7 +1104,7 @@ void KM3Detector::splitSpheresCluster(
           imanymin = imanyminMAX;
           imanymax = howmanyStoreys - imanymin;
         }
-        for (G4int j = 0; j < numofCenters; j++) {
+        for (int j = 0; j < numofCenters; j++) {
           radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
           thetaRANDOM = M_PI * drand48();
           phiRANDOM = 2 * M_PI * drand48();
@@ -1120,12 +1120,12 @@ void KM3Detector::splitSpheresCluster(
     if (igood == 1) { // if the solution is acceptable or it has not converged
       if (nmove != 0) { // if it has not converged
         // find the new center coordinates
-        for (G4int j = 0; j < numofCenters; j++) {
+        for (int j = 0; j < numofCenters; j++) {
           centers[j][0] = 0.0;
           centers[j][1] = 0.0;
           centers[j][2] = 0.0;
-          G4int imanystoreys = 0;
-          for (G4int i = 0; i < howmanyStoreys; i++) {
+          int imanystoreys = 0;
+          for (int i = 0; i < howmanyStoreys; i++) {
             if (ALLSTOREYS[i] == j) {
               G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
               imanystoreys++;
@@ -1151,7 +1151,7 @@ void KM3Detector::splitSpheresCluster(
       new std::vector<StoreysPositions *>;
   std::vector<StoreysPositions *> *negativemyStoreys =
       new std::vector<StoreysPositions *>;
-  for (G4int i = 0; i < howmanyStoreys; i++) {
+  for (int i = 0; i < howmanyStoreys; i++) {
     if (ALLSTOREYS[i] == 0) { // the first center
       positivemyStoreys->push_back((*allmyStoreys)[i]);
     } else { // the second center

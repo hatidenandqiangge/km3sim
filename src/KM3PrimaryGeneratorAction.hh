@@ -73,19 +73,19 @@ public:
   FILE *infile;
   char *filePythiaParticles;
   char *fileParticles;
-  G4int numberofParticles;
+  int numberofParticles;
   void GeneratePrimaries(G4Event *anEvent);
   void Initialize(void);
-  G4bool useHEPEvt;
-  G4bool useANTARESformat;
+  bool useHEPEvt;
+  bool useANTARESformat;
   KM3TrackingAction *myTracking;
 #if !defined(G4MYEM_PARAMETERIZATION) &&                                       \
     !defined(G4MYHA_PARAMETERIZATION) // newha
   KM3EventAction *event_action;
 #endif
-  G4double ParamEnergy;
-  G4int idbeam; // type of injected or produced particles (PDG Code)
-  G4double random_R;
+  double ParamEnergy;
+  int idbeam; // type of injected or produced particles (PDG Code)
+  double random_R;
   G4ThreeVector position;
   G4ThreeVector direction;
 #ifdef G4MYHAMUONS_PARAMETERIZATION
@@ -98,11 +98,11 @@ private:
 #ifdef G4MYMUON_PARAMETERIZATION
   KM3MuonParam *myMuonParam; // for muon param vs distance
 #endif
-  G4double EventWeight;
+  double EventWeight;
   G4ThreeVector detectorCenter;
-  G4double detectorMaxRho;
-  G4double detectorMaxz;
-  G4double bottomPosition;
+  double detectorMaxRho;
+  double detectorMaxz;
+  double bottomPosition;
 
 #ifndef G4MYFIT_PARAMETERIZATION
 #ifndef G4MYEM_PARAMETERIZATION
@@ -115,18 +115,18 @@ private:
 #endif
 
 #ifdef G4MYK40_PARAMETERIZATION
-  G4double beta(G4double x);
-  G4double K40Radius;
+  double beta(double x);
+  double K40Radius;
 #endif
 
 #ifdef G4MYSN_PARAMETERIZATION
-  G4double SNRadius;
-  G4double NeutrinoTheta, NeutrinoPhi; // momentum vector
+  double SNRadius;
+  double NeutrinoTheta, NeutrinoPhi; // momentum vector
 #endif
 
 public:
-  void PutFromDetector(G4ThreeVector dC, G4double dMR, G4double dMz,
-                       G4double bP) {
+  void PutFromDetector(G4ThreeVector dC, double dMR, double dMz,
+                       double bP) {
     detectorCenter = dC;
     detectorMaxRho = dMR;
     detectorMaxz = dMz;

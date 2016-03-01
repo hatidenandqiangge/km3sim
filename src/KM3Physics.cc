@@ -147,18 +147,18 @@ void KM3Physics::ConstructProcess() {
   // while( (*theParticleIterator)() ){
   //   G4ParticleDefinition* particle = theParticleIterator->value();
   //   G4ProcessManager* pmanager = particle->GetProcessManager();
-  //   G4String particleName = particle->GetParticleName();
+  //   std::string particleName = particle->GetParticleName();
   //   G4ProcessVector* aVector=pmanager->GetProcessList();
-  //   G4int isi=aVector->size();
+  //   int isi=aVector->size();
   //   if(!particle->IsShortLived())
   //     G4cout << "------------------ "<<particleName<<" "<<isi<<"
   //     ------------------"<<G4endl;
   //   else
   //     G4cout << "----SHORTSHORT---- "<<particleName<<" "<<isi<<"
   //     ----SHORTSHORT----"<<G4endl;
-  //   for( G4int iii=0 ; iii<isi ; iii++){
+  //   for( int iii=0 ; iii<isi ; iii++){
   //     G4VProcess* app=(*aVector)[iii];
-  //     G4String ass=app->GetProcessName();
+  //     std::string ass=app->GetProcessName();
   //     G4cout << ass << G4endl;
   //   }
   // }
@@ -206,11 +206,11 @@ void KM3Physics::ConstructEM() {
   while ((*theParticleIterator)()) {
     G4ParticleDefinition *particle = theParticleIterator->value();
     G4ProcessManager *pmanager = particle->GetProcessManager();
-    G4String particleName = particle->GetParticleName();
+    std::string particleName = particle->GetParticleName();
 
-    G4double lowE;
-    G4double highE;
-    G4int nBins;
+    double lowE;
+    double highE;
+    int nBins;
 
     if (particleName == "gamma") {
       // gamma conversion to e+e- pair
@@ -459,7 +459,7 @@ void KM3Physics::ConstructEM() {
 void KM3Physics::ConstructHA() {
   G4HadronicProcessStore::Instance()->SetVerbose(0);
   // hadron elastic processes. from G4HadronElasticPhysics
-  G4double elimitmaxall = 100.0 * PeV;
+  double elimitmaxall = 100.0 * PeV;
 
   // hadron physics (elastic)
   G4HadronElasticPhysics *theHadronElasticPhysics =
@@ -485,7 +485,7 @@ void KM3Physics::ConstructHA() {
   theParticleIterator->reset();
   while ((*theParticleIterator)()) {
     G4ParticleDefinition *particle = theParticleIterator->value();
-    G4String particleName = particle->GetParticleName();
+    std::string particleName = particle->GetParticleName();
     if (particleName == "anti_lambda" || particleName == "anti_neutron" ||
         particleName == "anti_omega-" || particleName == "anti_proton" ||
         particleName == "anti_sigma+" || particleName == "anti_sigma-" ||
@@ -499,8 +499,8 @@ void KM3Physics::ConstructHA() {
         particleName == "xi-" || particleName == "xi0") {
       G4ProcessManager *pmanager = particle->GetProcessManager();
       G4ProcessVector *aVector = pmanager->GetProcessList();
-      G4int isi = aVector->size();
-      for (G4int iii = 0; iii < isi; iii++) {
+      int isi = aVector->size();
+      for (int iii = 0; iii < isi; iii++) {
         G4VProcess *app = (*aVector)[iii];
         //	G4cout <<"PPPPPnames "<<particleName<<" "<<
         //app->GetProcessName() <<" "<<app->GetProcessSubType()<<G4endl;
@@ -515,7 +515,7 @@ void KM3Physics::ConstructHA() {
           G4Material *aMaterial = NULL;
           const G4Element *anElement = NULL;
           for (size_t J = 0; J < theMaterialTable->size(); J++) {
-            if ((*theMaterialTable)[J]->GetName() == G4String("Water")) {
+            if ((*theMaterialTable)[J]->GetName() == std::string("Water")) {
               aMaterial = (*theMaterialTable)[J];
               anElement = aMaterial->GetElement(0);
             }
@@ -730,7 +730,7 @@ G4ExcitedStringDecay(theFragmentation);
   while( (*theParticleIterator)() ){
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
-    G4String particleName = particle->GetParticleName();
+    std::string particleName = particle->GetParticleName();
 
     if (particleName == "pi+") {
       pmanager->AddDiscreteProcess(theElasticProcess);
@@ -1117,7 +1117,7 @@ void KM3Physics::ConstructOP() {
   theCerenkovProcess->SetDetector(aDetector);
   theAbsorptionProcess->SetVerboseLevel(0);
 
-  G4int MaxNumPhotons = -30000;
+  int MaxNumPhotons = -30000;
 
   theCerenkovProcess->SetTrackSecondariesFirst(true);
   theCerenkovProcess->SetMaxNumPhotonsPerStep(MaxNumPhotons);
@@ -1139,7 +1139,7 @@ void KM3Physics::ConstructOP() {
     G4ParticleDefinition *particle = theParticleIterator->value();
     G4ProcessManager *pmanager = particle->GetProcessManager();
     if (pmanager) {
-      G4String particleName = particle->GetParticleName();
+      std::string particleName = particle->GetParticleName();
       if (theCerenkovProcess->IsApplicable(*particle)) {
         pmanager->AddProcess(theCerenkovProcess);
         pmanager->SetProcessOrdering(theCerenkovProcess, idxPostStep);
@@ -1204,9 +1204,9 @@ void KM3Physics::ConstructGeneral() {
       G4ParticleTable::GetParticleTable()->GetIonTable();
   G4RadioactiveDecay *theRadioactiveDecay = new G4RadioactiveDecay();
 
-  for (G4int i = 0; i < theIonTable->Entries(); i++) {
-    G4String particleName = theIonTable->GetParticle(i)->GetParticleName();
-    G4String particleType = theIonTable->GetParticle(i)->GetParticleType();
+  for (int i = 0; i < theIonTable->Entries(); i++) {
+    std::string particleName = theIonTable->GetParticle(i)->GetParticleName();
+    std::string particleType = theIonTable->GetParticle(i)->GetParticleType();
     // G4cout << "*********************************"<< particleName << G4endl;
     if (particleName == "GenericIon") {
       G4ProcessManager *pmanager =

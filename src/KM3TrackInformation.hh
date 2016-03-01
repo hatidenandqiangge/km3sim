@@ -24,26 +24,26 @@ public:
   void Print() const;
 
 private:
-  G4String originalTrackCreatorProcess;
-  G4String originalparticleName;
-  G4double originalEnergy;
-  G4int originalParentID;
-  G4bool EmittedAsScattered; // newmie
+  std::string originalTrackCreatorProcess;
+  std::string originalparticleName;
+  double originalEnergy;
+  int originalParentID;
+  bool EmittedAsScattered; // newmie
 #ifdef G4MYLASER_PARAMETERIZATION
   std::vector<G4ThreeVector> *ScatteringPositions;
   std::vector<double> *ScatteringAngles;
 #endif
 
 public:
-  inline G4String GetOriginalTrackCreatorProcess() const {
+  inline std::string GetOriginalTrackCreatorProcess() const {
     return originalTrackCreatorProcess;
   }
-  inline G4String GetOriginalParticleName() const {
+  inline std::string GetOriginalParticleName() const {
     return originalparticleName;
   }
-  inline G4double GetOriginalEnergy() const { return originalEnergy; }
-  inline G4int GetOriginalParentID() const { return originalParentID; }
-  inline G4bool GetEmittedAsScattered() const {
+  inline double GetOriginalEnergy() const { return originalEnergy; }
+  inline int GetOriginalParentID() const { return originalParentID; }
+  inline bool GetEmittedAsScattered() const {
     return EmittedAsScattered;
   } // newmie
 #ifdef G4MYLASER_PARAMETERIZATION
@@ -52,13 +52,13 @@ public:
     ScatteringPositions->push_back(ScatteringPosition);
     ScatteringAngles->push_back(ScatteringAngle);
   };
-  inline G4int GetNumberOfScatters(void) {
+  inline int GetNumberOfScatters(void) {
     return ScatteringPositions->size();
   };
-  inline G4ThreeVector GetScatteringPosition(G4int is) {
+  inline G4ThreeVector GetScatteringPosition(int is) {
     return (*ScatteringPositions)[is];
   };
-  inline G4double GetScatteringAngle(G4int is) {
+  inline double GetScatteringAngle(int is) {
     return (*ScatteringAngles)[is];
   };
 #endif

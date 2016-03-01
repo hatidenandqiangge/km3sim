@@ -14,20 +14,20 @@ HAVertexMuons::HAVertexMuons(char *MuonsFile, char *MuonsIndexFile) {
 
   char valC[4];
   MuonsIndexStream.read(valC, 4);
-  numevents = *(G4int *)valC;
-  theEnergies = new std::vector<G4float>;
-  theSizes = new std::vector<G4int>;
-  thePositions = new std::vector<G4int>;
+  numevents = *(int *)valC;
+  theEnergies = new std::vector<float>;
+  theSizes = new std::vector<int>;
+  thePositions = new std::vector<int>;
   theEnergies->reserve(numevents);
   theSizes->reserve(numevents);
   thePositions->reserve(numevents);
-  for (G4int iev = 0; iev < numevents; iev++) {
+  for (int iev = 0; iev < numevents; iev++) {
     MuonsIndexStream.read(valC, 4);
-    theEnergies->push_back(*(G4float *)valC);
+    theEnergies->push_back(*(float *)valC);
     MuonsIndexStream.read(valC, 4);
-    theSizes->push_back(*(G4int *)valC);
+    theSizes->push_back(*(int *)valC);
     MuonsIndexStream.read(valC, 4);
-    thePositions->push_back(*(G4int *)valC);
+    thePositions->push_back(*(int *)valC);
   }
   MuonsIndexStream.close();
 }
@@ -42,8 +42,8 @@ HAVertexMuons::~HAVertexMuons() {
   delete thePositions;
 }
 
-G4int HAVertexMuons::GetNumberOfMuons(G4double HadronicEnergy) {
-  G4int iev;
+int HAVertexMuons::GetNumberOfMuons(double HadronicEnergy) {
+  int iev;
   for (iev = 0; iev < numevents; iev++) {
     if (HadronicEnergy < (*theEnergies)[iev])
       break;
@@ -61,21 +61,21 @@ G4int HAVertexMuons::GetNumberOfMuons(G4double HadronicEnergy) {
 
 void HAVertexMuons::ReadMuon() {
   char valC[4];
-  G4double thePos0, thePos1, thePos2, theMom0, theMom1, theMom2;
+  double thePos0, thePos1, thePos2, theMom0, theMom1, theMom2;
   MuonsStream->read(valC, 4);
-  theTime = (G4double)(*(float *)valC);
+  theTime = (double)(*(float *)valC);
   MuonsStream->read(valC, 4);
-  thePos0 = (G4double)(*(float *)valC);
+  thePos0 = (double)(*(float *)valC);
   MuonsStream->read(valC, 4);
-  thePos1 = (G4double)(*(float *)valC);
+  thePos1 = (double)(*(float *)valC);
   MuonsStream->read(valC, 4);
-  thePos2 = (G4double)(*(float *)valC);
+  thePos2 = (double)(*(float *)valC);
   MuonsStream->read(valC, 4);
-  theMom0 = (G4double)(*(float *)valC);
+  theMom0 = (double)(*(float *)valC);
   MuonsStream->read(valC, 4);
-  theMom1 = (G4double)(*(float *)valC);
+  theMom1 = (double)(*(float *)valC);
   MuonsStream->read(valC, 4);
-  theMom2 = (G4double)(*(float *)valC);
+  theMom2 = (double)(*(float *)valC);
   thePosition = G4ThreeVector(thePos0, thePos1, thePos2);
   theMomentum = G4ThreeVector(theMom0, theMom1, theMom2);
 }

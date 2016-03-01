@@ -10,11 +10,11 @@
 struct Cathod {
   G4ThreeVector Position;
   G4ThreeVector Direction;
-  G4double Radius;
-  G4double Height;
+  double Radius;
+  double Height;
   G4Transform3D trans;
-  G4int Depth;
-  std::vector<G4int> *Tree;
+  int Depth;
+  std::vector<int> *Tree;
 };
 
 class KM3Cathods {
@@ -24,27 +24,27 @@ public:
 
 public:
   void addCathod(const G4Transform3D &, const G4ThreeVector &,
-                 const G4ThreeVector &, const G4double, const G4double,
-                 const G4int);
-  void addToTree(const G4int);
+                 const G4ThreeVector &, const double, const double,
+                 const int);
+  void addToTree(const int);
 
-  G4int GetCathodId(const G4int, const G4int[]);
+  int GetCathodId(const int, const int[]);
   void PrintAllCathods(FILE *);
   inline G4Transform3D GetTransformation();
   inline G4ThreeVector GetDirection();
-  inline G4ThreeVector GetDirection(G4int it);
+  inline G4ThreeVector GetDirection(int it);
   inline G4ThreeVector GetPosition();
-  inline G4ThreeVector GetPosition(G4int it);
-  inline G4double GetCathodRadius();
-  inline G4double GetCathodRadius(G4int it);
-  inline G4double GetCathodHeight();
-  inline G4double GetCathodHeight(G4int it);
-  inline G4int GetNumberOfCathods();
+  inline G4ThreeVector GetPosition(int it);
+  inline double GetCathodRadius();
+  inline double GetCathodRadius(int it);
+  inline double GetCathodHeight();
+  inline double GetCathodHeight(int it);
+  inline int GetNumberOfCathods();
 
 private:
   std::vector<Cathod *> theCathods;
-  G4int NumOfCathods;
-  G4int iterator;
+  int NumOfCathods;
+  int iterator;
 };
 
 inline G4Transform3D KM3Cathods::GetTransformation() {
@@ -53,27 +53,27 @@ inline G4Transform3D KM3Cathods::GetTransformation() {
 inline G4ThreeVector KM3Cathods::GetDirection() {
   return theCathods[iterator]->Direction;
 }
-inline G4ThreeVector KM3Cathods::GetDirection(G4int it) {
+inline G4ThreeVector KM3Cathods::GetDirection(int it) {
   return theCathods[it]->Direction;
 }
 inline G4ThreeVector KM3Cathods::GetPosition() {
   return theCathods[iterator]->Position;
 }
-inline G4ThreeVector KM3Cathods::GetPosition(G4int it) {
+inline G4ThreeVector KM3Cathods::GetPosition(int it) {
   return theCathods[it]->Position;
 }
-inline G4double KM3Cathods::GetCathodRadius() {
+inline double KM3Cathods::GetCathodRadius() {
   return theCathods[iterator]->Radius;
 }
-inline G4double KM3Cathods::GetCathodRadius(G4int it) {
+inline double KM3Cathods::GetCathodRadius(int it) {
   return theCathods[it]->Radius;
 }
-inline G4double KM3Cathods::GetCathodHeight() {
+inline double KM3Cathods::GetCathodHeight() {
   return theCathods[iterator]->Height;
 }
-inline G4double KM3Cathods::GetCathodHeight(G4int it) {
+inline double KM3Cathods::GetCathodHeight(int it) {
   return theCathods[it]->Height;
 }
-inline G4int KM3Cathods::GetNumberOfCathods() { return NumOfCathods; }
+inline int KM3Cathods::GetNumberOfCathods() { return NumOfCathods; }
 
 #endif

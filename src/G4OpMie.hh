@@ -95,7 +95,7 @@ public: // Without description
         // Constructors and Destructor
         ////////////////////////////////
 
-  G4OpMie(const G4String &processName = "OpMie", G4ProcessType type = fOptical);
+  G4OpMie(const std::string &processName = "OpMie", G4ProcessType type = fOptical);
 
   // G4OpMie(const G4OpMie &right);
 
@@ -106,10 +106,10 @@ public: // Without description
   ////////////
 
 public: // With description
-  G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
+  bool IsApplicable(const G4ParticleDefinition &aParticleType);
   // Returns true -> 'is applicable' only for an optical photon.
 
-  G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition *);
+  double GetMeanFreePath(const G4Track &aTrack, double, G4ForceCondition *);
   // Returns the mean free path for Mie scattering in water.
   // --- Not yet implemented for other materials! ---
 
@@ -121,24 +121,24 @@ private:
   // Helper Functions
   /////////////////////
   void BuildThePhysicsTable(void);
-  G4double SampleAngle(void);
-  G4double PhaseFunction(G4double angle);
+  double SampleAngle(void);
+  double PhaseFunction(double angle);
   ///////////////////////
   // Class Data Members
   ///////////////////////
 
 private:
-  G4int IndexPhaseFunction;
+  int IndexPhaseFunction;
   std::vector<PhaseFactors *> *thePhaseFactors;
   CLHEP::RandGeneral *PhaseRand;
-  G4double PhaseArray[1801];
+  double PhaseArray[1801];
 };
 
 ////////////////////
 // Inline methods
 ////////////////////
 
-inline G4bool G4OpMie::IsApplicable(const G4ParticleDefinition &aParticleType) {
+inline bool G4OpMie::IsApplicable(const G4ParticleDefinition &aParticleType) {
   return (&aParticleType == G4OpticalPhoton::OpticalPhoton());
 }
 

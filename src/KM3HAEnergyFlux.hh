@@ -10,27 +10,27 @@
 
 class KM3HAEnergyFlux {
 public:
-  KM3HAEnergyFlux(char *, G4double, G4double, G4double, G4double);
+  KM3HAEnergyFlux(char *, double, double, double, double);
   ~KM3HAEnergyFlux();
 
 public:
-  void FindBins(G4int idbeam, G4double energyin, G4double distancein,
-                G4double anglein);
-  G4int GetNumberOfSamples() { return NumberOfSamples; };
+  void FindBins(int idbeam, double energyin, double distancein,
+                double anglein);
+  int GetNumberOfSamples() { return NumberOfSamples; };
   onePE GetSamplePoint();
 
 private:
-  G4double Rescale(G4int idbeam, G4double energyin, G4double energydis);
-  G4int NPartsDists;
+  double Rescale(int idbeam, double energyin, double energydis);
+  int NPartsDists;
   std::vector<KM3EMDistanceFlux *> *keepEnergies;
-  G4double ParticleEnergyScaleFactors[7][5];
-  G4int ibin;
-  G4double Flux;
-  G4double FluxRMS;
-  G4double EnergyMin;
-  G4double EnergyMax;
-  G4int NumberOfSamples;
-  G4double RatioThis;
+  double ParticleEnergyScaleFactors[7][5];
+  int ibin;
+  double Flux;
+  double FluxRMS;
+  double EnergyMin;
+  double EnergyMax;
+  int NumberOfSamples;
+  double RatioThis;
 };
 
 #endif

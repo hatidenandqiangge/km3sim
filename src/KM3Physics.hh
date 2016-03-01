@@ -49,10 +49,10 @@ public:
   KM3Cherenkov *theCerenkovProcess;
 
 protected:
-  G4double defaultCutEnergyValueForGamma;
-  G4double defaultCutEnergyValueForElectron;
-  G4double defaultCutEnergyValueForMuon;
-  G4double defaultCutEnergyValueForHadron;
+  double defaultCutEnergyValueForGamma;
+  double defaultCutEnergyValueForElectron;
+  double defaultCutEnergyValueForMuon;
+  double defaultCutEnergyValueForHadron;
 };
 
 #endif

@@ -9,9 +9,9 @@
 #include "G4ExceptionHandler.hh"
 
 struct onePE {
-  G4double time;
-  G4double costh;
-  G4double phi;
+  double time;
+  double costh;
+  double phi;
 };
 
 class KM3EMTimePointDis {
@@ -21,31 +21,31 @@ public:
 
 public:
   onePE GetSamplePoint();
-  G4double GiveAngle() { return angle; };
-  G4double GiveFlux() { return Flux; };
-  G4double GiveFluxRMS() { return FluxRMS; };
+  double GiveAngle() { return angle; };
+  double GiveFlux() { return Flux; };
+  double GiveFluxRMS() { return FluxRMS; };
   bool IsValid() { return IsThisValid; };
 
 private:
-  std::vector<G4float> *keepDis;
-  std::vector<G4float> *keepTh2Th3Num;
-  std::vector<G4float> *keepExpoTh2;
-  std::vector<G4float> *keepExpoTh3;
+  std::vector<float> *keepDis;
+  std::vector<float> *keepTh2Th3Num;
+  std::vector<float> *keepExpoTh2;
+  std::vector<float> *keepExpoTh3;
   bool time_ok[52];
-  G4double pi2;
-  G4double angle;
-  G4double Flux;
-  G4double FluxRMS;
+  double pi2;
+  double angle;
+  double Flux;
+  double FluxRMS;
   bool IsThisValid;
   // definition of bins limits for direction sampling
-  G4double theta_Low[834]; // this should be OMSolidAngleBins below
-  G4double theta_High[834];
-  G4double phi_Low[834];
-  G4double phi_High[834];
-  G4int TimeSolidAngleBins;
-  G4int TimeBins;
-  G4int OMSolidAngleBins;
-  G4int TimeTimeSolidAngleBins;
+  double theta_Low[834]; // this should be OMSolidAngleBins below
+  double theta_High[834];
+  double phi_Low[834];
+  double phi_High[834];
+  int TimeSolidAngleBins;
+  int TimeBins;
+  int OMSolidAngleBins;
+  int TimeTimeSolidAngleBins;
   //////////////////////////////////////////////////
 };
 

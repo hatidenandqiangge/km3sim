@@ -13,9 +13,9 @@ KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
   infile.read(valC, 4);
   Distance = double(*(float *)valC);
   Distance *= meter;
-  G4int count = 0;
-  G4int countall = 0;
-  for (G4int i = 0; i < VertexSolidAngleBins; i++) {
+  int count = 0;
+  int countall = 0;
+  for (int i = 0; i < VertexSolidAngleBins; i++) {
     bool oka;
     KM3EMTimePointDis *aTimePointDis = new KM3EMTimePointDis(infile, oka);
     keepAngles->push_back(aTimePointDis);
@@ -37,7 +37,7 @@ KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
     IsThisValid = true;
   else {
     IsThisValid = false;
-    for (G4int i = 0; i < VertexSolidAngleBins; i++)
+    for (int i = 0; i < VertexSolidAngleBins; i++)
       delete (*keepAngles)[i];
     keepAngles->clear();
     delete keepAngles;
@@ -46,18 +46,18 @@ KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
 }
 KM3EMAngularFlux::~KM3EMAngularFlux() {
   if (keepAngles != NULL) {
-    for (G4int i = 0; i < VertexSolidAngleBins; i++)
+    for (int i = 0; i < VertexSolidAngleBins; i++)
       delete (*keepAngles)[i];
     keepAngles->clear();
     delete keepAngles;
     keepAngles = NULL;
   }
 }
-void KM3EMAngularFlux::FindBins(G4double anglein) {
+void KM3EMAngularFlux::FindBins(double anglein) {
   if (!IsThisValid)
     G4Exception("Error sampling angle for null distribution\n", "",
                 FatalException, "");
-  G4int i;
+  int i;
   for (i = 0; i < VertexSolidAngleBins; i++) {
     if ((*keepAngles)[i]->IsValid()) {
       if (anglein < (*keepAngles)[i]->GiveAngle())
@@ -93,17 +93,17 @@ void KM3EMAngularFlux::FindBins(G4double anglein) {
     }
     ibin2 = i;
   }
-  G4double Angle1 = (*keepAngles)[ibin1]->GiveAngle();
-  G4double Angle2 = (*keepAngles)[ibin2]->GiveAngle();
+  double Angle1 = (*keepAngles)[ibin1]->GiveAngle();
+  double Angle2 = (*keepAngles)[ibin2]->GiveAngle();
   ratio = (anglein - Angle1) / (Angle2 - Angle1);
-  G4double Flux1 = (*keepAngles)[ibin1]->GiveFlux();
-  G4double Flux2 = (*keepAngles)[ibin2]->GiveFlux();
+  double Flux1 = (*keepAngles)[ibin1]->GiveFlux();
+  double Flux2 = (*keepAngles)[ibin2]->GiveFlux();
   Flux = Flux1 + ratio * (Flux2 - Flux1);
   // tempoR  FluxRMS=(*keepAngles)[ibin1]->GiveFluxRMS() +
   // ratio*((*keepAngles)[ibin2]->GiveFluxRMS() -
   // (*keepAngles)[ibin1]->GiveFluxRMS() );
-  G4double dFlux02 = 1.0 - exp(Flux - Flux2);
-  G4double dFlux12 = 1.0 - exp(Flux1 - Flux2);
+  double dFlux02 = 1.0 - exp(Flux - Flux2);
+  double dFlux12 = 1.0 - exp(Flux1 - Flux2);
   ratio = dFlux02 / dFlux12;
   if (ratio < 0)
     ratio = 0.0;

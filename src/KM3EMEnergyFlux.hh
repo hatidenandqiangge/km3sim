@@ -10,28 +10,28 @@
 
 class KM3EMEnergyFlux {
 public:
-  KM3EMEnergyFlux(char *, G4double, G4double, G4int, G4double);
+  KM3EMEnergyFlux(char *, double, double, int, double);
   ~KM3EMEnergyFlux();
 
 public:
-  void FindBins(G4double energyin, G4double distancein, G4double anglein);
-  G4int GetNumberOfSamples() { return NumberOfSamples; };
+  void FindBins(double energyin, double distancein, double anglein);
+  int GetNumberOfSamples() { return NumberOfSamples; };
   onePE GetSamplePoint();
-  G4bool ModelTrigger(G4double TheE);
+  bool ModelTrigger(double TheE);
 
 private:
-  G4int NEnergies;
+  int NEnergies;
   std::vector<KM3EMDistanceFlux *> *keepEnergies;
-  G4int ibin1;
-  G4int ibin2;
-  G4double Flux;
-  G4double FluxRMS;
-  G4double ratio;
-  G4double EnergyMin;
-  G4double EnergyMax;
-  G4int NumberOfSamples;
-  G4double RatioThis;
-  G4double MaxBoostRatio;
+  int ibin1;
+  int ibin2;
+  double Flux;
+  double FluxRMS;
+  double ratio;
+  double EnergyMin;
+  double EnergyMax;
+  int NumberOfSamples;
+  double RatioThis;
+  double MaxBoostRatio;
 };
 
 #endif

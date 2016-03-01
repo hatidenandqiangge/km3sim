@@ -41,10 +41,10 @@ KM3StackingAction::KM3StackingAction() {
 #ifndef G4DISABLE_PARAMETRIZATION
   // delta rays parametrization section. Works only for muons primaries (not for
   // showers ve)
-  idprikeep = new std::vector<G4int>;
-  depenekeep = new std::vector<G4double>;
+  idprikeep = new std::vector<int>;
+  depenekeep = new std::vector<double>;
   poskeep = new std::vector<G4ThreeVector>;
-  timekeep = new std::vector<G4double>;
+  timekeep = new std::vector<double>;
   myFlux = NULL;
 ////////////////////////////////////
 #endif
@@ -52,7 +52,7 @@ KM3StackingAction::KM3StackingAction() {
 #endif
 
 #ifdef G4MYHAMUONS_PARAMETERIZATION
-  theTimes = new std::vector<G4double>;
+  theTimes = new std::vector<double>;
   thePositions = new std::vector<G4ThreeVector>;
   theMomentums = new std::vector<G4ThreeVector>;
 #endif
@@ -95,12 +95,12 @@ KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
   static KM3PrimaryGeneratorAction *aGeneAction =
       (KM3PrimaryGeneratorAction *)(G4RunManager::GetRunManager()
                                         ->GetUserPrimaryGeneratorAction());
-  G4double kineticEnergy;
+  double kineticEnergy;
   G4ThreeVector x0;
   G4ThreeVector p0;
   G4ThreeVector distanceV;
-  G4double direction, distanceRho2;
-  static G4double detectorMaxRho2 =
+  double direction, distanceRho2;
+  static double detectorMaxRho2 =
       MyStDetector->detectorMaxRho * MyStDetector->detectorMaxRho;
 
   // here kill tracks that have already killed by other classes
@@ -117,7 +117,7 @@ KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
 // rule out processes that are not likely to happen)
 // if( (aTrack->GetParentID()!=0) &&
 // (aTrack->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition()) ){
-//   G4String theCreatorProcess=aTrack->GetCreatorProcess()->GetProcessName();
+//   std::string theCreatorProcess=aTrack->GetCreatorProcess()->GetProcessName();
 //   if( (theCreatorProcess != "conv"  ) &&
 // 	(theCreatorProcess != "compt"   ) &&
 //    (theCreatorProcess != "Decay"   ) &&
@@ -131,7 +131,7 @@ KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
 // 	(theCreatorProcess != "muPairProd"   ) &&
 // 	(theCreatorProcess != "muonNuclear" )
 //       ){
-//     G4String theParticleName=aTrack->GetDefinition()->GetParticleName();
+//     std::string theParticleName=aTrack->GetDefinition()->GetParticleName();
 //     kineticEnergy=aTrack->GetKineticEnergy();
 //     G4cout << "The particle " << theParticleName << " created from " <<
 //     theCreatorProcess <<" with kinetic energy " << kineticEnergy <<G4endl;
@@ -174,7 +174,7 @@ KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
       if (aTrack->GetKineticEnergy() > 1.0 * GeV) {
         G4ThreeVector thePosition = aTrack->GetPosition() / cm;
         G4ThreeVector theMomentum = aTrack->GetMomentum() / GeV;
-        G4double theTime = aTrack->GetGlobalTime();
+        double theTime = aTrack->GetGlobalTime();
         G4ThreeVector PrimDirection = aGeneAction->direction;
         myrotate(thePosition, PrimDirection);
         myrotate(theMomentum, PrimDirection);
@@ -262,7 +262,7 @@ KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
       // for showers ve)
       // kill e- from muIoni and keep position and deposited energy information
       if (aTrack->GetCreatorProcess() != NULL) { // it is not a primary particle
-        G4int parentID = aTrack->GetParentID();
+        int parentID = aTrack->GetParentID();
         if ((aTrack->GetCreatorProcess()->GetProcessName() == "muIoni") &&
             parentID <= aGeneAction->numberofParticles &&
             (kineticEnergy < 31.6)) { // delta rays up to 31.6MeV kinene
@@ -306,41 +306,41 @@ KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
         return fKill; // goes away while outside the can
 
       // first check if it is inside the can
-      G4double rxy2 = x0[0] * x0[0] + x0[1] * x0[1];
+      double rxy2 = x0[0] * x0[0] + x0[1] * x0[1];
       if ((rxy2 < detectorMaxRho2) && (x0[2] > MyStDetector->bottomPosition) &&
           (x0[2] < MyStDetector->detectorMaxz))
         return fUrgent;
-      G4double Ttop = (MyStDetector->detectorMaxz - x0[2]) / p0[2];
+      double Ttop = (MyStDetector->detectorMaxz - x0[2]) / p0[2];
       if (Ttop > 0) {
-        G4double Xtop = x0[0] + Ttop * p0[0] - MyStDetector->detectorCenter[0];
-        G4double Ytop = x0[1] + Ttop * p0[1] - MyStDetector->detectorCenter[1];
-        G4double dRhoTop = Xtop * Xtop + Ytop * Ytop;
+        double Xtop = x0[0] + Ttop * p0[0] - MyStDetector->detectorCenter[0];
+        double Ytop = x0[1] + Ttop * p0[1] - MyStDetector->detectorCenter[1];
+        double dRhoTop = Xtop * Xtop + Ytop * Ytop;
         if (dRhoTop < detectorMaxRho2)
           return fUrgent;
       }
-      G4double Tbottom = (MyStDetector->bottomPosition - x0[2]) / p0[2];
+      double Tbottom = (MyStDetector->bottomPosition - x0[2]) / p0[2];
       if (Tbottom > 0) {
-        G4double Xbottom =
+        double Xbottom =
             x0[0] + Tbottom * p0[0] - MyStDetector->detectorCenter[0];
-        G4double Ybottom =
+        double Ybottom =
             x0[1] + Tbottom * p0[1] - MyStDetector->detectorCenter[1];
-        G4double dRhoBottom = Xbottom * Xbottom + Ybottom * Ybottom;
+        double dRhoBottom = Xbottom * Xbottom + Ybottom * Ybottom;
         if (dRhoBottom < detectorMaxRho2)
           return fUrgent;
       }
-      G4double a = p0[0] * p0[0] + p0[1] * p0[1];
-      G4double b = x0[0] * p0[0] + x0[1] * p0[1];
-      G4double c = x0[0] * x0[0] + x0[1] * x0[1] - detectorMaxRho2;
-      G4double dia = b * b - a * c;
+      double a = p0[0] * p0[0] + p0[1] * p0[1];
+      double b = x0[0] * p0[0] + x0[1] * p0[1];
+      double c = x0[0] * x0[0] + x0[1] * x0[1] - detectorMaxRho2;
+      double dia = b * b - a * c;
       if (dia > 0) {
         dia = sqrt(dia);
-        G4double SideDist1 = (-b - dia) / a;
-        G4double sidez1 = x0[2] + SideDist1 * p0[2];
+        double SideDist1 = (-b - dia) / a;
+        double sidez1 = x0[2] + SideDist1 * p0[2];
         if ((sidez1 > MyStDetector->bottomPosition) &&
             (sidez1 < MyStDetector->detectorMaxz) && (SideDist1 > 0))
           return fUrgent;
-        G4double SideDist2 = (-b + dia) / a;
-        G4double sidez2 = x0[2] + SideDist2 * p0[2];
+        double SideDist2 = (-b + dia) / a;
+        double sidez2 = x0[2] + SideDist2 * p0[2];
         if ((sidez2 > MyStDetector->bottomPosition) &&
             (sidez2 < MyStDetector->detectorMaxz) && (SideDist2 > 0))
           return fUrgent;
@@ -371,17 +371,17 @@ void KM3StackingAction::NewStage() {
   // delta rays parametrization section. Works only for muons primaries (not for
   // showers ve)
   // initialization for the group velocity at maximum qe and MySD pointer
-  static G4double thespeedmaxQE = -1.0;
+  static double thespeedmaxQE = -1.0;
   static KM3SD *aMySD = NULL;
   if (thespeedmaxQE < 0) {
     G4Material *aMaterial = G4Material::GetMaterial("Cathod");
-    G4double MaxQE = -1;
-    G4double PhEneAtMaxQE;
+    double MaxQE = -1;
+    double PhEneAtMaxQE;
     G4MaterialPropertyVector *aPropertyVector =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
     for (size_t i = 0; i < aPropertyVector->GetVectorLength(); i++) {
-      G4double ThisQE = (*aPropertyVector)[i];
-      G4double ThisPhEne = aPropertyVector->Energy(i);
+      double ThisQE = (*aPropertyVector)[i];
+      double ThisPhEne = aPropertyVector->Energy(i);
       if (ThisQE > MaxQE) {
         MaxQE = ThisQE;
         PhEneAtMaxQE = ThisPhEne;
@@ -394,7 +394,7 @@ void KM3StackingAction::NewStage() {
                                                    // qe each time. This is the
                                                    // right one
     G4SDManager *SDman = G4SDManager::GetSDMpointer();
-    aMySD = (KM3SD *)SDman->FindSensitiveDetector(G4String("mydetector1/MySD"),
+    aMySD = (KM3SD *)SDman->FindSensitiveDetector(std::string("mydetector1/MySD"),
                                                   true);
     if (myFlux == NULL)
       myFlux = new KM3EMDeltaFlux(MyStDetector->EMParametrization_FILE,
@@ -402,11 +402,11 @@ void KM3StackingAction::NewStage() {
                                   MyStDetector->TotCathodArea);
   }
   // end of initialization
-  static G4int originalTrackCreatorProcess = 2; // it is always muIoni
-  static G4int TotalNumberOfTowers = MyStDetector->allTowers->size();
-  static G4double MaxAbsDist2 =
+  static int originalTrackCreatorProcess = 2; // it is always muIoni
+  static int TotalNumberOfTowers = MyStDetector->allTowers->size();
+  static double MaxAbsDist2 =
       MyStDetector->MaxAbsDist * MyStDetector->MaxAbsDist;
-  static G4double distbin2 =
+  static double distbin2 =
       (100.0 * cm) *
       (100.0 * cm); // is the distance binning in the delta rays for gathering
   size_t arraysize = idprikeep->size();
@@ -414,15 +414,15 @@ void KM3StackingAction::NewStage() {
   //  "<<arraysize<<G4endl;
   size_t counter = 0;
   while (counter < arraysize) {
-    G4int idpri = (*idprikeep)[counter];
+    int idpri = (*idprikeep)[counter];
     while ((counter < arraysize) && (idpri == (*idprikeep)[counter])) {
-      G4int originalInfo = ((*idprikeep)[counter] - 1) * 10 +
+      int originalInfo = ((*idprikeep)[counter] - 1) * 10 +
                            originalTrackCreatorProcess; // to write in MySD
       G4ThreeVector p0(0.0, 0.0, 0.0);
       G4ThreeVector pospri = (*poskeep)[counter];
-      G4double depene = 0.0;
+      double depene = 0.0;
       G4ThreeVector thispos(0.0, 0.0, 0.0);
-      G4double thistime = 0.0;
+      double thistime = 0.0;
       while ((counter < arraysize) && (idpri == (*idprikeep)[counter]) &&
              ((pospri - (*poskeep)[counter]).mag2() < distbin2)) {
         depene += (*depenekeep)[counter];
@@ -433,35 +433,35 @@ void KM3StackingAction::NewStage() {
       G4ThreeVector p0this = (*poskeep)[counter - 1] - pospri;
       if (p0this.mag2() > 0.0)
         p0 = p0this;
-      G4double step = p0.mag();
+      double step = p0.mag();
       if (step > 0.0) { // discard delta rays that are alone in distance
                         // inetrval (too low signal)
         p0 /= step;
         thispos /= depene;
         thistime /= depene;
         for (int it = 0; it < TotalNumberOfTowers; it++) {
-          G4double dx =
+          double dx =
               (*(MyStDetector->allTowers))[it]->position[0] - thispos[0];
-          G4double dy =
+          double dy =
               (*(MyStDetector->allTowers))[it]->position[1] - thispos[1];
-          G4double distancetower2 = dx * dx + dy * dy;
+          double distancetower2 = dx * dx + dy * dy;
           if (distancetower2 < MaxAbsDist2) {
-            G4int TotalNumberOfOMs =
+            int TotalNumberOfOMs =
                 (*(MyStDetector->allTowers))[it]->BenthosIDs->size();
             for (int iot = 0; iot < TotalNumberOfOMs; iot++) {
-              G4int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
+              int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
               G4ThreeVector FromGeneToOM =
                   (*MyStDetector->allOMs)[io]->position - thispos;
-              G4double distancein = FromGeneToOM.mag2();
+              double distancein = FromGeneToOM.mag2();
               if (distancein < MaxAbsDist2) {
                 distancein = sqrt(distancein);
                 FromGeneToOM /= distancein;
-                G4double anglein = p0.dot(FromGeneToOM);
+                double anglein = p0.dot(FromGeneToOM);
                 myFlux->FindBins(depene, distancein, anglein); // here change
-                G4int NumberOfSamples =
+                int NumberOfSamples =
                     myFlux->GetNumberOfSamples(); // here change
-                G4int icstart, icstop;
-                G4double theFastTime;
+                int icstart, icstop;
+                double theFastTime;
                 G4ThreeVector x, y, z;
                 if (NumberOfSamples > 0) {
                   icstart = (*(*MyStDetector->allOMs)[io]->CathodsIDs)[0];
@@ -474,35 +474,35 @@ void KM3StackingAction::NewStage() {
                   y = p0.cross(z) / sqrt(1.0 - anglein * anglein);
                   x = y.cross(z);
                 }
-                for (G4int isa = 0; isa < NumberOfSamples; isa++) {
+                for (int isa = 0; isa < NumberOfSamples; isa++) {
                   onePE aPE = myFlux->GetSamplePoint();
-                  G4double costh = aPE.costh; // here change
-                  G4double sinth = sqrt(1.0 - costh * costh);
-                  G4double cosphi = cos(aPE.phi); // here change
-                  G4double sinphi = sin(aPE.phi); // here change
+                  double costh = aPE.costh; // here change
+                  double sinth = sqrt(1.0 - costh * costh);
+                  double cosphi = cos(aPE.phi); // here change
+                  double sinphi = sin(aPE.phi); // here change
                   // short		  G4ThreeVector
                   // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
                   G4ThreeVector photonDirection =
                       (sinth * (cosphi * x + sinphi * y) + costh * z);
-                  // short		  G4double
+                  // short		  double
                   // angleThetaDirection=photonDirection.theta();
-                  // short		  G4double
+                  // short		  double
                   // anglePhiDirection=photonDirection.phi();
                   // short		  angleThetaDirection *= 180./M_PI;
                   // short		  anglePhiDirection *= 180./M_PI;
                   // short		  if(anglePhiDirection < 0.0)anglePhiDirection
                   // += 360.0;
-                  // short		  G4int
-                  // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
+                  // short		  int
+                  // angleDirection=(int)(nearbyint(angleThetaDirection)*1000.0
                   // + nearbyint(anglePhiDirection));
-                  G4int ic =
-                      G4int(icstart + (icstop - icstart) * G4UniformRand());
+                  int ic =
+                      int(icstart + (icstop - icstart) * G4UniformRand());
                   // short
                   // aMySD->InsertExternalHit(ic,theFastTime+aPE.time,originalInfo,angleDirection,-997);
                   aMySD->InsertExternalHit(
                       ic, (*MyStDetector->allOMs)[io]->position,
                       theFastTime + aPE.time, originalInfo, photonDirection);
-                } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
+                } // for(int isa=0 ; isa<NumberOfSamples ; isa++){
               } // if(distancein<MyStDetector->MaxAbsDist){
             } // for(int io=0;io<TotalNumberOfOMs;io++){
           } // if(distancetower2<MaxAbsDist2)
@@ -526,16 +526,16 @@ void KM3StackingAction::NewStage() {
 #endif
 
 #ifdef G4MYHAMUONS_PARAMETERIZATION
-  G4int theSize = theTimes->size();
+  int theSize = theTimes->size();
   outMuonHAFile->write((char *)&theSize, sizeof(theSize));
-  for (G4int ii = 0; ii < theSize; ii++) {
-    G4float theTime = (*theTimes)[ii];
-    G4float thePosition0 = (float)(*thePositions)[ii][0];
-    G4float thePosition1 = (float)(*thePositions)[ii][1];
-    G4float thePosition2 = (float)(*thePositions)[ii][2];
-    G4float theMomentum0 = (float)(*theMomentums)[ii][0];
-    G4float theMomentum1 = (float)(*theMomentums)[ii][1];
-    G4float theMomentum2 = (float)(*theMomentums)[ii][2];
+  for (int ii = 0; ii < theSize; ii++) {
+    float theTime = (*theTimes)[ii];
+    float thePosition0 = (float)(*thePositions)[ii][0];
+    float thePosition1 = (float)(*thePositions)[ii][1];
+    float thePosition2 = (float)(*thePositions)[ii][2];
+    float theMomentum0 = (float)(*theMomentums)[ii][0];
+    float theMomentum1 = (float)(*theMomentums)[ii][1];
+    float theMomentum2 = (float)(*theMomentums)[ii][2];
     outMuonHAFile->write((char *)&theTime, sizeof(theTime));
     outMuonHAFile->write((char *)&thePosition0, sizeof(thePosition0));
     outMuonHAFile->write((char *)&thePosition1, sizeof(thePosition1));
@@ -554,17 +554,17 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
   // delta rays parametrization section. Works only for muons primaries (not for
   // showers ve)
   // initialization for the group velocity at maximum qe and MySD pointer
-  static G4double thespeedmaxQE = -1.0;
+  static double thespeedmaxQE = -1.0;
   static KM3SD *aMySD = NULL;
   if (thespeedmaxQE < 0) {
     G4Material *aMaterial = G4Material::GetMaterial("Cathod");
-    G4double MaxQE = -1;
-    G4double PhEneAtMaxQE;
+    double MaxQE = -1;
+    double PhEneAtMaxQE;
     G4MaterialPropertyVector *aPropertyVector =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
     for (size_t i = 0; i < aPropertyVector->GetVectorLength(); i++) {
-      G4double ThisQE = (*aPropertyVector)[i];
-      G4double ThisPhEne = aPropertyVector->Energy(i);
+      double ThisQE = (*aPropertyVector)[i];
+      double ThisPhEne = aPropertyVector->Energy(i);
       if (ThisQE > MaxQE) {
         MaxQE = ThisQE;
         PhEneAtMaxQE = ThisPhEne;
@@ -577,7 +577,7 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
                                                    // qe each time. This is the
                                                    // right one
     G4SDManager *SDman = G4SDManager::GetSDMpointer();
-    aMySD = (KM3SD *)SDman->FindSensitiveDetector(G4String("mydetector1/MySD"),
+    aMySD = (KM3SD *)SDman->FindSensitiveDetector(std::string("mydetector1/MySD"),
                                                   true);
     if (myFlux == NULL)
       myFlux = new KM3EMDeltaFlux(MyStDetector->EMParametrization_FILE,
@@ -585,11 +585,11 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
                                   MyStDetector->TotCathodArea);
   }
   // end of initialization
-  static G4int originalTrackCreatorProcess = 2; // it is always muIoni
-  static G4int TotalNumberOfTowers = MyStDetector->allTowers->size();
-  static G4double MaxAbsDist2 =
+  static int originalTrackCreatorProcess = 2; // it is always muIoni
+  static int TotalNumberOfTowers = MyStDetector->allTowers->size();
+  static double MaxAbsDist2 =
       MyStDetector->MaxAbsDist * MyStDetector->MaxAbsDist;
-  static G4double distbin2 =
+  static double distbin2 =
       (100.0 * cm) *
       (100.0 * cm); // is the distance binning in the delta rays for gathering
   size_t arraysize = idprikeep->size();
@@ -597,15 +597,15 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
   //  ----------- "<<arraysize<<G4endl;
   size_t counter = 0;
   while (counter < arraysize) {
-    G4int idpri = (*idprikeep)[counter];
+    int idpri = (*idprikeep)[counter];
     while ((counter < arraysize) && (idpri == (*idprikeep)[counter])) {
-      G4int originalInfo = ((*idprikeep)[counter] - 1) * 10 +
+      int originalInfo = ((*idprikeep)[counter] - 1) * 10 +
                            originalTrackCreatorProcess; // to write in MySD
       G4ThreeVector p0(0.0, 0.0, 0.0);
       G4ThreeVector pospri = (*poskeep)[counter];
-      G4double depene = 0.0;
+      double depene = 0.0;
       G4ThreeVector thispos(0.0, 0.0, 0.0);
-      G4double thistime = 0.0;
+      double thistime = 0.0;
       while ((counter < arraysize) && (idpri == (*idprikeep)[counter]) &&
              ((pospri - (*poskeep)[counter]).mag2() < distbin2)) {
         depene += (*depenekeep)[counter];
@@ -616,35 +616,35 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
       G4ThreeVector p0this = (*poskeep)[counter - 1] - pospri;
       if (p0this.mag2() > 0.0)
         p0 = p0this;
-      G4double step = p0.mag();
+      double step = p0.mag();
       if (step > 0.0) { // discard delta rays that are alone in distance inerval
                         // (too low signal)
         p0 /= step;
         thispos /= depene;
         thistime /= depene;
         for (int it = 0; it < TotalNumberOfTowers; it++) {
-          G4double dx =
+          double dx =
               (*(MyStDetector->allTowers))[it]->position[0] - thispos[0];
-          G4double dy =
+          double dy =
               (*(MyStDetector->allTowers))[it]->position[1] - thispos[1];
-          G4double distancetower2 = dx * dx + dy * dy;
+          double distancetower2 = dx * dx + dy * dy;
           if (distancetower2 < MaxAbsDist2) {
-            G4int TotalNumberOfOMs =
+            int TotalNumberOfOMs =
                 (*(MyStDetector->allTowers))[it]->BenthosIDs->size();
             for (int iot = 0; iot < TotalNumberOfOMs; iot++) {
-              G4int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
+              int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
               G4ThreeVector FromGeneToOM =
                   (*MyStDetector->allOMs)[io]->position - thispos;
-              G4double distancein = FromGeneToOM.mag2();
+              double distancein = FromGeneToOM.mag2();
               if (distancein < MaxAbsDist2) {
                 distancein = sqrt(distancein);
                 FromGeneToOM /= distancein;
-                G4double anglein = p0.dot(FromGeneToOM);
+                double anglein = p0.dot(FromGeneToOM);
                 myFlux->FindBins(depene, distancein, anglein); // here change
-                G4int NumberOfSamples =
+                int NumberOfSamples =
                     myFlux->GetNumberOfSamples(); // here change
-                G4int icstart, icstop;
-                G4double theFastTime;
+                int icstart, icstop;
+                double theFastTime;
                 G4ThreeVector x, y, z;
                 if (NumberOfSamples > 0) {
                   icstart = (*(*MyStDetector->allOMs)[io]->CathodsIDs)[0];
@@ -657,35 +657,35 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
                   y = p0.cross(z) / sqrt(1.0 - anglein * anglein);
                   x = y.cross(z);
                 }
-                for (G4int isa = 0; isa < NumberOfSamples; isa++) {
+                for (int isa = 0; isa < NumberOfSamples; isa++) {
                   onePE aPE = myFlux->GetSamplePoint();
-                  G4double costh = aPE.costh; // here change
-                  G4double sinth = sqrt(1.0 - costh * costh);
-                  G4double cosphi = cos(aPE.phi); // here change
-                  G4double sinphi = sin(aPE.phi); // here change
+                  double costh = aPE.costh; // here change
+                  double sinth = sqrt(1.0 - costh * costh);
+                  double cosphi = cos(aPE.phi); // here change
+                  double sinphi = sin(aPE.phi); // here change
                   // short		  G4ThreeVector
                   // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
                   G4ThreeVector photonDirection =
                       (sinth * (cosphi * x + sinphi * y) + costh * z);
-                  // short		  G4double
+                  // short		  double
                   // angleThetaDirection=photonDirection.theta();
-                  // short		  G4double
+                  // short		  double
                   // anglePhiDirection=photonDirection.phi();
                   // short		  angleThetaDirection *= 180./M_PI;
                   // short		  anglePhiDirection *= 180./M_PI;
                   // short		  if(anglePhiDirection < 0.0)anglePhiDirection
                   // += 360.0;
-                  // short		  G4int
-                  // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
+                  // short		  int
+                  // angleDirection=(int)(nearbyint(angleThetaDirection)*1000.0
                   // + nearbyint(anglePhiDirection));
-                  G4int ic =
-                      G4int(icstart + (icstop - icstart) * G4UniformRand());
+                  int ic =
+                      int(icstart + (icstop - icstart) * G4UniformRand());
                   // short
                   // aMySD->InsertExternalHit(ic,theFastTime+aPE.time,originalInfo,angleDirection,-997);
                   aMySD->InsertExternalHit(
                       ic, (*MyStDetector->allOMs)[io]->position,
                       theFastTime + aPE.time, originalInfo, photonDirection);
-                } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
+                } // for(int isa=0 ; isa<NumberOfSamples ; isa++){
               } // if(distancein<MyStDetector->MaxAbsDist){
             } // for(int io=0;io<TotalNumberOfOMs;io++){
           } // if(distancetower2<MaxAbsDist2)
@@ -743,13 +743,13 @@ void KM3StackingAction::SetDetector(KM3Detector *adet) { MyStDetector = adet; }
 // the rotation matrix is the transverse of the one at rotateUz. the vector p0
 // must be normalized !!!
 void KM3StackingAction::myrotate(G4ThreeVector &x, const G4ThreeVector &p0) {
-  G4double u1 = p0.x();
-  G4double u2 = p0.y();
-  G4double u3 = p0.z();
-  G4double up = u1 * u1 + u2 * u2;
-  G4double x0 = x.x();
-  G4double x1 = x.y();
-  G4double x2 = x.z();
+  double u1 = p0.x();
+  double u2 = p0.y();
+  double u3 = p0.z();
+  double up = u1 * u1 + u2 * u2;
+  double x0 = x.x();
+  double x1 = x.y();
+  double x2 = x.z();
 
   if (up > 0) {
     up = sqrt(up);

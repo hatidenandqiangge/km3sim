@@ -44,7 +44,7 @@ public:
   // Constructors and Destructor
   ////////////////////////////////
 
-  KM3Cherenkov(const G4String &processName = "KM3Cherenkov",
+  KM3Cherenkov(const std::string &processName = "KM3Cherenkov",
                G4ProcessType type = fElectromagnetic);
 
   KM3Cherenkov(const KM3Cherenkov &right);
@@ -65,15 +65,15 @@ private:
 public: // With description
   void SetDetector(KM3Detector *);
 
-  G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
+  bool IsApplicable(const G4ParticleDefinition &aParticleType);
   // Returns true -> 'is applicable', for all charged particles.
   // except short-lived particles.
 
-  G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition *);
+  double GetMeanFreePath(const G4Track &aTrack, double, G4ForceCondition *);
   // Returns the discrete step limit and sets the 'StronglyForced'
   // condition for the DoIt to be invoked at every step.
 
-  G4double PostStepGetPhysicalInteractionLength(const G4Track &aTrack, G4double,
+  double PostStepGetPhysicalInteractionLength(const G4Track &aTrack, double,
                                                 G4ForceCondition *);
   // Returns the discrete step limit and sets the 'StronglyForced'
   // condition for the DoIt to be invoked at every step.
@@ -82,14 +82,14 @@ public: // With description
   // This is the method implementing the Cerenkov process.
 
   //  no operation in  AtRestDoIt and  AlongStepDoIt
-  virtual G4double AlongStepGetPhysicalInteractionLength(const G4Track &,
-                                                         G4double, G4double,
-                                                         G4double &,
+  virtual double AlongStepGetPhysicalInteractionLength(const G4Track &,
+                                                         double, double,
+                                                         double &,
                                                          G4GPILSelection *) {
     return -1.0;
   };
 
-  virtual G4double AtRestGetPhysicalInteractionLength(const G4Track &,
+  virtual double AtRestGetPhysicalInteractionLength(const G4Track &,
                                                       G4ForceCondition *) {
     return -1.0;
   };
@@ -103,16 +103,16 @@ public: // With description
     return 0;
   };
 
-  void SetTrackSecondariesFirst(const G4bool state);
+  void SetTrackSecondariesFirst(const bool state);
   // If set, the primary particle tracking is interrupted and any
   // produced Cerenkov photons are tracked next. When all have
   // been tracked, the tracking of the primary resumes.
 
-  void SetMaxBetaChangePerStep(const G4double d);
+  void SetMaxBetaChangePerStep(const double d);
   // Set the maximum allowed change in beta = v/c in % (perCent)
   // per step.
 
-  void SetMaxNumPhotonsPerStep(const G4int NumPhotons);
+  void SetMaxNumPhotonsPerStep(const int NumPhotons);
   // Set the maximum number of Cerenkov photons allowed to be
   // generated during a tracking step. This is an average ONLY;
   // the actual number will vary around this average. If invoked,
@@ -139,9 +139,9 @@ private:
 #ifdef G4ENABLE_MIE
 #ifndef G4DISABLE_PARAMETRIZATION
   std::vector<G4ThreeVector> *poskeep;
-  std::vector<G4double> *timekeep;
-  std::vector<G4int> *idprikeep;
-  std::vector<G4double> *depenekeep;
+  std::vector<double> *timekeep;
+  std::vector<int> *idprikeep;
+  std::vector<double> *depenekeep;
   std::vector<G4ThreeVector> *dirkeep;
 #endif
 #endif
@@ -160,7 +160,7 @@ private:
   // Helper Functions
   /////////////////////
 
-  G4double GetAverageNumberOfPhotons(const G4double charge, const G4double beta,
+  double GetAverageNumberOfPhotons(const double charge, const double beta,
                                      const G4Material *aMaterial,
                                      G4MaterialPropertyVector *Rindex) const;
 
@@ -175,13 +175,13 @@ protected:
   //  purposes).
 
 private:
-  G4bool fTrackSecondariesFirst;
-  G4double fMaxBetaChange;
-  G4int fMaxPhotons;
+  bool fTrackSecondariesFirst;
+  double fMaxBetaChange;
+  int fMaxPhotons;
   KM3Detector *MyStDetector;
-  G4double MaxAbsDist;
-  G4double M_PI2;
-  G4double MinMeanNumberOfPhotonsForParam;
+  double MaxAbsDist;
+  double M_PI2;
+  double MinMeanNumberOfPhotonsForParam;
 #ifndef G4DISABLE_PARAMETRIZATION
 #ifdef G4ENABLE_MIE
   KM3EMDirectFlux *myFlux;
@@ -189,27 +189,27 @@ private:
 #endif
 #if !defined(G4ENABLE_MIE) ||                                                  \
     (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
-  G4double HITBENTHOS[20000][10];
-  G4int icountHitBenthos;
-  G4double globalMaxCos, globalMinCos;
+  double HITBENTHOS[20000][10];
+  int icountHitBenthos;
+  double globalMaxCos, globalMinCos;
   G4ThreeVector parent;
   G4ThreeVector parent1;
   void myrotate(G4ThreeVector &x, const G4ThreeVector &p0);
-  G4int PhotonHitsaBenthos(G4double x1, G4double y1, G4double z1, G4double px,
-                           G4double py, G4double pz, G4double x0, G4double y0,
-                           G4double z0, G4double r, G4double dir1,
-                           G4double dir2, G4double dir3);
-  G4int checkIfParticleCanEmitToShpere(G4ThreeVector center, G4double r,
-                                       G4double minCos, G4double maxCos,
-                                       G4double &minPhi, G4double &maxPhi,
-                                       G4int icare);
-  G4int mycheckParticleOneStar(const G4ThreeVector &p0, const G4ThreeVector &x0,
-                               const G4ThreeVector &xx0, const G4double &minCos,
-                               const G4double &maxCos);
+  int PhotonHitsaBenthos(double x1, double y1, double z1, double px,
+                           double py, double pz, double x0, double y0,
+                           double z0, double r, double dir1,
+                           double dir2, double dir3);
+  int checkIfParticleCanEmitToShpere(G4ThreeVector center, double r,
+                                       double minCos, double maxCos,
+                                       double &minPhi, double &maxPhi,
+                                       int icare);
+  int mycheckParticleOneStar(const G4ThreeVector &p0, const G4ThreeVector &x0,
+                               const G4ThreeVector &xx0, const double &minCos,
+                               const double &maxCos);
   void myIterativeCheck(Spheres *mySphere, const G4ThreeVector &p0,
-                        const G4double &minCos, const G4double &maxCos);
-  G4int checkPhi(const G4double &aphi);
-  G4int PhotonHitsAnyBenthos(G4ThreeVector r, G4ParticleMomentum p);
+                        const double &minCos, const double &maxCos);
+  int checkPhi(const double &aphi);
+  int PhotonHitsAnyBenthos(G4ThreeVector r, G4ParticleMomentum p);
 #endif
 };
 
@@ -217,7 +217,7 @@ private:
 // Inline methods
 ////////////////////
 
-inline G4bool
+inline bool
 KM3Cherenkov::IsApplicable(const G4ParticleDefinition &aParticleType) {
   if (aParticleType.GetParticleName() == "chargedgeantino")
     return false;
@@ -226,23 +226,23 @@ KM3Cherenkov::IsApplicable(const G4ParticleDefinition &aParticleType) {
   return (aParticleType.GetPDGCharge() != 0);
 }
 
-inline void KM3Cherenkov::SetTrackSecondariesFirst(const G4bool state) {
+inline void KM3Cherenkov::SetTrackSecondariesFirst(const bool state) {
   fTrackSecondariesFirst = state;
 }
 
-inline void KM3Cherenkov::SetMaxBetaChangePerStep(const G4double value) {
+inline void KM3Cherenkov::SetMaxBetaChangePerStep(const double value) {
   fMaxBetaChange = value * CLHEP::perCent;
 }
 
-inline void KM3Cherenkov::SetMaxNumPhotonsPerStep(const G4int NumPhotons) {
+inline void KM3Cherenkov::SetMaxNumPhotonsPerStep(const int NumPhotons) {
   fMaxPhotons = NumPhotons;
 }
 
 inline void KM3Cherenkov::DumpPhysicsTable() const {
-  G4int PhysicsTableSize = thePhysicsTable->entries();
+  int PhysicsTableSize = thePhysicsTable->entries();
   G4PhysicsOrderedFreeVector *v;
 
-  for (G4int i = 0; i < PhysicsTableSize; i++) {
+  for (int i = 0; i < PhysicsTableSize; i++) {
     v = (G4PhysicsOrderedFreeVector *)(*thePhysicsTable)[i];
     v->DumpValues();
   }

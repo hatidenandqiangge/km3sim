@@ -50,12 +50,12 @@ int main(int argc, char *argv[]) {
   char *Geometry_File = argv[4];
   char *Parameter_File = argv[5];
 
-  G4bool useHEPEvt;
+  bool useHEPEvt;
   char *fileParticles;
   FILE *outfilePar;
-  G4double ParamEnergy;
-  G4int ParamNumber;
-  G4int ParamParticle;
+  double ParamEnergy;
+  int ParamNumber;
+  int ParamParticle;
 
   //--------------------------------------------------------------------------
   // open the output file
