@@ -27,17 +27,17 @@
 // $Id: G4OpMie.hh,v 1.9 2008/07/21 21:08:40 gunter Exp $
 // GEANT4 tag $Name: geant4-09-01-patch-01 $
 //
-// 
+//
 ////////////////////////////////////////////////////////////////////////
 // Optical Photon Mie Scattering Class Definition
 ////////////////////////////////////////////////////////////////////////
 //
 // File:        G4OpMie.hh
-// Description: Discrete Process -- Mie scattering of optical photons 
+// Description: Discrete Process -- Mie scattering of optical photons
 // Version:     1.0
 // Created:     2008-07-21
 // Author:      Apostolos Tsirigotis
-// Updated:     
+// Updated:
 // mail:        tsirigotis@eap.gr
 //
 ////////////////////////////////////////////////////////////////////////
@@ -71,9 +71,7 @@
 // Class Definition
 /////////////////////
 
-
-struct PhaseFactors
-{
+struct PhaseFactors {
   double c0;
   double c1;
   double c2;
@@ -83,12 +81,9 @@ struct PhaseFactors
   double c6;
 };
 
-
-class G4OpMie : public G4VDiscreteProcess 
-{
+class G4OpMie : public G4VDiscreteProcess {
 
 private:
- 
   //////////////
   // Operators
   //////////////
@@ -96,13 +91,11 @@ private:
   // G4OpMie& operator=(const G4OpMie &right);
 
 public: // Without description
-
         ////////////////////////////////
         // Constructors and Destructor
         ////////////////////////////////
- 
-  G4OpMie(const G4String& processName = "OpMie",
-	  G4ProcessType type = fOptical);
+
+  G4OpMie(const G4String &processName = "OpMie", G4ProcessType type = fOptical);
 
   // G4OpMie(const G4OpMie &right);
 
@@ -113,22 +106,17 @@ public: // Without description
   ////////////
 
 public: // With description
-
-  G4bool IsApplicable(const G4ParticleDefinition& aParticleType);
+  G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
   // Returns true -> 'is applicable' only for an optical photon.
 
-  G4double GetMeanFreePath(const G4Track& aTrack,
-			   G4double ,
-			   G4ForceCondition* );
+  G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition *);
   // Returns the mean free path for Mie scattering in water.
   // --- Not yet implemented for other materials! ---
 
-  G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
-				  const G4Step&  aStep);
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
   // This is the method implementing Mie scattering.
 
 private:
-
   /////////////////////
   // Helper Functions
   /////////////////////
@@ -140,23 +128,18 @@ private:
   ///////////////////////
 
 private:
-
   G4int IndexPhaseFunction;
-  std::vector<PhaseFactors*> *thePhaseFactors;
-  CLHEP::RandGeneral * PhaseRand;
+  std::vector<PhaseFactors *> *thePhaseFactors;
+  CLHEP::RandGeneral *PhaseRand;
   G4double PhaseArray[1801];
-
 };
 
 ////////////////////
 // Inline methods
 ////////////////////
 
-inline
-G4bool G4OpMie::IsApplicable(const G4ParticleDefinition& aParticleType)
-{
-  return ( &aParticleType == G4OpticalPhoton::OpticalPhoton() );
+inline G4bool G4OpMie::IsApplicable(const G4ParticleDefinition &aParticleType) {
+  return (&aParticleType == G4OpticalPhoton::OpticalPhoton());
 }
-
 
 #endif /* G4OpMie_h */

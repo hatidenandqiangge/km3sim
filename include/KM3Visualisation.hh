@@ -7,16 +7,13 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-class KM3Visualisation: public G4VisManager {
+class KM3Visualisation : public G4VisManager {
 
 public:
-
-  KM3Visualisation ();
+  KM3Visualisation();
 
 private:
-
-  void RegisterGraphicsSystems ();
-
+  void RegisterGraphicsSystems();
 };
 
 #endif

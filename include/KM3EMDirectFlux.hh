@@ -8,17 +8,18 @@
 #include <iomanip>
 #include "KM3EMAngularFlux.hh"
 
-class KM3EMDirectFlux
-{
+class KM3EMDirectFlux {
 public:
-  KM3EMDirectFlux(char*,G4double);
+  KM3EMDirectFlux(char *, G4double);
   ~KM3EMDirectFlux();
+
 public:
-  void FindBins(G4double MeanNumPhotons,G4double distancein,G4double anglein);
-  G4int GetNumberOfSamples(){return NumberOfSamples;};
+  void FindBins(G4double MeanNumPhotons, G4double distancein, G4double anglein);
+  G4int GetNumberOfSamples() { return NumberOfSamples; };
   onePE GetSamplePoint();
+
 private:
-  std::vector<KM3EMAngularFlux*>* keepDistances;
+  std::vector<KM3EMAngularFlux *> *keepDistances;
   G4int ibin1;
   G4int ibin2;
   G4double Flux;

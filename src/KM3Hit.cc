@@ -20,34 +20,28 @@ KM3Hit::~KM3Hit() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-KM3Hit::KM3Hit(const KM3Hit& right)
-{
-  CathodId  = right.CathodId;
-  time      = right.time;
-  originalInfo=right.originalInfo;
-  IMany=right.IMany;
-  //short  angleIncident=right.angleIncident;
-  //short  angleDirection=right.angleDirection;
+KM3Hit::KM3Hit(const KM3Hit &right) {
+  CathodId = right.CathodId;
+  time = right.time;
+  originalInfo = right.originalInfo;
+  IMany = right.IMany;
+  // short  angleIncident=right.angleIncident;
+  // short  angleDirection=right.angleDirection;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-const KM3Hit& KM3Hit::operator=(const KM3Hit& right)
-{
-  CathodId  = right.CathodId;
-  time      = right.time;
-  originalInfo=right.originalInfo;
-  IMany=right.IMany;
-  //short  angleIncident=right.angleIncident;
-  //short  angleDirection=right.angleDirection;
+const KM3Hit &KM3Hit::operator=(const KM3Hit &right) {
+  CathodId = right.CathodId;
+  time = right.time;
+  originalInfo = right.originalInfo;
+  IMany = right.IMany;
+  // short  angleIncident=right.angleIncident;
+  // short  angleDirection=right.angleDirection;
   return *this;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-int KM3Hit::operator==(const KM3Hit& right) const
-{
-  return 0;
-}
+int KM3Hit::operator==(const KM3Hit &right) const { return 0; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

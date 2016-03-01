@@ -28,7 +28,8 @@
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "KM3TrackingAction.hh"
 #include "G4ThreeVector.hh"
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) //newha
+#if !defined(G4MYEM_PARAMETERIZATION) &&                                       \
+    !defined(G4MYHA_PARAMETERIZATION) // newha
 #include "KM3EventAction.hh"
 #endif
 
@@ -61,41 +62,41 @@ class G4VPrimaryGenerator;
 
 #include "HOURSevtREAD.hh"
 
-class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
-{
-public:  
+class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
+public:
   KM3PrimaryGeneratorAction();
   ~KM3PrimaryGeneratorAction();
-  
+
 public:
   int nevents;
-  FILE* outfile;
-  FILE* infile;
-  char* filePythiaParticles;
-  char* fileParticles;
+  FILE *outfile;
+  FILE *infile;
+  char *filePythiaParticles;
+  char *fileParticles;
   G4int numberofParticles;
-  void GeneratePrimaries(G4Event* anEvent);
+  void GeneratePrimaries(G4Event *anEvent);
   void Initialize(void);
   G4bool useHEPEvt;
   G4bool useANTARESformat;
-  KM3TrackingAction* myTracking;
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) //newha
-  KM3EventAction* event_action;
+  KM3TrackingAction *myTracking;
+#if !defined(G4MYEM_PARAMETERIZATION) &&                                       \
+    !defined(G4MYHA_PARAMETERIZATION) // newha
+  KM3EventAction *event_action;
 #endif
   G4double ParamEnergy;
-  G4int idbeam; //type of injected or produced particles (PDG Code)
+  G4int idbeam; // type of injected or produced particles (PDG Code)
   G4double random_R;
   G4ThreeVector position;
   G4ThreeVector direction;
 #ifdef G4MYHAMUONS_PARAMETERIZATION
-  std::ofstream * outMuonHAFile;
+  std::ofstream *outMuonHAFile;
 #endif
 
 private:
-  G4VPrimaryGenerator* HEPEvt;
-  HOURSevtREAD* antaresHEPEvt;
+  G4VPrimaryGenerator *HEPEvt;
+  HOURSevtREAD *antaresHEPEvt;
 #ifdef G4MYMUON_PARAMETERIZATION
-  KM3MuonParam* myMuonParam; //for muon param vs distance
+  KM3MuonParam *myMuonParam; // for muon param vs distance
 #endif
   G4double EventWeight;
   G4ThreeVector detectorCenter;
@@ -107,7 +108,7 @@ private:
 #ifndef G4MYEM_PARAMETERIZATION
 #ifndef G4MYHA_PARAMETERIZATION
 #ifdef G4HADRONIC_COMPILE
-  HAVertexMuons * aHAVertexMuons;
+  HAVertexMuons *aHAVertexMuons;
 #endif
 #endif
 #endif
@@ -120,12 +121,17 @@ private:
 
 #ifdef G4MYSN_PARAMETERIZATION
   G4double SNRadius;
-  G4double NeutrinoTheta,NeutrinoPhi;//momentum vector
+  G4double NeutrinoTheta, NeutrinoPhi; // momentum vector
 #endif
 
 public:
-  void PutFromDetector(G4ThreeVector dC, G4double dMR, G4double dMz, G4double bP)
-  {detectorCenter=dC;detectorMaxRho=dMR;detectorMaxz=dMz;bottomPosition=bP;};
+  void PutFromDetector(G4ThreeVector dC, G4double dMR, G4double dMz,
+                       G4double bP) {
+    detectorCenter = dC;
+    detectorMaxRho = dMR;
+    detectorMaxz = dMz;
+    bottomPosition = bP;
+  };
 };
 
 #endif /*KM3PrimaryGeneratorAction_h*/

@@ -8,19 +8,20 @@
 #include <iomanip>
 #include "KM3EMAngularFlux.hh"
 
-class KM3EMDistanceFlux
-{
+class KM3EMDistanceFlux {
 public:
-  KM3EMDistanceFlux(std::ifstream&);
+  KM3EMDistanceFlux(std::ifstream &);
   ~KM3EMDistanceFlux();
+
 public:
-  void FindBins(G4double distancein,G4double anglein);
-  G4double GiveEnergy(){return Energy;};
-  G4double GiveFlux(){return Flux;};
-  G4double GiveFluxRMS(){return FluxRMS;};
+  void FindBins(G4double distancein, G4double anglein);
+  G4double GiveEnergy() { return Energy; };
+  G4double GiveFlux() { return Flux; };
+  G4double GiveFluxRMS() { return FluxRMS; };
   onePE GetSamplePoint();
+
 private:
-  std::vector<KM3EMAngularFlux*>* keepDistances;
+  std::vector<KM3EMAngularFlux *> *keepDistances;
   G4double Energy;
   G4int ibin1;
   G4int ibin2;

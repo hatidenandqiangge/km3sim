@@ -26,7 +26,6 @@
 // KERNLIB
 // -----------------------------------
 
-
 #ifndef RandomGamma_h
 #define RanfomGamma_h 1
 
