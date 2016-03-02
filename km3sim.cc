@@ -3,7 +3,6 @@
 #include <iomanip>
 
 #include "docopt.h"
-
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
@@ -21,7 +20,7 @@
 
 
 static const char USAGE[] =
-    R"(km3sim.
+R"(km3sim.
 
   Usage:
     km3sim [--seed=<sd>] (-i PARAMS) (-d DETECTOR) (-o OUTFILE)
@@ -35,12 +34,13 @@ static const char USAGE[] =
     -h --help         Show this screen.
     --seed=<sd>       Set the RNG seed [default: 42].
     --version         Display the current version.
+    --no-mie          Disable mie scattering [default: false]
 )";
 
 int main(int argc, char *argv[]) {
   str::map<std::string, doctopt::value> args =
     doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
-  for (auto const& arg: args) {
+  for (auto const& arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
   }
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
   TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
-  //------------------------------------------------------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   G4RunManager *runManager = new G4RunManager;
 
   KM3Detector *Mydet = new KM3Detector;
@@ -87,9 +87,9 @@ int main(int argc, char *argv[]) {
 
   KM3TrackingAction *myTracking = new KM3TrackingAction;
   myTracking->TheEVTtoWrite = TheEVTtoWrite;
-  myGeneratorAction->myTracking =
-      myTracking; // link between generator and tracking (to provide number of
-                  // initial particles to trackingAction
+  // link between generator and tracking (to provide number of
+  // initial particles to trackingAction
+  myGeneratorAction->myTracking = myTracking;
   myGeneratorAction->Initialize();
   runManager->SetUserAction(myGeneratorAction);
 
@@ -97,9 +97,8 @@ int main(int argc, char *argv[]) {
   runManager->SetUserAction(event_action);
   event_action->outfile = savefile;
   event_action->TheEVTtoWrite = TheEVTtoWrite;
-  myGeneratorAction->event_action = event_action; // generator knows event to
-                                                  // set the number of initial
-                                                  // particles
+  // generator knows event to set the number of initial particles
+  myGeneratorAction->event_action = event_action;
 
   Mydet->outfile = savefile;
   Mydet->TheEVTtoWrite = TheEVTtoWrite;
