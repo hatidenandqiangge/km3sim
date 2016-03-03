@@ -39,6 +39,10 @@ KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();
   allStoreys = new std::vector<StoreysPositions *>;
   allOMs = new std::vector<OMPositions *>;
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+    !defined(G4DISABLE_PARAMETRIZATION)
+  allTowers = new std::vector<TowersPositions *>; // new towers
+#endif
 }
 KM3Detector::~KM3Detector() {
   // newgeant  sxp.Finalize();
@@ -60,6 +64,16 @@ KM3Detector::~KM3Detector() {
   allStoreys->clear();
   delete allStoreys;
 
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+    !defined(G4DISABLE_PARAMETRIZATION)
+  for (size_t i = 0; i < allTowers->size(); i++) {
+    (*allTowers)[i]->BenthosIDs->clear();
+    delete (*allTowers)[i]->BenthosIDs;
+    free((*allTowers)[i]);
+  }
+  allTowers->clear();
+  delete allTowers;
+#endif
 
   delete myEMShowerModel;
 #ifdef G4HADRONIC_COMPILE
@@ -67,9 +81,17 @@ KM3Detector::~KM3Detector() {
 #endif
 }
 
+// newgeant void KM3Detector::sxpInitialize()
+// newgeant{
+// newgeant  //sax
+// newgeant  sxp.Initialize();
+// newgeant  config.SetURI( Geometry_File );
+// newgeant  config.SetSetupName( "Default" );
+// newgeant  sxp.Configure( &config );
+// newgeant}
 
 void KM3Detector::FindDetectorRadius() {
-  double absdetectorRadius = 0.0;
+  G4double absdetectorRadius = 0.0;
   lowestStorey = 0.0;
   highestStorey = 0.0;
   outerStorey = 0.0;
@@ -78,15 +100,15 @@ void KM3Detector::FindDetectorRadius() {
   detectorCenter = G4ThreeVector(0.0, 0.0, 0.0);
   for (size_t isto = 0; isto < allStoreys->size(); isto++) {
     G4ThreeVector pos = (*(allStoreys))[isto]->position;
-    double radius = (*(allStoreys))[isto]->radius;
-    double dist = pos.mag() + radius;
+    G4double radius = (*(allStoreys))[isto]->radius;
+    G4double dist = pos.mag() + radius;
     if (absdetectorRadius < dist)
       absdetectorRadius = dist;
     if (pos[2] < lowestStorey)
       lowestStorey = pos[2];
     if (pos[2] > highestStorey)
       highestStorey = pos[2];
-    double distRho = sqrt(pos[0] * pos[0] + pos[1] * pos[1]) + radius;
+    G4double distRho = sqrt(pos[0] * pos[0] + pos[1] * pos[1]) + radius;
     if (outerStorey < distRho)
       outerStorey = distRho;
   }
@@ -95,16 +117,16 @@ void KM3Detector::FindDetectorRadius() {
   bottomPosition += lowestStorey;
   detectorMaxz = highestStorey + MaxAbsDist;
   G4cout << "Detector radius (m) and bottom position (m) " << detectorRadius / m
-    << " " << bottomPosition / m << G4endl;
+         << " " << bottomPosition / m << G4endl;
   MyGenerator->PutFromDetector(detectorCenter, detectorMaxRho, detectorMaxz,
-      bottomPosition);
+                               bottomPosition);
 }
 
 #include "CLHEP/Evaluator/Evaluator.h"
 
 void KM3Detector::SetUpVariables() {
   FILE *infile;
-  double MaxRelDist;
+  G4double MaxRelDist;
   NUMENTRIES = -10;
   NUMENTRIES_ANGLEACC = -10;
 
@@ -113,38 +135,38 @@ void KM3Detector::SetUpVariables() {
   } else {
     char varname[50];
     char expression[50];
-    int readvalues[18] = {18 * 0};
-    std::string String0 = std::string("detectorDepth");
-    std::string String1 = std::string("bottomPosition");
-    std::string String2 = std::string("PPCKOV");
-    std::string String3 = std::string("RINDEX_WATER");
-    std::string String4 = std::string("ABSORPTION_WATER");
-    std::string String5 = std::string("RINDEX_GLASS");
-    std::string String6 = std::string("ABSORPTION_GLASS");
-    std::string String7 = std::string("RINDEX_GELL");
-    std::string String8 = std::string("ABSORPTION_GELL");
-    std::string String9 = std::string("RINDEX_AIR");
-    std::string String10 = std::string("ABSORPTION_AIR");
-    std::string String11 = std::string("RINDEX_CATH");
-    std::string String12 = std::string("ABSORPTION_CATH");
-    std::string String13 = std::string("Q_EFF");
-    std::string String14 = std::string("MIE_WATER");
-    std::string String15 = std::string("MIE_MODEL");
-    std::string String16 = std::string("COS_ANGLES");
-    std::string String17 = std::string("ANG_ACCEPT");
+    G4int readvalues[18] = {18 * 0};
+    G4String String0 = G4String("detectorDepth");
+    G4String String1 = G4String("bottomPosition");
+    G4String String2 = G4String("PPCKOV");
+    G4String String3 = G4String("RINDEX_WATER");
+    G4String String4 = G4String("ABSORPTION_WATER");
+    G4String String5 = G4String("RINDEX_GLASS");
+    G4String String6 = G4String("ABSORPTION_GLASS");
+    G4String String7 = G4String("RINDEX_GELL");
+    G4String String8 = G4String("ABSORPTION_GELL");
+    G4String String9 = G4String("RINDEX_AIR");
+    G4String String10 = G4String("ABSORPTION_AIR");
+    G4String String11 = G4String("RINDEX_CATH");
+    G4String String12 = G4String("ABSORPTION_CATH");
+    G4String String13 = G4String("Q_EFF");
+    G4String String14 = G4String("MIE_WATER");
+    G4String String15 = G4String("MIE_MODEL");
+    G4String String16 = G4String("COS_ANGLES");
+    G4String String17 = G4String("ANG_ACCEPT");
 
     HepTool::Evaluator fCalc;
     fCalc.setSystemOfUnits(
         1.e+3, 1. / 1.60217733e-25, 1.e+9, 1. / 1.60217733e-10, 1.0, 1.0,
         1.0); // asign default variables to evaluator (Geant4 Units)
     while (fscanf(infile, "%s", varname) != EOF) {
-      std::string thename = std::string(varname);
+      G4String thename = G4String(varname);
       if (thename == String0) {
         readvalues[0] = 1;
         fscanf(infile, "%s\n", expression);
         detectorDepth = fCalc.evaluate(expression);
       } // this should be the detector depth at the center of the detector. It
-      // is used to calculate
+        // is used to calculate
       // the seawater density using the compressibility of the sea water (see
       // below)
       else if (thename == String1) {
@@ -152,25 +174,25 @@ void KM3Detector::SetUpVariables() {
         fscanf(infile, "%s\n", expression);
         bottomPosition = fCalc.evaluate(expression);
       } // this is the position of the bottom of the sea relative to detector
-      // center
+        // center
       else if (thename == String2) {
         readvalues[2] = 1;
         fscanf(infile, "%s", expression);
-        NUMENTRIES = (int)fCalc.evaluate(expression);
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+        NUMENTRIES = (G4int)fCalc.evaluate(expression);
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           PPCKOV[i] = h_Planck * c_light / fCalc.evaluate(expression);
         }
         fscanf(infile, "%s\n", expression);
         PPCKOV[NUMENTRIES - 1] =
-          h_Planck * c_light / fCalc.evaluate(expression);
+            h_Planck * c_light / fCalc.evaluate(expression);
       } else if (thename == String3) {
         readvalues[3] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_WATER[i] = fCalc.evaluate(expression);
         }
@@ -180,27 +202,39 @@ void KM3Detector::SetUpVariables() {
         readvalues[4] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
+                      "setting any other Optical Property",
+                      "", FatalException, "");
         fscanf(infile, "%s", expression);
         Water_Transparency = fCalc.evaluate(expression);
         fscanf(infile, "%s", expression);
         MaxRelDist = fCalc.evaluate(expression); // How many absorption lengths
-        // optical photons can cross
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                                                 // optical photons can cross
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_WATER[i] = Water_Transparency / fCalc.evaluate(expression);
         }
         fscanf(infile, "%s\n", expression);
         ABSORPTION_WATER[NUMENTRIES - 1] =
-          Water_Transparency / fCalc.evaluate(expression);
+            Water_Transparency / fCalc.evaluate(expression);
+#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
+    !defined(G4MYK40_PARAMETERIZATION)
+        // here we put a virtual absorption length (300m) to a large value to
+        // have more photons detected on large distances
+        // next in KM3SD we calculate the probability of the photons according
+        // to the true absorption length we keep
+        // in the water properties
+        for (G4int i = 0; i < NUMENTRIES; i++) {
+          ABSORPTION_WATER_TRUE[i] = ABSORPTION_WATER[i];
+          ABSORPTION_WATER[i] = 500.0 * m;
+        }
+#endif
       } else if (thename == String5) {
         readvalues[5] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_GLASS[i] = fCalc.evaluate(expression);
         }
@@ -210,9 +244,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[6] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_GLASS[i] = fCalc.evaluate(expression);
         }
@@ -222,9 +256,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[7] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_GELL[i] = fCalc.evaluate(expression);
         }
@@ -234,9 +268,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[8] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_GELL[i] = fCalc.evaluate(expression);
         }
@@ -246,9 +280,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[9] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_AIR[i] = fCalc.evaluate(expression);
         }
@@ -258,9 +292,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[10] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_AIR[i] = fCalc.evaluate(expression);
         }
@@ -270,9 +304,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[11] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_CATH[i] = fCalc.evaluate(expression);
         }
@@ -282,9 +316,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[12] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_CATH[i] = fCalc.evaluate(expression);
         }
@@ -294,12 +328,12 @@ void KM3Detector::SetUpVariables() {
         readvalues[13] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property (PPCKOV keyword)",
-              "", FatalException, "");
+                      "setting any other Optical Property (PPCKOV keyword)",
+                      "", FatalException, "");
         fscanf(infile, "%s", expression);
         Quantum_Efficiency = fCalc.evaluate(
             expression); // maximum quantum efficienscy, used in KM3Cherenkov
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           Q_EFF[i] = fCalc.evaluate(expression);
         }
@@ -309,9 +343,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[14] = 1;
         if (NUMENTRIES < 0)
           G4Exception("Wavelengths of Optical Photons must be set before "
-              "setting any other Optical Property (PPCKOV keyword)",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES - 1; i++) {
+                      "setting any other Optical Property (PPCKOV keyword)",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           SCATTER_WATER[i] = fCalc.evaluate(expression);
         }
@@ -325,8 +359,8 @@ void KM3Detector::SetUpVariables() {
       else if (thename == String16) {
         readvalues[16] = 1;
         fscanf(infile, "%s", expression);
-        NUMENTRIES_ANGLEACC = (int)fCalc.evaluate(expression);
-        for (int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
+        NUMENTRIES_ANGLEACC = (G4int)fCalc.evaluate(expression);
+        for (G4int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
           fscanf(infile, "%s", expression);
           COSANGLES[i] = fCalc.evaluate(expression);
         }
@@ -336,9 +370,9 @@ void KM3Detector::SetUpVariables() {
         readvalues[17] = 1;
         if (NUMENTRIES_ANGLEACC < 0)
           G4Exception("Cosine angles values must be set before setting angular "
-              "acceptance values",
-              "", FatalException, "");
-        for (int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
+                      "acceptance values",
+                      "", FatalException, "");
+        for (G4int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
           fscanf(infile, "%s", expression);
           ACCEPTANCE[i] = fCalc.evaluate(expression);
         }
@@ -348,63 +382,63 @@ void KM3Detector::SetUpVariables() {
         G4Exception("Not a keyword I can recognize\n", "", FatalException, "");
     }
     fclose(infile);
-    for (int i = 0; i < 18; i++) {
+    for (G4int i = 0; i < 18; i++) {
       if (readvalues[i] == 0) {
         switch (i) {
-          case 0:
-            G4Exception("detectorDepth not set", "", FatalException, "");
-            break;
-          case 1:
-            G4Exception("bottomPosition not set", "", FatalException, "");
-            break;
-          case 2:
-            G4Exception("PPCKOV not set", "", FatalException, "");
-            break;
-          case 3:
-            G4Exception("RINDEX_WATER not set", "", FatalException, "");
-            break;
-          case 4:
-            G4Exception("ABSORPTION_WATER not set", "", FatalException, "");
-            break;
-          case 5:
-            G4Exception("RINDEX_GLASS not set", "", FatalException, "");
-            break;
-          case 6:
-            G4Exception("ABSORPTION_GLASS not set", "", FatalException, "");
-            break;
-          case 7:
-            G4Exception("RINDEX_GELL not set", "", FatalException, "");
-            break;
-          case 8:
-            G4Exception("ABSORPTION_GELL not set", "", FatalException, "");
-            break;
-          case 9:
-            G4Exception("RINDEX_AIR not set", "", FatalException, "");
-            break;
-          case 10:
-            G4Exception("ABSORPTION_AIR not set", "", FatalException, "");
-            break;
-          case 11:
-            G4Exception("RINDEX_CATH not set", "", FatalException, "");
-            break;
-          case 12:
-            G4Exception("ABSORPTION_CATH not set", "", FatalException, "");
-            break;
-          case 13:
-            G4Exception("Q_EFF not set", "", FatalException, "");
-            break;
-          case 14:
-            G4Exception("MIE_WATER not set", "", FatalException, "");
-            break;
-          case 15:
-            G4Exception("MIE_MODEL not set", "", FatalException, "");
-            break;
-          case 16:
-            G4Exception("COS_ANGLES not set", "", FatalException, "");
-            break;
-          case 17:
-            G4Exception("ANG_ACCEPT not set", "", FatalException, "");
-            break;
+        case 0:
+          G4Exception("detectorDepth not set", "", FatalException, "");
+          break;
+        case 1:
+          G4Exception("bottomPosition not set", "", FatalException, "");
+          break;
+        case 2:
+          G4Exception("PPCKOV not set", "", FatalException, "");
+          break;
+        case 3:
+          G4Exception("RINDEX_WATER not set", "", FatalException, "");
+          break;
+        case 4:
+          G4Exception("ABSORPTION_WATER not set", "", FatalException, "");
+          break;
+        case 5:
+          G4Exception("RINDEX_GLASS not set", "", FatalException, "");
+          break;
+        case 6:
+          G4Exception("ABSORPTION_GLASS not set", "", FatalException, "");
+          break;
+        case 7:
+          G4Exception("RINDEX_GELL not set", "", FatalException, "");
+          break;
+        case 8:
+          G4Exception("ABSORPTION_GELL not set", "", FatalException, "");
+          break;
+        case 9:
+          G4Exception("RINDEX_AIR not set", "", FatalException, "");
+          break;
+        case 10:
+          G4Exception("ABSORPTION_AIR not set", "", FatalException, "");
+          break;
+        case 11:
+          G4Exception("RINDEX_CATH not set", "", FatalException, "");
+          break;
+        case 12:
+          G4Exception("ABSORPTION_CATH not set", "", FatalException, "");
+          break;
+        case 13:
+          G4Exception("Q_EFF not set", "", FatalException, "");
+          break;
+        case 14:
+          G4Exception("MIE_WATER not set", "", FatalException, "");
+          break;
+        case 15:
+          G4Exception("MIE_MODEL not set", "", FatalException, "");
+          break;
+        case 16:
+          G4Exception("COS_ANGLES not set", "", FatalException, "");
+          break;
+        case 17:
+          G4Exception("ANG_ACCEPT not set", "", FatalException, "");
+          break;
         }
       }
     }
@@ -417,20 +451,20 @@ void KM3Detector::SetUpVariables() {
 void KM3Detector::ConstructMaterials() {
   // All Basic Elements
   // --------------------------------------------------------------------------
-  double weightH = 1.007940 * g / mole;
-  double weightO = 15.999400 * g / mole;
-  double weightCl = 35.453000 * g / mole;
-  double weightMg = 24.305000 * g / mole;
-  double weightNa = 22.989770 * g / mole;
-  double weightSi = 28.085500 * g / mole;
-  double weightB = 10.811000 * g / mole;
-  double weightAl = 26.981538 * g / mole;
-  double weightC = 12.010700 * g / mole;
-  double weightN = 14.006700 * g / mole;
-  double weightCa = 40.078000 * g / mole;
-  double weightK = 39.098300 * g / mole;
-  double weightS = 32.065000 * g / mole;
-  double weightFe = 55.845000 * g / mole;
+  G4double weightH = 1.007940 * g / mole;
+  G4double weightO = 15.999400 * g / mole;
+  G4double weightCl = 35.453000 * g / mole;
+  G4double weightMg = 24.305000 * g / mole;
+  G4double weightNa = 22.989770 * g / mole;
+  G4double weightSi = 28.085500 * g / mole;
+  G4double weightB = 10.811000 * g / mole;
+  G4double weightAl = 26.981538 * g / mole;
+  G4double weightC = 12.010700 * g / mole;
+  G4double weightN = 14.006700 * g / mole;
+  G4double weightCa = 40.078000 * g / mole;
+  G4double weightK = 39.098300 * g / mole;
+  G4double weightS = 32.065000 * g / mole;
+  G4double weightFe = 55.845000 * g / mole;
   G4Element *elementH = new G4Element("Hydrogen", "H", 1., weightH);
   G4Element *elementO = new G4Element("Oxygen", "O", 8., weightO);
   G4Element *elementCl = new G4Element("Chlorine", "Cl", 17., weightCl);
@@ -448,7 +482,7 @@ void KM3Detector::ConstructMaterials() {
 
   // Earths Crust
   G4Material *Crust = new G4Material("Crust", 2.6 * g / cm3, 8, kStateSolid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                     287.15 * kelvin, 1.0 * atmosphere);
   Crust->AddElement(elementO, 0.481);
   Crust->AddElement(elementSi, 0.277);
   Crust->AddElement(elementAl, 0.081);
@@ -466,16 +500,16 @@ void KM3Detector::ConstructMaterials() {
   // Pylos Greece, pp614-630)
   // based on the composition of ocean seawater for 35o/oo
   // www.soest.hawaii.edu/oceanography we have
-  double abundanceNa = 469.0e-3 * mole / kg;
-  double abundanceMg = 52.8e-3 * mole / kg;
-  double abundanceCa = 10.3e-3 * mole / kg;
-  double abundanceK = 10.2e-3 * mole / kg;
-  double abundanceCl = 545.9e-3 * mole / kg;
-  double abundanceSO4 = 28.2e-3 * mole / kg;
-  double abundanceHCO3 = 2.33e-3 * mole / kg;
+  G4double abundanceNa = 469.0e-3 * mole / kg;
+  G4double abundanceMg = 52.8e-3 * mole / kg;
+  G4double abundanceCa = 10.3e-3 * mole / kg;
+  G4double abundanceK = 10.2e-3 * mole / kg;
+  G4double abundanceCl = 545.9e-3 * mole / kg;
+  G4double abundanceSO4 = 28.2e-3 * mole / kg;
+  G4double abundanceHCO3 = 2.33e-3 * mole / kg;
   // The Mediterranean Salinity is about 40o/oo (gr/kgr of seawater)
   // we scale these abundances for 40o/oo salinity
-  double scale = 40.0 / 35.0;
+  G4double scale = 40.0 / 35.0;
   abundanceNa *= scale;
   abundanceMg *= scale;
   abundanceCa *= scale;
@@ -492,9 +526,9 @@ void KM3Detector::ConstructMaterials() {
   abundanceCl *= weightCl;
   abundanceSO4 *= (weightS + 4 * weightO);
   abundanceHCO3 *= (weightH + weightC + 3 * weightO);
-  double abundanceH2O =
-    1.0 - (abundanceNa + abundanceMg + abundanceCa + abundanceK +
-        abundanceCl + abundanceSO4 + abundanceHCO3);
+  G4double abundanceH2O =
+      1.0 - (abundanceNa + abundanceMg + abundanceCa + abundanceK +
+             abundanceCl + abundanceSO4 + abundanceHCO3);
   //------------------the composites of sea
   //water------------------------------------
   // if the material is not used to fill a specific logical volume the density
@@ -512,15 +546,15 @@ void KM3Detector::ConstructMaterials() {
   // calculate the density of sea water using the compressibility (Apostolis
   // Thesis appendix C)
   // and the detector depth (in meters : not water equivalent)
-  double Compressibility = 4.29e-5 / bar;
-  double gravity = 9.8 * m / (s * s);
-  double surfaceDensity = 1.029 * g / cm3;
-  double seawaterDensity =
-    surfaceDensity *
-    exp(gravity * surfaceDensity * Compressibility * detectorDepth);
+  G4double Compressibility = 4.29e-5 / bar;
+  G4double gravity = 9.8 * m / (s * s);
+  G4double surfaceDensity = 1.029 * g / cm3;
+  G4double seawaterDensity =
+      surfaceDensity *
+      exp(gravity * surfaceDensity * Compressibility * detectorDepth);
   //-----------------------------------------------------------------
   G4Material *Water = new G4Material("Water", seawaterDensity, 8, kStateLiquid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                     287.15 * kelvin, 1.0 * atmosphere);
   Water->AddMaterial(H2O, abundanceH2O);
   Water->AddMaterial(SO4, abundanceSO4);
   Water->AddMaterial(HCO3, abundanceHCO3);
@@ -547,7 +581,7 @@ void KM3Detector::ConstructMaterials() {
   materialAl2O3->AddElement(elementAl, 2);
   materialAl2O3->AddElement(elementO, 3);
   G4Material *Glass = new G4Material("Glass", 2.23 * g / cm3, 4, kStateSolid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                     287.15 * kelvin, 1.0 * atmosphere);
   Glass->AddMaterial(materialSiO2, 0.806);
   Glass->AddMaterial(materialB2O3, 0.130);
   Glass->AddMaterial(materialNa2O, 0.040);
@@ -558,7 +592,7 @@ void KM3Detector::ConstructMaterials() {
   // (http://www.wackersilicones.com/documents/techdatasheets/silgel612.pdf)
   // Polydimethylsiloxane polymeres -- (C2H6OSi)n
   G4Material *Gell = new G4Material("Gell", 0.97 * g / cm3, 4, kStateSolid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                    287.15 * kelvin, 1.0 * atmosphere);
   Gell->AddElement(elementC, 2);
   Gell->AddElement(elementH, 6);
   Gell->AddElement(elementO, 1);
@@ -573,8 +607,8 @@ void KM3Detector::ConstructMaterials() {
   // CATHOD
   // -------------------------------------------------------------------------------
   G4Material *Cathod =
-    new G4Material("Cathod", 22, 47.867 * g / mole, 4.507 * g / cm3,
-        kStateSolid, 287.15 * kelvin, 1.0 * atmosphere);
+      new G4Material("Cathod", 22, 47.867 * g / mole, 4.507 * g / cm3,
+                     kStateSolid, 287.15 * kelvin, 1.0 * atmosphere);
 
   // G4cout<<*(G4Material::GetMaterialTable())<<G4endl;
 
@@ -586,7 +620,12 @@ void KM3Detector::ConstructMaterials() {
   G4MaterialPropertiesTable *Properties_Water = new G4MaterialPropertiesTable();
   Properties_Water->AddProperty("RINDEX", PPCKOV, RINDEX_WATER, NUMENTRIES);
   Properties_Water->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_WATER,
-      NUMENTRIES);
+                                NUMENTRIES);
+#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
+    !defined(G4MYK40_PARAMETERIZATION)
+  Properties_Water->AddProperty("ABSLENGTH_TRUE", PPCKOV, ABSORPTION_WATER_TRUE,
+                                NUMENTRIES);
+#endif
   Properties_Water->AddProperty("MIELENGTH", PPCKOV, SCATTER_WATER, NUMENTRIES);
   Properties_Water->AddConstProperty("MIEPHASE", MieModel);
   Water->SetMaterialPropertiesTable(Properties_Water);
@@ -594,14 +633,14 @@ void KM3Detector::ConstructMaterials() {
   // GLASS    -----------------------------------------------------------
   G4MaterialPropertiesTable *Properties_Glass = new G4MaterialPropertiesTable();
   Properties_Glass->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_GLASS,
-      NUMENTRIES);
+                                NUMENTRIES);
   Properties_Glass->AddProperty("RINDEX", PPCKOV, RINDEX_GLASS, NUMENTRIES);
   Glass->SetMaterialPropertiesTable(Properties_Glass);
 
   // GELL      -----------------------------------------------------------
   G4MaterialPropertiesTable *Properties_Gell = new G4MaterialPropertiesTable();
   Properties_Gell->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_GELL,
-      NUMENTRIES);
+                               NUMENTRIES);
   Properties_Gell->AddProperty("RINDEX", PPCKOV, RINDEX_GELL, NUMENTRIES);
   Gell->SetMaterialPropertiesTable(Properties_Gell);
 
@@ -616,28 +655,38 @@ void KM3Detector::ConstructMaterials() {
   // CATHOD       ----------------------------------------------------------
   G4MaterialPropertiesTable *Properties_Cath = new G4MaterialPropertiesTable();
   Properties_Cath->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_CATH,
-      NUMENTRIES);
+                               NUMENTRIES);
   Properties_Cath->AddProperty("RINDEX", PPCKOV, RINDEX_CATH, NUMENTRIES);
   Properties_Cath->AddProperty("Q_EFF", PPCKOV, Q_EFF, NUMENTRIES);
   Properties_Cath->AddProperty("ANGULAR_ACCEPTANCE", COSANGLES, ACCEPTANCE,
-      NUMENTRIES_ANGLEACC);
+                               NUMENTRIES_ANGLEACC);
   Cathod->SetMaterialPropertiesTable(Properties_Cath);
 }
 
 #include "G4VoxelLimits.hh"
 
-int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
-  static int Cathods = 0;
-  static int Storeys = 0;
-  static int OMs = 0;
+G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
+  static G4int Cathods = 0;
+  static G4int Storeys = 0;
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+    !defined(G4DISABLE_PARAMETRIZATION)
+  static G4int Towers = 0; // new towers
+#endif
+  static G4int OMs = 0;
   static G4AffineTransform AffineTrans;
   static G4RotationMatrix RotationMatr;
-  static int Depth = 0;
-  static int Hist[20];
-  static std::vector<int>
-    *aBenthosIDs; // static in order to load the benthos (OMs)
-  static std::vector<int>
-    *aCathodsIDs; // static in order to load the cathods (Cathods)
+  static G4int Depth = 0;
+  static G4int Hist[20];
+  static std::vector<G4int>
+      *aBenthosIDs; // static in order to load the benthos (OMs)
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+    !defined(G4DISABLE_PARAMETRIZATION)
+  static std::vector<G4int> *aTowerBenthosIDs; // static in order to load the
+                                               // benthos (OMs) in towers //new
+                                               // towers
+#endif
+  static std::vector<G4int>
+      *aCathodsIDs; // static in order to load the cathods (Cathods)
 
   //  G4cout <<Depth<<" "<<aPVolume->GetCopyNo()<<"
   //  "<<aPVolume->GetName()<<G4endl; //tempotest
@@ -647,40 +696,40 @@ int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   //  if(aPVolume->GetName() == "CathodVolume_PV"){ //for newgeant  add "_PV" at
   //  the end of physical volume name
   if ((aPVolume->GetName()).contains("CathodVolume")) { // for newgeant  add
-    // "_PV" at the end of
-    // physical volume name
+                                                        // "_PV" at the end of
+                                                        // physical volume name
     G4ThreeVector Position =
-      AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+        AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
     G4Transform3D trans(RotationMatr, Position);
     // estimate cathod radius///////////////////////////////
-    double CathodRadius = 0.0;
-    double CathodHeight = -1.0 * mm; // set default to begative, since it is
-    // not applicable to spherical cathods
+    G4double CathodRadius = 0.0;
+    G4double CathodHeight = -1.0 * mm; // set default to begative, since it is
+                                       // not applicable to spherical cathods
     if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        std::string("G4Sphere")) {
+        G4String("G4Sphere")) {
       CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-      double InnerRadius =
-        ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetInnerRadius();
+                         ->GetOuterRadius();
+      G4double InnerRadius =
+          ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
+              ->GetInnerRadius();
       if ((CathodRadius - InnerRadius) < 1.001 * mm)
         CathodRadius =
-          0.5 * (CathodRadius +
-              InnerRadius); // applicable mainly to shell type cathods (EM)
+            0.5 * (CathodRadius +
+                   InnerRadius); // applicable mainly to shell type cathods (EM)
     } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        std::string("G4Tubs")) {
+               G4String("G4Tubs")) {
       CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius(); // applicable to thin tube cathods
-      // (normal run)
+                         ->GetOuterRadius(); // applicable to thin tube cathods
+                                             // (normal run)
       CathodHeight = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetZHalfLength();
+                         ->GetZHalfLength();
       CathodHeight *= 2.0; // full height
     }
     ///////////////////////////////////////////
     allCathods->addCathod(trans, Position, Direction, CathodRadius,
-        CathodHeight, Depth - 1);
-    for (int i = 1; i < Depth; i++)
+                          CathodHeight, Depth - 1);
+    for (G4int i = 1; i < Depth; i++)
       allCathods->addToTree(Hist[i]);
     // G4cout << Depth <<" "<<Hist[0]<<" "<<Hist[1]<<" "<<Hist[2]<<"
     // "<<Hist[3]<<" "<<Hist[4]<<" "<<Hist[5]<<G4endl; //tempotest
@@ -689,32 +738,32 @@ int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     Cathods++;
   } else {
     if ((aPVolume->GetName()).contains("OMVolume")) { // for newgeant  add "_PV"
-      // at the end of physical
-      // volume name
+                                                      // at the end of physical
+                                                      // volume name
       OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
       aOM->position =
-        AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-      aCathodsIDs = new std::vector<int>;
+          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      aCathodsIDs = new std::vector<G4int>;
       aOM->CathodsIDs = aCathodsIDs;
       // if OM is sphere then set the outer radius as radius,
       // if it is tubs then set the proper radius
       // else set the geometrical sum of the extend on the three axis
       //(maximum extend. Exact only for Boxes)
       if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-          std::string("G4Sphere")) {
+          G4String("G4Sphere")) {
         aOM->radius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-          ->GetOuterRadius();
+                          ->GetOuterRadius();
       } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-          std::string("G4Tubs")) {
-        double zLength = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-          ->GetZHalfLength();
-        double oRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-          ->GetOuterRadius();
+                 G4String("G4Tubs")) {
+        G4double zLength = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+                               ->GetZHalfLength();
+        G4double oRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+                               ->GetOuterRadius();
         aOM->radius = sqrt(zLength * zLength + oRadius * oRadius);
       } else {
         G4VoxelLimits voxelLimits; // Defaults to "infinite" limits.
         G4AffineTransform affineTransform; // no transform
-        double xmin, xmax, ymin, ymax, zmin, zmax;
+        G4double xmin, xmax, ymin, ymax, zmin, zmax;
         aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
             kXAxis, voxelLimits, affineTransform, xmin, xmax);
         aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
@@ -728,24 +777,43 @@ int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       }
       allOMs->push_back(aOM);
       aBenthosIDs->push_back(OMs);
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+    !defined(G4DISABLE_PARAMETRIZATION)
+      aTowerBenthosIDs->push_back(OMs); // new towers
+#endif
       OMs++;
     }
-    if ((aPVolume->GetName()).contains("StoreyVolume")) {
-      // for newgeant  add "_PV" at the end
-      // of physical volume name
+    if ((aPVolume->GetName())
+            .contains("StoreyVolume")) { // for newgeant  add "_PV" at the end
+                                         // of physical volume name
       StoreysPositions *aStorey =
-        (StoreysPositions *)malloc(sizeof(StoreysPositions));
+          (StoreysPositions *)malloc(sizeof(StoreysPositions));
       aStorey->position =
-        AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-      aBenthosIDs = new std::vector<int>;
+          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      aBenthosIDs = new std::vector<G4int>;
       aStorey->BenthosIDs = aBenthosIDs;
       allStoreys->push_back(aStorey);
       Storeys++;
     }
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+    !defined(G4DISABLE_PARAMETRIZATION)
+    if ((aPVolume->GetName())
+            .contains("TowerVolume")) { // new towers //for newgeant  add "_PV"
+                                        // at the end of physical volume name
+      TowersPositions *aTower =
+          (TowersPositions *)malloc(sizeof(TowersPositions));
+      aTower->position =
+          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      aTowerBenthosIDs = new std::vector<G4int>;
+      aTower->BenthosIDs = aTowerBenthosIDs;
+      allTowers->push_back(aTower);
+      Towers++;
+    }
+#endif
     G4AffineTransform tempoaffine(aPVolume->GetObjectRotationValue().inverse(),
-        aPVolume->GetObjectTranslation());
+                                  aPVolume->GetObjectTranslation());
     AffineTrans = tempoaffine * AffineTrans;
-    for (int i = 0; i < aPVolume->GetLogicalVolume()->GetNoDaughters(); i++) {
+    for (G4int i = 0; i < aPVolume->GetLogicalVolume()->GetNoDaughters(); i++) {
       // the following is to fix new GDML that does not apply a copyNumber to
       // physical volumes
       aPVolume->GetLogicalVolume()->GetDaughter(i)->SetCopyNo(i);
@@ -778,13 +846,13 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume(); // newgeant
   if (fWorld == 0)
     G4Exception("World volume not set properly check your setup selection "
-        "criteria or GDML input!",
-        "", FatalException, "");
+                "criteria or GDML input!",
+                "", FatalException, "");
 
   G4cout << "Total Cathods " << TotalPMTEntities(fWorld) << G4endl;
 
-  //  int History[10]={20,20,18,0,2,0,0,0,0,0};
-  //  int dep=5;
+  //  G4int History[10]={20,20,18,0,2,0,0,0,0,0};
+  //  G4int dep=5;
   //  G4cout <<"123456 "<<allCathods->GetCathodId(dep,History)<<G4endl;
   //  History[3]=1;
   //  G4cout <<"123456 "<<allCathods->GetCathodId(dep,History)<<G4endl;
@@ -794,44 +862,116 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   //------------------------------------------------
 
   G4SDManager *SDman = G4SDManager::GetSDMpointer();
-  std::string MySDname = "mydetector1/MySD";
+  G4String MySDname = "mydetector1/MySD";
   KM3SD *aMySD = new KM3SD(MySDname);
   aMySD->SetVerboseLevel(1);
   aMySD->myStDetector = this;
+#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+  aMySD->myPhotonsNumber = myPhotonsNumber;
+  aMySD->myPhotonsTime = myPhotonsTime;
+  aMySD->myPhotonsTh2Th3Num = myPhotonsTh2Th3Num;
+  aMySD->myPhotonsTh2 = myPhotonsTh2;
+  aMySD->myPhotonsTh3 = myPhotonsTh3;
+#endif
   SDman->AddNewDetector(aMySD);
 
   // next find the Cathod && Dead logical volumes and assign them the sensitive
   // detectors
   G4LogicalVolume *aLogicalVolume;
   std::vector<G4LogicalVolume *> *aLogicalStore;
-  std::string aString1("CathodVolume");
-  std::string aString2("DeadVolume");
+  G4String aString1("CathodVolume");
+  G4String aString2("DeadVolume");
   size_t theSize = G4LogicalVolumeStore::GetInstance()->size();
   aLogicalStore = G4LogicalVolumeStore::GetInstance();
+  if (DrawDetector) {
+    G4cout << "choose colours for each detector component " << G4endl;
+    G4cout << "Available colors are: white gray(grey) black red green blue "
+              "cyan magenta yellow none"
+           << G4endl;
+  }
   for (size_t i = 0; i < theSize; i++) {
     aLogicalVolume = (*aLogicalStore)[i];
 
+    //////////////////setup vrml visibility///////////////
+    if (DrawDetector) {
+      char Colour[10];
+      G4cout << aLogicalVolume->GetName() << G4endl;
+      G4cout << "Enter Color" << G4endl;
+      scanf("%s", Colour);
+      G4String colour(Colour);
+      if (colour == G4String("none"))
+        aLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
+      else {
+        G4VisAttributes *MyVis;
+        G4bool ok = true;
+        if (colour == G4String("white"))
+          MyVis = new G4VisAttributes(G4Colour::White());
+        else if (colour == G4String("gray") || colour == G4String("grey"))
+          MyVis = new G4VisAttributes(G4Colour::Gray());
+        else if (colour == G4String("black"))
+          MyVis = new G4VisAttributes(G4Colour::Black());
+        else if (colour == G4String("red"))
+          MyVis = new G4VisAttributes(G4Colour::Red());
+        else if (colour == G4String("green"))
+          MyVis = new G4VisAttributes(G4Colour::Green());
+        else if (colour == G4String("blue"))
+          MyVis = new G4VisAttributes(G4Colour::Blue());
+        else if (colour == G4String("cyan"))
+          MyVis = new G4VisAttributes(G4Colour::Cyan());
+        else if (colour == G4String("magenta"))
+          MyVis = new G4VisAttributes(G4Colour::Magenta());
+        else if (colour == G4String("yellow"))
+          MyVis = new G4VisAttributes(G4Colour::Yellow());
+        else
+          ok = false;
+        if (ok) {
+          MyVis->SetVisibility(true);
+          MyVis->SetLineStyle(MyVis->unbroken);
+          MyVis->SetLineWidth(1.);
+          // MyVis->SetForceWireFrame(true);
+          MyVis->SetForceSolid(true);
+          aLogicalVolume->SetVisAttributes(MyVis);
+        } else
+          aLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
+      }
+    }
+
+    ////////////////////////////////////////////////////
+    //    if( (aLogicalVolume->GetName() == aString1) ||
+    //    (aLogicalVolume->GetName() == aString2) ){
     if (((aLogicalVolume->GetName()).contains(aString1)) ||
         ((aLogicalVolume->GetName()).contains(aString2))) {
       aLogicalVolume->SetSensitiveDetector(aMySD);
     }
   }
 
+  // tempotest
+  // G4VPhysicalVolume* aPhysicalVolume;
+  // std::vector<G4VPhysicalVolume*> *aPhysicalStore;
+  // theSize=G4PhysicalVolumeStore::GetInstance()->size();
+  // aPhysicalStore = G4PhysicalVolumeStore::GetInstance();
+  // for(size_t i=0 ; i<theSize ; i++){
+  //   aPhysicalVolume = (*aPhysicalStore)[i];
+  //   G4cout <<  aPhysicalVolume->GetName() <<"
+  //   "<<aPhysicalVolume->GetMultiplicity()<<"
+  //   "<<aPhysicalVolume->GetCopyNo()<< G4endl;
+  // }
+  // tempotest
 
   // fully adjustable benthos and storey linked list
   G4cout << "Total World Volume Entities= "
-    << fWorld->GetLogicalVolume()->TotalVolumeEntities() << G4endl;
+         << fWorld->GetLogicalVolume()->TotalVolumeEntities() << G4endl;
 
   // Next find from OM positions and radius in each store the storey radius
   for (size_t istorey = 0; istorey < allStoreys->size(); istorey++) {
     G4ThreeVector storeyposition = (*allStoreys)[istorey]->position;
-    double MAXdist = 0.0;
+    G4double MAXdist = 0.0;
     size_t OMnumber = (*allStoreys)[istorey]->BenthosIDs->size();
     for (size_t iom = 0; iom < OMnumber; iom++) {
-      int iOM = (*((*allStoreys)[istorey]->BenthosIDs))[iom];
+      G4int iOM = (*((*allStoreys)[istorey]->BenthosIDs))[iom];
       G4ThreeVector OMposition = (*allOMs)[iOM]->position;
-      double OMradius = (*allOMs)[iOM]->radius;
-      double dist = (storeyposition - OMposition).mag() + OMradius;
+      G4double OMradius = (*allOMs)[iOM]->radius;
+      G4double dist = (storeyposition - OMposition).mag() + OMradius;
       if (dist > MAXdist)
         MAXdist = dist;
     }
@@ -843,272 +983,282 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   //--------Write the header of the outfile and the Cathods Position, Direction
   //and History Tree
-  int nnn0 = 0;
-  int nnn1 = 1;
-  int nben = allCathods->GetNumberOfCathods();
+  G4int nnn0 = 0;
+  G4int nnn1 = 1;
+  G4int nben = allCathods->GetNumberOfCathods();
 
-  if (outfile == NULL)
+  // here in case of antares evt format I should write something general about
+  // simulation
+  if (useANTARESformat)
+    TheEVTtoWrite->ReadRunHeader();
+
+  if (outfile == NULL && !useANTARESformat)
     G4cout << "ERROR OUTFILE\n" << G4endl;
 
 #ifdef G4PRINT_HEADER
-  fprintf(outfile, "%d %d %d %d %d %d %d %d %d %d %f %f %d %d\n", nnn0, nnn1,
-      nnn1, nnn1, nben, nnn0, nnn0, nnn0, nnn0, nnn0, Water_Transparency,
-      Quantum_Efficiency, nnn0, nnn0);
-  allCathods->PrintAllCathods(outfile);
+  if (!useANTARESformat) {
+    fprintf(outfile, "%d %d %d %d %d %d %d %d %d %d %f %f %d %d\n", nnn0, nnn1,
+            nnn1, nnn1, nben, nnn0, nnn0, nnn0, nnn0, nnn0, Water_Transparency,
+            Quantum_Efficiency, nnn0, nnn0);
+    allCathods->PrintAllCathods(outfile);
+  } else {
+    FILE *oofile = fopen("PmtPositionsAndDirections", "w");
+    fprintf(oofile, "%d %f\n", nben, Quantum_Efficiency);
+    allCathods->PrintAllCathods(oofile);
+    fclose(oofile);
+  }
 #endif
 
+  if (useANTARESformat)
+    TheEVTtoWrite->WriteRunHeader();
+
 #if !defined(G4ENABLE_MIE) ||                                                  \
-  (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
+    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
   // initialize the splitted spheres
   initializeSpheres();
 #endif
 
   // find the total photocathod area on a OM
-  int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
+  G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
   TotCathodArea =
-    CaPerOM * pi * allCathods->GetCathodRadius(0) *
-    allCathods->GetCathodRadius(0); // this is valid only if at simulation
-  // level (not EM or HA param) all cathods
-  // have the same radius. Easy to change to
-  // account for a detector with varius
-  // cathod types
+      CaPerOM * pi * allCathods->GetCathodRadius(0) *
+      allCathods->GetCathodRadius(0); // this is valid only if at simulation
+                                      // level (not EM or HA param) all cathods
+                                      // have the same radius. Easy to change to
+                                      // account for a detector with varius
+                                      // cathod types
 
   //-----------apostolis Parameterisation ------------------------------
   G4Region *defRegion =
-    G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld");
+      G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld");
   myEMShowerModel = new KM3EMShowerModel("emShowerModel", defRegion);
   myEMShowerModel->myStDetector = this;
-  // TODO:
-  // Why the hell do these lines even exist? EM/HA parametrization
-  // has been commented out for the last 3 version, including this one.
-  // Probably an `#ifdef HA_PARAM` or something is missing here.
-  // TO_DELETE
   myEMShowerModel->InitializeFlux(EMParametrization_FILE, Quantum_Efficiency,
-      TotCathodArea);
+                                  TotCathodArea);
   myEMShowerModel->aMySD = aMySD;
 
 #ifdef G4HADRONIC_COMPILE
   myHAShowerModel = new KM3HAShowerModel("haShowerModel", defRegion);
   myHAShowerModel->myStDetector = this;
   myHAShowerModel->InitializeFlux(HAParametrization_FILE, Quantum_Efficiency,
-      TotCathodArea);
+                                  TotCathodArea);
   myHAShowerModel->aMySD = aMySD;
 #endif
 
   // return the physical World
   return fWorld;
-  }
+}
 
 #if !defined(G4ENABLE_MIE) ||                                                  \
-  (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
-  //--new initialize spheres
-  void KM3Detector::initializeSpheres(void) {
-    // allmyBenthos keep for each sphere the positions and radii of the PMts that
-    // are in the current spheres
-    // first load in allmyBenthos the whole of the detector
-    std::vector<StoreysPositions *> *allmyStoreys = allStoreys;
-    howmanySpheres = 0;
-    Spheres *mySphere = (Spheres *)malloc(sizeof(Spheres));
-    splitSpheresCluster(allmyStoreys, mySphere);
-    allSpheres = mySphere;
+    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
+//--new initialize spheres
+void KM3Detector::initializeSpheres(void) {
+  // allmyBenthos keep for each sphere the positions and radii of the PMts that
+  // are in the current spheres
+  // first load in allmyBenthos the whole of the detector
+  std::vector<StoreysPositions *> *allmyStoreys = allStoreys;
+  howmanySpheres = 0;
+  Spheres *mySphere = (Spheres *)malloc(sizeof(Spheres));
+  splitSpheresCluster(allmyStoreys, mySphere);
+  allSpheres = mySphere;
+}
+
+// split spheres with clustering methods.
+void KM3Detector::splitSpheresCluster(
+    std::vector<StoreysPositions *> *allmyStoreys, Spheres *mySphere) {
+  static G4int depth = 0;
+  G4cout << "Depth in split " << depth << G4endl;
+  depth++;
+  // find the center of mass of the detector
+  G4ThreeVector center(0.0, 0.0, 0.0);
+  G4int howmanyStoreys = allmyStoreys->size();
+  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
+    center += (*allmyStoreys)[isto]->position;
+  }
+  center /= double(howmanyStoreys);
+
+  // find the maximum distance
+  G4double maxDistance = -1.0;
+  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
+    G4ThreeVector pos = (*allmyStoreys)[isto]->position - center;
+    G4double distance = pos.mag() + (*allmyStoreys)[isto]->radius;
+    if (distance > maxDistance) {
+      maxDistance = distance;
+    }
   }
 
-  // split spheres with clustering methods.
-  void KM3Detector::splitSpheresCluster(
-      std::vector<StoreysPositions *> *allmyStoreys, Spheres *mySphere) {
-    static int depth = 0;
-    G4cout << "Depth in split " << depth << G4endl;
-    depth++;
-    // find the center of mass of the detector
-    G4ThreeVector center(0.0, 0.0, 0.0);
-    int howmanyStoreys = allmyStoreys->size();
-    for (int isto = 0; isto < howmanyStoreys; isto++) {
-      center += (*allmyStoreys)[isto]->position;
+  // load the new sphere on array
+  mySphere->center = center;
+  mySphere->radius = maxDistance;
+  howmanySpheres++;
+  //  G4cout <<howmanySpheres <<" Number of benthos " << howmanyStoreys
+  //  <<G4endl;
+  std::vector<Spheres *> *thenext = new std::vector<Spheres *>;
+  mySphere->allnext = thenext;
+  if (howmanyStoreys == 1) {
+    size_t OMnumber = (*allmyStoreys)[0]->BenthosIDs->size();
+    for (size_t iom = 0; iom < OMnumber; iom++) {
+      Spheres *mySpherenext = (Spheres *)malloc(sizeof(Spheres));
+      G4int iOM = (*((*allmyStoreys)[0]->BenthosIDs))[iom];
+      mySpherenext->center = (*allOMs)[iOM]->position;
+      mySpherenext->radius = (*allOMs)[iOM]->radius;
+      std::vector<Spheres *> *thenextnext = new std::vector<Spheres *>;
+      mySpherenext->allnext = thenextnext;
+      mySphere->allnext->push_back(mySpherenext);
     }
-    center /= double(howmanyStoreys);
+    return; // this is the end of the line
+  }
 
-    // find the maximum distance
-    double maxDistance = -1.0;
-    for (int isto = 0; isto < howmanyStoreys; isto++) {
-      G4ThreeVector pos = (*allmyStoreys)[isto]->position - center;
-      double distance = pos.mag() + (*allmyStoreys)[isto]->radius;
-      if (distance > maxDistance) {
-        maxDistance = distance;
-      }
-    }
-
-    // load the new sphere on array
-    mySphere->center = center;
-    mySphere->radius = maxDistance;
-    howmanySpheres++;
-    //  G4cout <<howmanySpheres <<" Number of benthos " << howmanyStoreys
-    //  <<G4endl;
-    std::vector<Spheres *> *thenext = new std::vector<Spheres *>;
-    mySphere->allnext = thenext;
-    if (howmanyStoreys == 1) {
-      size_t OMnumber = (*allmyStoreys)[0]->BenthosIDs->size();
-      for (size_t iom = 0; iom < OMnumber; iom++) {
-        Spheres *mySpherenext = (Spheres *)malloc(sizeof(Spheres));
-        int iOM = (*((*allmyStoreys)[0]->BenthosIDs))[iom];
-        mySpherenext->center = (*allOMs)[iOM]->position;
-        mySpherenext->radius = (*allOMs)[iOM]->radius;
-        std::vector<Spheres *> *thenextnext = new std::vector<Spheres *>;
-        mySpherenext->allnext = thenextnext;
-        mySphere->allnext->push_back(mySpherenext);
-      }
-      return; // this is the end of the line
-    }
-
-    // load all benthos indexing in array ALLSTOREYS[1000] (needed only for
-    // clustering)
-    for (int isto = 0; isto < howmanyStoreys; isto++) {
-      ALLSTOREYS[isto] = -1;
-    }
-    //----here is the implementation of the clustering
-    // first time choose randomly the centers inside the initial sphere
-    double centers[4][3];
-    int imanystoreysarr[4];
-    int numofCenters = 2;
-    double radiusRANDOM, thetaRANDOM, phiRANDOM;
-    for (int i = 0; i < numofCenters; i++) {
-      radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
-      thetaRANDOM = M_PI * drand48();
-      phiRANDOM = 2 * M_PI * drand48();
-      centers[i][0] =
+  // load all benthos indexing in array ALLSTOREYS[1000] (needed only for
+  // clustering)
+  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
+    ALLSTOREYS[isto] = -1;
+  }
+  //----here is the implementation of the clustering
+  // first time choose randomly the centers inside the initial sphere
+  G4double centers[4][3];
+  G4int imanystoreysarr[4];
+  G4int numofCenters = 2;
+  G4double radiusRANDOM, thetaRANDOM, phiRANDOM;
+  for (G4int i = 0; i < numofCenters; i++) {
+    radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
+    thetaRANDOM = M_PI * drand48();
+    phiRANDOM = 2 * M_PI * drand48();
+    centers[i][0] =
         center[0] + radiusRANDOM * sin(thetaRANDOM) * cos(phiRANDOM);
-      centers[i][1] =
+    centers[i][1] =
         center[1] + radiusRANDOM * sin(thetaRANDOM) * sin(phiRANDOM);
-      centers[i][2] = center[2] + radiusRANDOM * cos(thetaRANDOM);
-    }
-
-    // next find the minimum and maximum number of storeys in each subdetector
-    int nmove = 10;
-    int jmin;
-    double distm, dist;
-    int imanymin, imanymax, igood;
-    int imanyminMAX = -10;
-    if (div(howmanyStoreys, 2).rem == 0) {
-      imanymin = howmanyStoreys / 2;
-      imanymax = howmanyStoreys - imanymin;
-    } else {
-      imanymin = (howmanyStoreys - 1) / 2;
-      imanymax = howmanyStoreys - imanymin;
-    }
-    int iter = 0;
-    while (nmove > 0) { // while the iteration process has not converged to an
-      // acceptable solution
-      nmove = 0;
-      for (int i = 0; i < howmanyStoreys;
-          i++) { // find each storey to what center belongs (is closer)
-        G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
-        distm = 1.0e20;
-        for (int j = 0; j < numofCenters; j++) {
-          dist = (centers[j][0] - StoPos[0]) * (centers[j][0] - StoPos[0]) +
-            (centers[j][1] - StoPos[1]) * (centers[j][1] - StoPos[1]) +
-            (centers[j][2] - StoPos[2]) * (centers[j][2] - StoPos[2]);
-          if (dist < distm) {
-            distm = dist;
-            jmin = j;
-          }
-        }
-        if (ALLSTOREYS[i] != jmin) {
-          ALLSTOREYS[i] = jmin;
-          nmove++;
-        }
-      }
-
-      igood = 1;
-      if (nmove == 0) { // if it has converged see if the solution is acceptable
-        for (int j = 0; j < numofCenters; j++) {
-          imanystoreysarr[j] = 0;
-          for (int i = 0; i < howmanyStoreys; i++)
-            if (ALLSTOREYS[i] == j)
-              imanystoreysarr[j]++;
-        }
-        for (int j = 0; j < numofCenters; j++) {
-          if ((imanystoreysarr[j] < imanymin) || (imanystoreysarr[j] > imanymax))
-            igood = 0;
-        }
-        if (igood ==
-            0) { // if it is not acceptable then find randomly other centers
-          iter++;
-          imanyminMAX = int(fmax(double(imanyminMAX),
-                fmin(imanystoreysarr[0],
-                  imanystoreysarr[1]))); // for only 2 centers
-          if (iter > 1000) {
-            imanymin = imanyminMAX;
-            imanymax = howmanyStoreys - imanymin;
-          }
-          for (int j = 0; j < numofCenters; j++) {
-            radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
-            thetaRANDOM = M_PI * drand48();
-            phiRANDOM = 2 * M_PI * drand48();
-            centers[j][0] =
-              center[0] + radiusRANDOM * sin(thetaRANDOM) * cos(phiRANDOM);
-            centers[j][1] =
-              center[1] + radiusRANDOM * sin(thetaRANDOM) * sin(phiRANDOM);
-            centers[j][2] = center[2] + radiusRANDOM * cos(thetaRANDOM);
-          }
-        }
-      }
-
-      if (igood == 1) { // if the solution is acceptable or it has not converged
-        if (nmove != 0) { // if it has not converged
-          // find the new center coordinates
-          for (int j = 0; j < numofCenters; j++) {
-            centers[j][0] = 0.0;
-            centers[j][1] = 0.0;
-            centers[j][2] = 0.0;
-            int imanystoreys = 0;
-            for (int i = 0; i < howmanyStoreys; i++) {
-              if (ALLSTOREYS[i] == j) {
-                G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
-                imanystoreys++;
-                centers[j][0] += StoPos[0];
-                centers[j][1] += StoPos[1];
-                centers[j][2] += StoPos[2];
-              }
-            }
-            if (imanystoreys > 1) {
-              centers[j][0] /= double(imanystoreys);
-              centers[j][1] /= double(imanystoreys);
-              centers[j][2] /= double(imanystoreys);
-            }
-          }
-        }
-      } else
-        nmove = 10; // the solution is not good and do again
-    }
-
-    //------------end of clustering---------------------------
-    // load in linked list the benthos of each center
-    std::vector<StoreysPositions *> *positivemyStoreys =
-      new std::vector<StoreysPositions *>;
-    std::vector<StoreysPositions *> *negativemyStoreys =
-      new std::vector<StoreysPositions *>;
-    for (int i = 0; i < howmanyStoreys; i++) {
-      if (ALLSTOREYS[i] == 0) { // the first center
-        positivemyStoreys->push_back((*allmyStoreys)[i]);
-      } else { // the second center
-        negativemyStoreys->push_back((*allmyStoreys)[i]);
-      }
-    }
-
-    Spheres *mySphere1 = (Spheres *)malloc(sizeof(Spheres));
-    splitSpheresCluster(positivemyStoreys, mySphere1);
-    mySphere->allnext->push_back(mySphere1);
-    depth--;
-    Spheres *mySphere2 = (Spheres *)malloc(sizeof(Spheres));
-    splitSpheresCluster(negativemyStoreys, mySphere2);
-    mySphere->allnext->push_back(mySphere2);
-    depth--;
-
-    // here we delete the positivemyStoreys address list.
-    positivemyStoreys->clear();
-    delete positivemyStoreys;
-    // here we delete the negativemyStoreys linked list.
-    negativemyStoreys->clear();
-    delete negativemyStoreys;
+    centers[i][2] = center[2] + radiusRANDOM * cos(thetaRANDOM);
   }
+
+  // next find the minimum and maximum number of storeys in each subdetector
+  G4int nmove = 10;
+  G4int jmin;
+  G4double distm, dist;
+  G4int imanymin, imanymax, igood;
+  G4int imanyminMAX = -10;
+  if (div(howmanyStoreys, 2).rem == 0) {
+    imanymin = howmanyStoreys / 2;
+    imanymax = howmanyStoreys - imanymin;
+  } else {
+    imanymin = (howmanyStoreys - 1) / 2;
+    imanymax = howmanyStoreys - imanymin;
+  }
+  G4int iter = 0;
+  while (nmove > 0) { // while the iteration process has not converged to an
+                      // acceptable solution
+    nmove = 0;
+    for (G4int i = 0; i < howmanyStoreys;
+         i++) { // find each storey to what center belongs (is closer)
+      G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
+      distm = 1.0e20;
+      for (G4int j = 0; j < numofCenters; j++) {
+        dist = (centers[j][0] - StoPos[0]) * (centers[j][0] - StoPos[0]) +
+               (centers[j][1] - StoPos[1]) * (centers[j][1] - StoPos[1]) +
+               (centers[j][2] - StoPos[2]) * (centers[j][2] - StoPos[2]);
+        if (dist < distm) {
+          distm = dist;
+          jmin = j;
+        }
+      }
+      if (ALLSTOREYS[i] != jmin) {
+        ALLSTOREYS[i] = jmin;
+        nmove++;
+      }
+    }
+
+    igood = 1;
+    if (nmove == 0) { // if it has converged see if the solution is acceptable
+      for (G4int j = 0; j < numofCenters; j++) {
+        imanystoreysarr[j] = 0;
+        for (G4int i = 0; i < howmanyStoreys; i++)
+          if (ALLSTOREYS[i] == j)
+            imanystoreysarr[j]++;
+      }
+      for (G4int j = 0; j < numofCenters; j++) {
+        if ((imanystoreysarr[j] < imanymin) || (imanystoreysarr[j] > imanymax))
+          igood = 0;
+      }
+      if (igood ==
+          0) { // if it is not acceptable then find randomly other centers
+        iter++;
+        imanyminMAX = int(fmax(double(imanyminMAX),
+                               fmin(imanystoreysarr[0],
+                                    imanystoreysarr[1]))); // for only 2 centers
+        if (iter > 1000) {
+          imanymin = imanyminMAX;
+          imanymax = howmanyStoreys - imanymin;
+        }
+        for (G4int j = 0; j < numofCenters; j++) {
+          radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
+          thetaRANDOM = M_PI * drand48();
+          phiRANDOM = 2 * M_PI * drand48();
+          centers[j][0] =
+              center[0] + radiusRANDOM * sin(thetaRANDOM) * cos(phiRANDOM);
+          centers[j][1] =
+              center[1] + radiusRANDOM * sin(thetaRANDOM) * sin(phiRANDOM);
+          centers[j][2] = center[2] + radiusRANDOM * cos(thetaRANDOM);
+        }
+      }
+    }
+
+    if (igood == 1) { // if the solution is acceptable or it has not converged
+      if (nmove != 0) { // if it has not converged
+        // find the new center coordinates
+        for (G4int j = 0; j < numofCenters; j++) {
+          centers[j][0] = 0.0;
+          centers[j][1] = 0.0;
+          centers[j][2] = 0.0;
+          G4int imanystoreys = 0;
+          for (G4int i = 0; i < howmanyStoreys; i++) {
+            if (ALLSTOREYS[i] == j) {
+              G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
+              imanystoreys++;
+              centers[j][0] += StoPos[0];
+              centers[j][1] += StoPos[1];
+              centers[j][2] += StoPos[2];
+            }
+          }
+          if (imanystoreys > 1) {
+            centers[j][0] /= double(imanystoreys);
+            centers[j][1] /= double(imanystoreys);
+            centers[j][2] /= double(imanystoreys);
+          }
+        }
+      }
+    } else
+      nmove = 10; // the solution is not good and do again
+  }
+
+  //------------end of clustering---------------------------
+  // load in linked list the benthos of each center
+  std::vector<StoreysPositions *> *positivemyStoreys =
+      new std::vector<StoreysPositions *>;
+  std::vector<StoreysPositions *> *negativemyStoreys =
+      new std::vector<StoreysPositions *>;
+  for (G4int i = 0; i < howmanyStoreys; i++) {
+    if (ALLSTOREYS[i] == 0) { // the first center
+      positivemyStoreys->push_back((*allmyStoreys)[i]);
+    } else { // the second center
+      negativemyStoreys->push_back((*allmyStoreys)[i]);
+    }
+  }
+
+  Spheres *mySphere1 = (Spheres *)malloc(sizeof(Spheres));
+  splitSpheresCluster(positivemyStoreys, mySphere1);
+  mySphere->allnext->push_back(mySphere1);
+  depth--;
+  Spheres *mySphere2 = (Spheres *)malloc(sizeof(Spheres));
+  splitSpheresCluster(negativemyStoreys, mySphere2);
+  mySphere->allnext->push_back(mySphere2);
+  depth--;
+
+  // here we delete the positivemyStoreys address list.
+  positivemyStoreys->clear();
+  delete positivemyStoreys;
+  // here we delete the negativemyStoreys linked list.
+  negativemyStoreys->clear();
+  delete negativemyStoreys;
+}
 
 #endif

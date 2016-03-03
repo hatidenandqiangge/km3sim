@@ -1,7 +1,7 @@
 #include "KM3EMDirectFlux.hh"
 #include "Randomize.hh"
 
-KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, double TotCathodArea) {
+KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, G4double TotCathodArea) {
   VertexDistanceBins = 40;
   std::ifstream infile(infileParam, std::ios::in | std::ios::binary);
   // keep2013  infile.seekg(std::streampos(439203908));
@@ -13,8 +13,8 @@ KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, double TotCathodArea) {
   keepDistances->reserve(VertexDistanceBins);
   char valC[4];
   infile.read(valC, 4);
-  double Energy = double(*(float *)valC);
-  for (int i = 0; i < VertexDistanceBins; i++) {
+  G4double Energy = double(*(float *)valC);
+  for (G4int i = 0; i < VertexDistanceBins; i++) {
     bool oka;
     KM3EMAngularFlux *aAngularFlux =
         new KM3EMAngularFlux(infile, oka, true); // true is for fine binning
@@ -28,16 +28,16 @@ KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, double TotCathodArea) {
 }
 KM3EMDirectFlux::~KM3EMDirectFlux() {
   if (keepDistances != NULL) {
-    for (int i = 0; i < VertexDistanceBins; i++)
+    for (G4int i = 0; i < VertexDistanceBins; i++)
       delete (*keepDistances)[i];
     keepDistances->clear();
     delete keepDistances;
     keepDistances = NULL;
   }
 }
-void KM3EMDirectFlux::FindBins(double MeanNumPhotons, double distancein,
-                               double anglein) {
-  int i;
+void KM3EMDirectFlux::FindBins(G4double MeanNumPhotons, G4double distancein,
+                               G4double anglein) {
+  G4int i;
   for (i = 0; i < VertexDistanceBins; i++) {
     if ((*keepDistances)[i]->IsValid()) {
       if (distancein < (*keepDistances)[i]->GiveDistance())
@@ -77,24 +77,24 @@ void KM3EMDirectFlux::FindBins(double MeanNumPhotons, double distancein,
   (*keepDistances)[ibin2]->FindBins(anglein);
 
   // new d^2*F interpolation
-  double Distance1 = (*keepDistances)[ibin1]->GiveDistance();
-  double Distance2 = (*keepDistances)[ibin2]->GiveDistance();
+  G4double Distance1 = (*keepDistances)[ibin1]->GiveDistance();
+  G4double Distance2 = (*keepDistances)[ibin2]->GiveDistance();
   ratio = (distancein - Distance1) / (Distance2 - Distance1);
-  double Flux1 = (*keepDistances)[ibin1]->GiveFlux();
-  double Flux2 = (*keepDistances)[ibin2]->GiveFlux();
+  G4double Flux1 = (*keepDistances)[ibin1]->GiveFlux();
+  G4double Flux2 = (*keepDistances)[ibin2]->GiveFlux();
   Flux = Flux1 + ratio * (Flux2 - Flux1);
   Flux +=
       2 * (log(Distance1 / distancein) + ratio * log(Distance2 / Distance1));
   // new d^2F interpolation
-  double dFlux02 = 1.0 - exp(Flux - Flux2);
-  double dFlux12 = 1.0 - exp(Flux1 - Flux2);
+  G4double dFlux02 = 1.0 - exp(Flux - Flux2);
+  G4double dFlux12 = 1.0 - exp(Flux1 - Flux2);
   ratio = dFlux02 / dFlux12;
   if (ratio < 0)
     ratio = 0.0;
   else if (ratio > 1.0)
     ratio = 1.0;
   Flux = RatioThis * MeanNumPhotons * exp(Flux);
-  NumberOfSamples = (int)CLHEP::RandPoisson::shoot(Flux);
+  NumberOfSamples = (G4int)CLHEP::RandPoisson::shoot(Flux);
 }
 
 onePE KM3EMDirectFlux::GetSamplePoint() {

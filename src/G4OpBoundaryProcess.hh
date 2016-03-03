@@ -115,7 +115,7 @@ public: // Without description
   // Constructors and Destructor
   ////////////////////////////////
 
-  G4OpBoundaryProcess(const std::string &processName = "OpBoundary",
+  G4OpBoundaryProcess(const G4String &processName = "OpBoundary",
                       G4ProcessType type = fOptical);
 
   ~G4OpBoundaryProcess();
@@ -125,10 +125,10 @@ public: // Without description
   ////////////
 
 public: // With description
-  bool IsApplicable(const G4ParticleDefinition &aParticleType);
+  G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
   // Returns true -> 'is applicable' only for an optical photon.
 
-  double GetMeanFreePath(const G4Track &, double,
+  G4double GetMeanFreePath(const G4Track &, G4double,
                            G4ForceCondition *condition);
   // Returns infinity; i. e. the process does not limit the step,
   // but sets the 'Forced' condition for the DoIt to be invoked at
@@ -149,13 +149,13 @@ public: // With description
   // (glisur || unified).
 
 private:
-  void G4Swap(double *a, double *b) const;
+  void G4Swap(G4double *a, G4double *b) const;
 
   void G4Swap(G4Material *a, G4Material *b) const;
 
   void G4VectorSwap(G4ThreeVector *vec1, G4ThreeVector *vec2) const;
 
-  bool G4BooleanRand(const double prob) const;
+  G4bool G4BooleanRand(const G4double prob) const;
 
   G4ThreeVector G4IsotropicRand() const;
 
@@ -174,7 +174,7 @@ private:
   void DoReflection();
 
 private:
-  double thePhotonMomentum;
+  G4double thePhotonMomentum;
 
   G4ThreeVector OldMomentum;
   G4ThreeVector OldPolarization;
@@ -190,10 +190,10 @@ private:
 
   G4OpticalSurface *OpticalSurface;
 
-  double Rindex1;
-  double Rindex2;
+  G4double Rindex1;
+  G4double Rindex2;
 
-  double cost1, cost2, sint1, sint2;
+  G4double cost1, cost2, sint1, sint2;
 
   G4OpBoundaryProcessStatus theStatus;
 
@@ -201,22 +201,22 @@ private:
 
   G4OpticalSurfaceFinish theFinish;
 
-  double theReflectivity;
-  double theEfficiency;
-  double prob_sl, prob_ss, prob_bs;
+  G4double theReflectivity;
+  G4double theEfficiency;
+  G4double prob_sl, prob_ss, prob_bs;
 
-  double kCarTolerance;
+  G4double kCarTolerance;
 };
 
 ////////////////////
 // Inline methods
 ////////////////////
 
-inline void G4OpBoundaryProcess::G4Swap(double *a, double *b) const {
+inline void G4OpBoundaryProcess::G4Swap(G4double *a, G4double *b) const {
   // swaps the contents of the objects pointed
   // to by 'a' and 'b'!
 
-  double temp;
+  G4double temp;
 
   temp = *a;
   *a = *b;
@@ -245,7 +245,7 @@ inline void G4OpBoundaryProcess::G4VectorSwap(G4ThreeVector *vec1,
   *vec2 = temp;
 }
 
-inline bool G4OpBoundaryProcess::G4BooleanRand(const double prob) const {
+inline G4bool G4OpBoundaryProcess::G4BooleanRand(const G4double prob) const {
   /* Returns a random boolean variable with the specified probability */
 
   return (G4UniformRand() < prob);
@@ -255,7 +255,7 @@ inline G4ThreeVector G4OpBoundaryProcess::G4IsotropicRand() const {
   /* Returns a random isotropic unit vector. */
 
   G4ThreeVector vect;
-  double len2;
+  G4double len2;
 
   do {
 
@@ -275,7 +275,7 @@ G4OpBoundaryProcess::G4LambertianRand(const G4ThreeVector &normal) {
   /* Returns a random lambertian unit vector. */
 
   G4ThreeVector vect;
-  double ndotv;
+  G4double ndotv;
 
   do {
     vect = G4IsotropicRand();
@@ -301,14 +301,14 @@ G4OpBoundaryProcess::G4PlaneVectorRand(const G4ThreeVector &normal) const
 
   G4ThreeVector vec2 = vec1.cross(normal);
 
-  double phi = twopi * G4UniformRand();
-  double cosphi = std::cos(phi);
-  double sinphi = std::sin(phi);
+  G4double phi = twopi * G4UniformRand();
+  G4double cosphi = std::cos(phi);
+  G4double sinphi = std::sin(phi);
 
   return cosphi * vec1 + sinphi * vec2;
 }
 
-inline bool
+inline G4bool
 G4OpBoundaryProcess::IsApplicable(const G4ParticleDefinition &aParticleType) {
   return (&aParticleType == G4OpticalPhoton::OpticalPhoton());
 }
@@ -326,7 +326,7 @@ inline void G4OpBoundaryProcess::SetModel(G4OpticalSurfaceModel model) {
 }
 
 inline void G4OpBoundaryProcess::ChooseReflection() {
-  double rand = G4UniformRand();
+  G4double rand = G4UniformRand();
   if (rand >= 0.0 && rand < prob_ss) {
     theStatus = SpikeReflection;
     theFacetNormal = theGlobalNormal;
@@ -368,17 +368,17 @@ inline void G4OpBoundaryProcess::DoReflection() {
 
     theStatus = LobeReflection;
     theFacetNormal = GetFacetNormal(OldMomentum, theGlobalNormal);
-    double PdotN = OldMomentum * theFacetNormal;
+    G4double PdotN = OldMomentum * theFacetNormal;
     NewMomentum = OldMomentum - (2. * PdotN) * theFacetNormal;
 
   } else {
 
     theStatus = SpikeReflection;
     theFacetNormal = theGlobalNormal;
-    double PdotN = OldMomentum * theFacetNormal;
+    G4double PdotN = OldMomentum * theFacetNormal;
     NewMomentum = OldMomentum - (2. * PdotN) * theFacetNormal;
   }
-  double EdotN = OldPolarization * theFacetNormal;
+  G4double EdotN = OldPolarization * theFacetNormal;
   NewPolarization = -OldPolarization + (2. * EdotN) * theFacetNormal;
 }
 

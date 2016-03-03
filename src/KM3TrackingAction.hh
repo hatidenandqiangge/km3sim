@@ -40,7 +40,7 @@ public:
 public:
   int numofInitialParticles;
   HOURSevtWRITE *TheEVTtoWrite;
-  bool useANTARESformat;
+  G4bool useANTARESformat;
 };
 
 #endif

@@ -15,7 +15,7 @@
 #endif
 #endif
 
-KM3Cherenkov::KM3Cherenkov(const std::string &processName, G4ProcessType type)
+KM3Cherenkov::KM3Cherenkov(const G4String &processName, G4ProcessType type)
     : G4VProcess(processName, type) {
   SetProcessSubType(fCerenkov);
 
@@ -36,9 +36,9 @@ KM3Cherenkov::KM3Cherenkov(const std::string &processName, G4ProcessType type)
 #ifdef G4ENABLE_MIE
 #ifndef G4DISABLE_PARAMETRIZATION
   poskeep = new std::vector<G4ThreeVector>;
-  timekeep = new std::vector<double>;
-  idprikeep = new std::vector<int>;
-  depenekeep = new std::vector<double>;
+  timekeep = new std::vector<G4double>;
+  idprikeep = new std::vector<G4int>;
+  depenekeep = new std::vector<G4double>;
   dirkeep = new std::vector<G4ThreeVector>;
 #endif
 #endif
@@ -47,7 +47,7 @@ KM3Cherenkov::KM3Cherenkov(const std::string &processName, G4ProcessType type)
 #ifdef G4JUST_COUNT_PHOTONS
   Count_Photons = 0.0;
   Posit_Photons_Mean = 0.0;
-  for (int i = 0; i < 3002; i++)
+  for (G4int i = 0; i < 3002; i++)
     Posit_Photons_Histo[i] = 0.0;
 #endif
 }
@@ -81,14 +81,14 @@ KM3Cherenkov::~KM3Cherenkov() {
 #endif
 
 #ifdef G4JUST_COUNT_PHOTONS
-  int ibin;
+  G4int ibin;
   long double cumul = 0;
   for (ibin = 0; ibin < 3002; ibin++) {
     cumul += Posit_Photons_Histo[ibin];
     if (cumul > 0.5 * Count_Photons)
       break;
   }
-  double Posit_Photons_Median = -10 * m + 0.5 * cm + double(ibin - 1) * cm;
+  G4double Posit_Photons_Median = -10 * m + 0.5 * cm + G4double(ibin - 1) * cm;
   Posit_Photons_Mean /= Count_Photons;
   printf("Count_Photons %.20Le %.5Le %.5e\n", Count_Photons,
          Posit_Photons_Mean / m, Posit_Photons_Median / m);
@@ -116,13 +116,13 @@ void KM3Cherenkov::SetDetector(KM3Detector *adet) {
 // the rotation matrix is the transverse of the one at rotateUz. the vector p0
 // must be normalized !!!
 void KM3Cherenkov::myrotate(G4ThreeVector &x, const G4ThreeVector &p0) {
-  double u1 = p0.x();
-  double u2 = p0.y();
-  double u3 = p0.z();
-  double up = u1 * u1 + u2 * u2;
-  double x0 = x.x();
-  double x1 = x.y();
-  double x2 = x.z();
+  G4double u1 = p0.x();
+  G4double u2 = p0.y();
+  G4double u3 = p0.z();
+  G4double up = u1 * u1 + u2 * u2;
+  G4double x0 = x.x();
+  G4double x1 = x.y();
+  G4double x2 = x.z();
 
   if (up > 0) {
     up = sqrt(up);
@@ -137,12 +137,12 @@ void KM3Cherenkov::myrotate(G4ThreeVector &x, const G4ThreeVector &p0) {
   };
 }
 
-int KM3Cherenkov::PhotonHitsaBenthos(double x1, double y1, double z1,
-                                       double px, double py, double pz,
-                                       double x0, double y0, double z0,
-                                       double r, double dir1, double dir2,
-                                       double dir3) {
-  double s2, s3, d, a1, xa1, ya1, za1;
+G4int KM3Cherenkov::PhotonHitsaBenthos(G4double x1, G4double y1, G4double z1,
+                                       G4double px, G4double py, G4double pz,
+                                       G4double x0, G4double y0, G4double z0,
+                                       G4double r, G4double dir1, G4double dir2,
+                                       G4double dir3) {
+  G4double s2, s3, d, a1, xa1, ya1, za1;
 
   // Firstly lets check if the photon will cross the sphere!
   // Assuming (x-x0)^2+(y-y0)^2+(z-z0)^2=r^2 as the sphere equation and
@@ -193,12 +193,12 @@ int KM3Cherenkov::PhotonHitsaBenthos(double x1, double y1, double z1,
 // checks if the benthos are hit.
 // ##################### UPDATE ########################################
 
-int KM3Cherenkov::PhotonHitsAnyBenthos(G4ThreeVector r,
+G4int KM3Cherenkov::PhotonHitsAnyBenthos(G4ThreeVector r,
                                          G4ParticleMomentum p) {
   // G4cout <<"x="  <<  r(0) << "y="  << r(1) << "z="  << r(2) << G4endl;
   // G4cout <<"px=" <<  p(0) << "py=" << p(1) << "pz=" << p(2) << G4endl;
 
-  double xx, yy, zz, rr, dir1, dir2, dir3;
+  G4double xx, yy, zz, rr, dir1, dir2, dir3;
   for (int i = 0; i < (int)HITBENTHOS[0][0]; i++) // possibly hit benthos
   {
     if ((int)HITBENTHOS[i][9] == 1) // check only the benthos for which phi (not
@@ -220,13 +220,13 @@ int KM3Cherenkov::PhotonHitsAnyBenthos(G4ThreeVector r,
 //---------------------------------------------------------------------------------------------------------------------------
 //
 //
-int KM3Cherenkov::checkIfParticleCanEmitToShpere(
-    G4ThreeVector center, double r, const double minCos,
-    const double maxCos, double &minPhi, double &maxPhi, int icare) {
-  double maxCosTheta = -2;
-  double minCosTheta = 2;
-  double x, y, R, R2, RRpre, RRpost, r2, zcpre, zcpost;
-  double cosphi, costheta, sinphi, sintheta;
+G4int KM3Cherenkov::checkIfParticleCanEmitToShpere(
+    G4ThreeVector center, G4double r, const G4double minCos,
+    const G4double maxCos, G4double &minPhi, G4double &maxPhi, G4int icare) {
+  G4double maxCosTheta = -2;
+  G4double minCosTheta = 2;
+  G4double x, y, R, R2, RRpre, RRpost, r2, zcpre, zcpost;
+  G4double cosphi, costheta, sinphi, sintheta;
 
   // in the following x,y are the coordinates of the center of the sphere so the
   // sphere is at the xy-plane and the particle at the z-axis
@@ -328,10 +328,10 @@ int KM3Cherenkov::checkIfParticleCanEmitToShpere(
       minPhi = 0;
       maxPhi = M_PI2;
     } else {
-      double phiGamma = atan2(y, x);
+      G4double phiGamma = atan2(y, x);
       if (phiGamma < 0)
         phiGamma = phiGamma + M_PI2;
-      double dphiGamma = asin(r / R);
+      G4double dphiGamma = asin(r / R);
       minPhi = phiGamma - dphiGamma;
       maxPhi = phiGamma + dphiGamma;
     }
@@ -341,11 +341,11 @@ int KM3Cherenkov::checkIfParticleCanEmitToShpere(
 
 //---------------------------------------------------------------------------------------------------------------------------
 
-int KM3Cherenkov::mycheckParticleOneStar(const G4ThreeVector &p0,
+G4int KM3Cherenkov::mycheckParticleOneStar(const G4ThreeVector &p0,
                                            const G4ThreeVector &x0,
                                            const G4ThreeVector &xx0,
-                                           const double &minCos,
-                                           const double &maxCos) {
+                                           const G4double &minCos,
+                                           const G4double &maxCos) {
   // first assume that the sphere contains the whole of the detector
   parent = x0;
   parent1 = xx0;
@@ -361,15 +361,15 @@ int KM3Cherenkov::mycheckParticleOneStar(const G4ThreeVector &p0,
 }
 
 void KM3Cherenkov::myIterativeCheck(Spheres *mySphere, const G4ThreeVector &p0,
-                                    const double &minCos,
-                                    const double &maxCos) {
-  double minPhi, maxPhi;
+                                    const G4double &minCos,
+                                    const G4double &maxCos) {
+  G4double minPhi, maxPhi;
   G4ThreeVector centerkeep;
-  int icare;
-  double MaxDistFromCenter2;
+  G4int icare;
+  G4double MaxDistFromCenter2;
 
   G4ThreeVector center = mySphere->center;
-  double r = mySphere->radius;
+  G4double r = mySphere->radius;
   if (mySphere->allnext->size() == 0) {
     centerkeep = center;
     icare = 1;
@@ -408,8 +408,8 @@ void KM3Cherenkov::myIterativeCheck(Spheres *mySphere, const G4ThreeVector &p0,
 // (HITBENTHOS[i][2]). In such a case the routine returns 1,
 // otherwise a zero.
 
-int KM3Cherenkov::checkPhi(const double &aphi) {
-  int flag = 0;
+G4int KM3Cherenkov::checkPhi(const G4double &aphi) {
+  G4int flag = 0;
   for (int i = 0; i < (int)HITBENTHOS[0][0]; i++) {
     HITBENTHOS[i][9] = 0.0;
     if ((HITBENTHOS[i][1] <= aphi) && (aphi <= HITBENTHOS[i][2])) {
@@ -472,17 +472,17 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
   if (QECathod == NULL) {
     const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
     for (size_t J = 0; J < theMaterialTable->size(); J++) {
-      if ((*theMaterialTable)[J]->GetName() == std::string("Cathod")) {
+      if ((*theMaterialTable)[J]->GetName() == G4String("Cathod")) {
         G4MaterialPropertiesTable *aMaterialPropertiesTable =
             (*theMaterialTable)[J]->GetMaterialPropertiesTable();
         QECathod = aMaterialPropertiesTable->GetProperty("Q_EFF");
       }
 #ifdef G4MY_TRANSPARENCIES
-      else if ((*theMaterialTable)[J]->GetName() == std::string("Glass")) {
+      else if ((*theMaterialTable)[J]->GetName() == G4String("Glass")) {
         G4MaterialPropertiesTable *aMaterialPropertiesTable =
             (*theMaterialTable)[J]->GetMaterialPropertiesTable();
         AbsBenth = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-      } else if ((*theMaterialTable)[J]->GetName() == std::string("Gell")) {
+      } else if ((*theMaterialTable)[J]->GetName() == G4String("Gell")) {
         G4MaterialPropertiesTable *aMaterialPropertiesTable =
             (*theMaterialTable)[J]->GetMaterialPropertiesTable();
         AbsGell = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
@@ -519,13 +519,13 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 #endif
 
   // check that the particle is inside the active volume of the detector
-  static double detectorMaxRho2 =
+  static G4double detectorMaxRho2 =
       MyStDetector->detectorMaxRho * MyStDetector->detectorMaxRho;
   G4StepPoint *pPreStepPoint = aStep.GetPreStepPoint();
   G4ThreeVector x0 = pPreStepPoint->GetPosition();
   //  G4cout <<"prepoint "<< x0[0] <<" "<< x0[1] <<" "<< x0[2] <<G4endl;
   G4ThreeVector distanceV = x0 - MyStDetector->detectorCenter;
-  double distanceRho2 =
+  G4double distanceRho2 =
       distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1];
   if ((distanceRho2 > detectorMaxRho2) ||
       (x0[2] < MyStDetector->bottomPosition) ||
@@ -536,22 +536,22 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
   }
 
   // step length
-  double step_length = aStep.GetStepLength();
+  G4double step_length = aStep.GetStepLength();
   //  G4cout << "step_length "<<aParticle->GetDefinition()->GetParticleName()
   //  <<" "<< step_length<<G4endl;
   // particle charge
-  const double charge = aParticle->GetDefinition()->GetPDGCharge();
+  const G4double charge = aParticle->GetDefinition()->GetPDGCharge();
   // particle beta
   G4StepPoint *pPostStepPoint = aStep.GetPostStepPoint();
-  const double beta =
+  const G4double beta =
       (pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta()) / 2.;
-  double MeanNumPhotons =
+  G4double MeanNumPhotons =
       GetAverageNumberOfPhotons(charge, beta, aMaterial, Rindex);
   MeanNumPhotons *= step_length * MyStDetector->Quantum_Efficiency;
-  double BetaInverse = 1.0 / beta;
+  G4double BetaInverse = 1.0 / beta;
   G4ThreeVector p0 = aStep.GetDeltaPosition().unit();
 
-  bool EmittedAsScattered = false; // newmie
+  G4bool EmittedAsScattered = false; // newmie
 
 #ifndef G4DISABLE_PARAMETRIZATION
 #ifdef G4ENABLE_MIE
@@ -584,7 +584,7 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
     return pParticleChange;
   }
 
-  int NumPhotons = (int)CLHEP::RandPoisson::shoot(MeanNumPhotons);
+  G4int NumPhotons = (G4int)CLHEP::RandPoisson::shoot(MeanNumPhotons);
   if (NumPhotons <= 0) {
     // return unchanged particle and no secondaries
     aParticleChange.SetNumberOfSecondaries(0);
@@ -593,12 +593,12 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 
 #ifdef G4JUST_COUNT_PHOTONS
   Count_Photons += (long double)NumPhotons;
-  double pos_z_projection =
+  G4double pos_z_projection =
       0.5 * ((aStep.GetPreStepPoint()->GetPosition())[2] +
              (aStep.GetPostStepPoint()->GetPosition())[2]);
   Posit_Photons_Mean +=
       ((long double)NumPhotons) * ((long double)pos_z_projection);
-  int ibin = 1001 + int(floor(pos_z_projection / cm));
+  G4int ibin = 1001 + int(floor(pos_z_projection / cm));
   if (ibin < 0)
     ibin = 0;
   if (ibin > 3001)
@@ -613,17 +613,17 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
   // here is the parametrization step oriented only for a minimum number of
   // secondaries
   // initialization for the group speed at max qe
-  static double thespeedmaxQE = -1.0;
+  static G4double thespeedmaxQE = -1.0;
   static KM3SD *aMySD = NULL;
   if (thespeedmaxQE < 0) {
     G4Material *aMaterial = G4Material::GetMaterial("Cathod");
-    double MaxQE = -1;
-    double PhEneAtMaxQE;
+    G4double MaxQE = -1;
+    G4double PhEneAtMaxQE;
     G4MaterialPropertyVector *aPropertyVector =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
     for (size_t i = 0; i < aPropertyVector->GetVectorLength(); i++) {
-      double ThisQE = (*aPropertyVector)[i];
-      double ThisPhEne = aPropertyVector->Energy(i);
+      G4double ThisQE = (*aPropertyVector)[i];
+      G4double ThisPhEne = aPropertyVector->Energy(i);
       if (ThisQE > MaxQE) {
         MaxQE = ThisQE;
         PhEneAtMaxQE = ThisPhEne;
@@ -636,21 +636,21 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
                                                    // qe each time. This is the
                                                    // right one
     G4SDManager *SDman = G4SDManager::GetSDMpointer();
-    aMySD = (KM3SD *)SDman->FindSensitiveDetector(std::string("mydetector1/MySD"),
+    aMySD = (KM3SD *)SDman->FindSensitiveDetector(G4String("mydetector1/MySD"),
                                                   true);
   }
   // end of initialization
   if ((MeanNumPhotons > MinMeanNumberOfPhotonsForParam) && BetaInverse < 1.01 &&
       !EmittedAsScattered) { // this accounts for v>0.99c //newmie
     const G4VProcess *theProcess = aTrack.GetCreatorProcess();
-    int originalTrackCreatorProcess;
-    int originalParentID;
+    G4int originalTrackCreatorProcess;
+    G4int originalParentID;
 #ifdef G4TRACK_INFORMATION
     if (theProcess != NULL) {
       KM3TrackInformation *info =
           (KM3TrackInformation *)(aTrack.GetUserInformation());
       originalParentID = info->GetOriginalParentID();
-      std::string creator = info->GetOriginalTrackCreatorProcess();
+      G4String creator = info->GetOriginalTrackCreatorProcess();
       if (creator == "KM3Cherenkov")
         originalTrackCreatorProcess = 0;
       else if (creator == "muPairProd")
@@ -675,41 +675,41 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
     originalParentID = 1;
     originalTrackCreatorProcess = 0;
 #endif
-    int originalInfo =
+    G4int originalInfo =
         (originalParentID - 1) * 10 + originalTrackCreatorProcess;
 
     G4ThreeVector MiddleOfStep =
         0.5 * (pPreStepPoint->GetPosition() + pPostStepPoint->GetPosition());
-    double MiddleOfTime = 0.5 * (pPreStepPoint->GetGlobalTime() +
+    G4double MiddleOfTime = 0.5 * (pPreStepPoint->GetGlobalTime() +
                                    pPostStepPoint->GetGlobalTime());
     // from here is the actual
     // parametrization////////////////////////////////////////////////////////
-    static double MaxAbsDist2 =
+    static G4double MaxAbsDist2 =
         MyStDetector->MaxAbsDist * MyStDetector->MaxAbsDist;
-    static int TotalNumberOfTowers = MyStDetector->allTowers->size();
+    static G4int TotalNumberOfTowers = MyStDetector->allTowers->size();
     for (int it = 0; it < TotalNumberOfTowers; it++) {
-      double dx =
+      G4double dx =
           (*(MyStDetector->allTowers))[it]->position[0] - MiddleOfStep[0];
-      double dy =
+      G4double dy =
           (*(MyStDetector->allTowers))[it]->position[1] - MiddleOfStep[1];
-      double distancetower2 = dx * dx + dy * dy;
+      G4double distancetower2 = dx * dx + dy * dy;
       if (distancetower2 < MaxAbsDist2) {
-        int TotalNumberOfOMs =
+        G4int TotalNumberOfOMs =
             (*(MyStDetector->allTowers))[it]->BenthosIDs->size();
         for (int iot = 0; iot < TotalNumberOfOMs; iot++) {
-          int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
+          G4int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
           G4ThreeVector FromGeneToOM =
               (*MyStDetector->allOMs)[io]->position - MiddleOfStep;
-          double distancein = FromGeneToOM.mag2();
+          G4double distancein = FromGeneToOM.mag2();
           if (distancein < MaxAbsDist2) {
             distancein = sqrt(distancein);
             FromGeneToOM /= distancein;
-            double anglein = p0.dot(FromGeneToOM);
+            G4double anglein = p0.dot(FromGeneToOM);
             myFlux->FindBins(MeanNumPhotons, distancein, anglein); // here
                                                                    // change
-            int NumberOfSamples = myFlux->GetNumberOfSamples(); // here change
-            int icstart, icstop;
-            double theFastTime;
+            G4int NumberOfSamples = myFlux->GetNumberOfSamples(); // here change
+            G4int icstart, icstop;
+            G4double theFastTime;
             G4ThreeVector x, y, z;
             if (NumberOfSamples > 0) {
               icstart = (*(*MyStDetector->allOMs)[io]->CathodsIDs)[0];
@@ -721,29 +721,29 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
               y = p0.cross(z) / sqrt(1.0 - anglein * anglein);
               x = y.cross(z);
             }
-            for (int isa = 0; isa < NumberOfSamples; isa++) {
+            for (G4int isa = 0; isa < NumberOfSamples; isa++) {
               onePE aPE = myFlux->GetSamplePoint(); // here change
               //	G4cout << "OutFromParam "<<distancein<<" "<<anglein<<"
               //"<<aPE.costh<<" "<<aPE.phi<<" "<<aPE.time<<G4endl;  //tempo
-              double costh = aPE.costh; // here change
-              double sinth = sqrt(1.0 - costh * costh);
-              double cosphi = cos(aPE.phi); // here change
-              double sinphi = sin(aPE.phi); // here change
+              G4double costh = aPE.costh; // here change
+              G4double sinth = sqrt(1.0 - costh * costh);
+              G4double cosphi = cos(aPE.phi); // here change
+              G4double sinphi = sin(aPE.phi); // here change
               // short	      G4ThreeVector
               // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
               G4ThreeVector photonDirection =
                   (sinth * (cosphi * x + sinphi * y) + costh * z);
-              // short	      double
+              // short	      G4double
               // angleThetaDirection=photonDirection.theta();
-              // short	      double anglePhiDirection=photonDirection.phi();
+              // short	      G4double anglePhiDirection=photonDirection.phi();
               // short	      angleThetaDirection *= 180./M_PI;
               // short	      anglePhiDirection *= 180./M_PI;
               // short	      if(anglePhiDirection < 0.0)anglePhiDirection
               // += 360.0;
-              // short	      int
-              // angleDirection=(int)(nearbyint(angleThetaDirection)*1000.0 +
+              // short	      G4int
+              // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0 +
               // nearbyint(anglePhiDirection));
-              int ic = int(icstart + (icstop - icstart) * G4UniformRand());
+              G4int ic = G4int(icstart + (icstop - icstart) * G4UniformRand());
               // short
               // aMySD->InsertExternalHit(ic,theFastTime+aPE.time,originalInfo,angleDirection,-998);//here
               // change
@@ -751,7 +751,7 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
                                        (*MyStDetector->allOMs)[io]->position,
                                        theFastTime + aPE.time, originalInfo,
                                        photonDirection); // here change
-            } // for(int isa=0 ; isa<NumberOfSamples ; isa++){
+            } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
           } // if(distancein<MyStDetector->MaxAbsDist){
         } // for(int io=0;io<TotalNumberOfOMs;io++){
       } // if(distancetower2<MaxAbsDist2)
@@ -766,8 +766,8 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 //////////////////////////////////////////////////////////////////////////////
 #endif
 #endif
-  double nMax = Rindex->GetMaxValue();
-  double maxCos = BetaInverse / nMax;
+  G4double nMax = Rindex->GetMaxValue();
+  G4double maxCos = BetaInverse / nMax;
 
 #if !defined(G4ENABLE_MIE) ||                                                  \
     (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
@@ -775,15 +775,15 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
   // scattering///////////////////////////////////////////
   ////////Check the if the charged particle can emit to any benthos
   G4ThreeVector xx0 = pPostStepPoint->GetPosition();
-  double nMin = Rindex->GetMinValue();
-  double minCos = BetaInverse / nMin;
+  G4double nMin = Rindex->GetMinValue();
+  G4double minCos = BetaInverse / nMin;
 #if !defined(G4ENABLE_MIE) // newmie
   if (MeanNumPhotons > MinMeanNumberOfPhotonsForParam) {
 #else
   if (MeanNumPhotons > MinMeanNumberOfPhotonsForParam &&
       EmittedAsScattered) { // newmie
 #endif
-    int numben = 0;
+    G4int numben = 0;
     numben = mycheckParticleOneStar(p0, x0, xx0, minCos, maxCos);
     if (numben == 0) {
       // return unchanged particle and no secondaries
@@ -802,31 +802,31 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
       aParticleChange.ProposeTrackStatus(fSuspend);
   }
 
-  double Pmin = Rindex->GetMinLowEdgeEnergy();
-  double Pmax = Rindex->GetMaxLowEdgeEnergy();
-  double dp = Pmax - Pmin;
-  double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
-  const double beta1 = pPreStepPoint->GetBeta();
-  const double beta2 = pPostStepPoint->GetBeta();
-  double MeanNumberOfPhotons1 =
+  G4double Pmin = Rindex->GetMinLowEdgeEnergy();
+  G4double Pmax = Rindex->GetMaxLowEdgeEnergy();
+  G4double dp = Pmax - Pmin;
+  G4double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
+  const G4double beta1 = pPreStepPoint->GetBeta();
+  const G4double beta2 = pPostStepPoint->GetBeta();
+  G4double MeanNumberOfPhotons1 =
       GetAverageNumberOfPhotons(charge, beta1, aMaterial, Rindex);
-  double MeanNumberOfPhotons2 =
+  G4double MeanNumberOfPhotons2 =
       GetAverageNumberOfPhotons(charge, beta2, aMaterial, Rindex);
-  double t0 = pPreStepPoint->GetGlobalTime();
+  G4double t0 = pPreStepPoint->GetGlobalTime();
   //  NumPhotons=0; //lookout
-  for (int i = 0; i < NumPhotons; i++) {
+  for (G4int i = 0; i < NumPhotons; i++) {
 
-    double rand;
-    double sampledEnergy, sampledRI;
-    double cosTheta, sin2Theta;
+    G4double rand;
+    G4double sampledEnergy, sampledRI;
+    G4double cosTheta, sin2Theta;
 
     // sample a phi
     rand = G4UniformRand();
-    double phi = M_PI2 * rand;
+    G4double phi = M_PI2 * rand;
 #if !defined(G4ENABLE_MIE) ||                                                  \
     (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
     // here check if this phi can hit any benthos
-    int chch;
+    G4int chch;
 #if !defined(G4ENABLE_MIE) // newmie
     if (MeanNumPhotons > MinMeanNumberOfPhotonsForParam)
       chch = checkPhi(phi);
@@ -838,8 +838,8 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
       chch = 1;
     if (chch == 1) {
 #endif
-      double sinPhi = sin(phi);
-      double cosPhi = cos(phi);
+      G4double sinPhi = sin(phi);
+      G4double cosPhi = cos(phi);
 
       // Determine photon energy
       // sample an energy
@@ -855,7 +855,7 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 
       } while (rand * maxSin2 > sin2Theta);
 
-      double qeProb = QECathod->Value(sampledEnergy);
+      G4double qeProb = QECathod->Value(sampledEnergy);
 #ifdef G4MY_TRANSPARENCIES
       qeProb *= exp(-15.0 / AbsBenth->Value(sampledEnergy) -
                     10.0 / AbsGell->Value(sampledEnergy));
@@ -865,10 +865,10 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
         // (in coord system with primary particle direction
         //  aligned with the z axis)
 
-        double sinTheta = sqrt(sin2Theta);
-        double px = sinTheta * cosPhi;
-        double py = sinTheta * sinPhi;
-        double pz = cosTheta;
+        G4double sinTheta = sqrt(sin2Theta);
+        G4double px = sinTheta * cosPhi;
+        G4double py = sinTheta * sinPhi;
+        G4double pz = cosTheta;
 
         // Create photon momentum direction vector
         // The momentum direction is still with respect
@@ -884,9 +884,9 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 
         // Determine polarization of new photon
 
-        double sx = cosTheta * cosPhi;
-        double sy = cosTheta * sinPhi;
-        double sz = -sinTheta;
+        G4double sx = cosTheta * cosPhi;
+        G4double sy = cosTheta * sinPhi;
+        G4double sz = -sinTheta;
 
         G4ThreeVector photonPolarization(sx, sy, sz);
 
@@ -897,7 +897,7 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
         // Generate new G4Track object and a new photon
         // first find generation position and time
 
-        double delta, NumberOfPhotons, N;
+        G4double delta, NumberOfPhotons, N;
         do {
           rand = G4UniformRand();
           delta = rand * step_length;
@@ -909,19 +909,19 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
               std::max(MeanNumberOfPhotons1, MeanNumberOfPhotons2);
         } while (N > NumberOfPhotons);
 
-        double deltaTime =
+        G4double deltaTime =
             delta /
             ((pPreStepPoint->GetVelocity() + pPostStepPoint->GetVelocity()) /
              2.);
 
         G4ThreeVector aSecondaryPosition = x0 + rand * aStep.GetDeltaPosition();
 
-        double aSecondaryTime = t0 + deltaTime;
+        G4double aSecondaryTime = t0 + deltaTime;
 
 #if !defined(G4ENABLE_MIE) ||                                                  \
     (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
         // here see if this photon can hit any benthos
-        int Bhit1;
+        G4int Bhit1;
 #if !defined(G4ENABLE_MIE) // newmie
         if (MeanNumPhotons > MinMeanNumberOfPhotonsForParam)
           Bhit1 = PhotonHitsAnyBenthos(aSecondaryPosition, photonMomentum);
@@ -985,17 +985,17 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 void KM3Cherenkov::CreateDirectPhotons() {
   // here is the parametrization of direct photons from muons
   // initialization for the group speed at max qe
-  static double thespeedmaxQE = -1.0;
+  static G4double thespeedmaxQE = -1.0;
   static KM3SD *aMySD = NULL;
   if (thespeedmaxQE < 0) {
     G4Material *aMaterial = G4Material::GetMaterial("Cathod");
-    double MaxQE = -1;
-    double PhEneAtMaxQE;
+    G4double MaxQE = -1;
+    G4double PhEneAtMaxQE;
     G4MaterialPropertyVector *aPropertyVector =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
     for (size_t i = 0; i < aPropertyVector->GetVectorLength(); i++) {
-      double ThisQE = (*aPropertyVector)[i];
-      double ThisPhEne = aPropertyVector->Energy(i);
+      G4double ThisQE = (*aPropertyVector)[i];
+      G4double ThisPhEne = aPropertyVector->Energy(i);
       if (ThisQE > MaxQE) {
         MaxQE = ThisQE;
         PhEneAtMaxQE = ThisPhEne;
@@ -1008,15 +1008,15 @@ void KM3Cherenkov::CreateDirectPhotons() {
                                                    // qe each time. This is the
                                                    // right one
     G4SDManager *SDman = G4SDManager::GetSDMpointer();
-    aMySD = (KM3SD *)SDman->FindSensitiveDetector(std::string("mydetector1/MySD"),
+    aMySD = (KM3SD *)SDman->FindSensitiveDetector(G4String("mydetector1/MySD"),
                                                   true);
   }
   // end of initialization
-  static int originalTrackCreatorProcess = 0; // it is always Direct Cherenkov
-  static int TotalNumberOfTowers = MyStDetector->allTowers->size();
-  static double MaxAbsDist2 =
+  static G4int originalTrackCreatorProcess = 0; // it is always Direct Cherenkov
+  static G4int TotalNumberOfTowers = MyStDetector->allTowers->size();
+  static G4double MaxAbsDist2 =
       MyStDetector->MaxAbsDist * MyStDetector->MaxAbsDist;
-  static double distbin2 =
+  static G4double distbin2 =
       (50.0 * cm) *
       (50.0 *
        cm); // is the distance binning in the direct photons for gathering
@@ -1024,13 +1024,13 @@ void KM3Cherenkov::CreateDirectPhotons() {
   //  G4cout << "----------- size from direct ----------- "<<arraysize<<G4endl;
   size_t counter = 0;
   while (counter < arraysize) {
-    int idpri = (*idprikeep)[counter];
+    G4int idpri = (*idprikeep)[counter];
     while ((counter < arraysize) && (idpri == (*idprikeep)[counter])) {
-      int originalInfo = ((*idprikeep)[counter] - 1) * 10 +
+      G4int originalInfo = ((*idprikeep)[counter] - 1) * 10 +
                            originalTrackCreatorProcess; // to write in MySD
       G4ThreeVector pospri = (*poskeep)[counter];
-      double timepri = (*timekeep)[counter];
-      double depene = 0.0;
+      G4double timepri = (*timekeep)[counter];
+      G4double depene = 0.0;
       while ((counter < arraysize) && (idpri == (*idprikeep)[counter]) &&
              ((pospri - (*poskeep)[counter]).mag2() < distbin2)) {
         depene += (*depenekeep)[counter];
@@ -1040,7 +1040,7 @@ void KM3Cherenkov::CreateDirectPhotons() {
       }
       G4ThreeVector p0;
       G4ThreeVector thispos;
-      double thistime;
+      G4double thistime;
       if ((counter == arraysize) || ((*idprikeep)[counter] != idpri)) {
         p0 = (*poskeep)[counter - 1] - pospri;
         thispos = 0.5 * ((*poskeep)[counter - 1] + pospri);
@@ -1049,7 +1049,7 @@ void KM3Cherenkov::CreateDirectPhotons() {
         thistime = 0.5 * ((*timekeep)[counter - 1] + timepri);
         //	G4cout<<"CreateDirectPhotons3 "<<counter-1<<"
         //"<<(*timekeep)[counter-1]<<" "<<timepri<<G4endl;
-        double step = p0.mag();
+        G4double step = p0.mag();
         if (step == 0.0) {
           // before	  p0=pospri - (*poskeep)[counter-2];
           p0 = (*dirkeep)[counter - 1]; // this the case when one distance
@@ -1070,28 +1070,28 @@ void KM3Cherenkov::CreateDirectPhotons() {
       //      "<<depene<<G4endl;
       p0 = p0.unit();
       for (int it = 0; it < TotalNumberOfTowers; it++) {
-        double dx =
+        G4double dx =
             (*(MyStDetector->allTowers))[it]->position[0] - thispos[0];
-        double dy =
+        G4double dy =
             (*(MyStDetector->allTowers))[it]->position[1] - thispos[1];
-        double distancetower2 = dx * dx + dy * dy;
+        G4double distancetower2 = dx * dx + dy * dy;
         if (distancetower2 < MaxAbsDist2) {
-          int TotalNumberOfOMs =
+          G4int TotalNumberOfOMs =
               (*(MyStDetector->allTowers))[it]->BenthosIDs->size();
           for (int iot = 0; iot < TotalNumberOfOMs; iot++) {
-            int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
+            G4int io = (*(*(MyStDetector->allTowers))[it]->BenthosIDs)[iot];
             G4ThreeVector FromGeneToOM =
                 (*MyStDetector->allOMs)[io]->position - thispos;
-            double distancein = FromGeneToOM.mag2();
+            G4double distancein = FromGeneToOM.mag2();
             if (distancein < MaxAbsDist2) {
               distancein = sqrt(distancein);
               FromGeneToOM /= distancein;
-              double anglein = p0.dot(FromGeneToOM);
+              G4double anglein = p0.dot(FromGeneToOM);
               myFlux->FindBins(depene, distancein, anglein); // here change
-              int NumberOfSamples =
+              G4int NumberOfSamples =
                   myFlux->GetNumberOfSamples(); // here change
-              int icstart, icstop;
-              double theFastTime;
+              G4int icstart, icstop;
+              G4double theFastTime;
               G4ThreeVector x, y, z;
               if (NumberOfSamples > 0) {
                 icstart = (*(*MyStDetector->allOMs)[io]->CathodsIDs)[0];
@@ -1104,37 +1104,37 @@ void KM3Cherenkov::CreateDirectPhotons() {
                 y = p0.cross(z) / sqrt(1.0 - anglein * anglein);
                 x = y.cross(z);
               }
-              for (int isa = 0; isa < NumberOfSamples; isa++) {
+              for (G4int isa = 0; isa < NumberOfSamples; isa++) {
                 onePE aPE = myFlux->GetSamplePoint();
-                double costh = aPE.costh; // here change
-                double sinth = sqrt(1.0 - costh * costh);
-                double cosphi = cos(aPE.phi); // here change
-                double sinphi = sin(aPE.phi); // here change
+                G4double costh = aPE.costh; // here change
+                G4double sinth = sqrt(1.0 - costh * costh);
+                G4double cosphi = cos(aPE.phi); // here change
+                G4double sinphi = sin(aPE.phi); // here change
                 //		G4cout <<"InC "<<x.mag2()<<" "<<y.mag2()<<"
                 //"<<z.mag2()<<G4endl;
                 // short		G4ThreeVector
                 // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
                 G4ThreeVector photonDirection =
                     (sinth * (cosphi * x + sinphi * y) + costh * z);
-                // short		double
+                // short		G4double
                 // angleThetaDirection=photonDirection.theta();
-                // short		double
+                // short		G4double
                 // anglePhiDirection=photonDirection.phi();
                 // short		angleThetaDirection *= 180./M_PI;
                 // short		anglePhiDirection *= 180./M_PI;
                 // short		if(anglePhiDirection < 0.0)anglePhiDirection
                 // += 360.0;
-                // short		int
-                // angleDirection=(int)(nearbyint(angleThetaDirection)*1000.0
+                // short		G4int
+                // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
                 // + nearbyint(anglePhiDirection));
-                int ic =
-                    int(icstart + (icstop - icstart) * G4UniformRand());
+                G4int ic =
+                    G4int(icstart + (icstop - icstart) * G4UniformRand());
                 // short
                 // aMySD->InsertExternalHit(ic,theFastTime+aPE.time,originalInfo,angleDirection,-996);
                 aMySD->InsertExternalHit(
                     ic, (*MyStDetector->allOMs)[io]->position,
                     theFastTime + aPE.time, originalInfo, photonDirection);
-              } // for(int isa=0 ; isa<NumberOfSamples ; isa++){
+              } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
             } // if(distancein<MyStDetector->MaxAbsDist){
           } // for(int io=0;io<TotalNumberOfOMs;io++){
         } // if(distancetower2<MaxAbsDist2)
@@ -1158,7 +1158,7 @@ void KM3Cherenkov::BuildThePhysicsTable() {
     return;
 
   const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
-  int numOfMaterials = G4Material::GetNumberOfMaterials();
+  G4int numOfMaterials = G4Material::GetNumberOfMaterials();
 
   // create new physics table
 
@@ -1166,7 +1166,7 @@ void KM3Cherenkov::BuildThePhysicsTable() {
 
   // loop for materials
 
-  for (int i = 0; i < numOfMaterials; i++) {
+  for (G4int i = 0; i < numOfMaterials; i++) {
     G4PhysicsOrderedFreeVector *aPhysicsOrderedFreeVector =
         new G4PhysicsOrderedFreeVector();
 
@@ -1188,23 +1188,23 @@ void KM3Cherenkov::BuildThePhysicsTable() {
         // Retrieve the first refraction index in vector
         // of (photon momentum, refraction index) pairs
 
-        double currentRI = (*theRefractionIndexVector)[0];
+        G4double currentRI = (*theRefractionIndexVector)[0];
 
         if (currentRI > 1.0) {
 
           // Create first (photon momentum, Cerenkov Integral)
           // pair
 
-          double currentPM = theRefractionIndexVector->Energy(0);
-          double currentCAI = 0.0;
+          G4double currentPM = theRefractionIndexVector->Energy(0);
+          G4double currentCAI = 0.0;
 
           aPhysicsOrderedFreeVector->InsertValues(currentPM, currentCAI);
 
           // Set previous values to current ones prior to loop
 
-          double prevPM = currentPM;
-          double prevCAI = currentCAI;
-          double prevRI = currentRI;
+          G4double prevPM = currentPM;
+          G4double prevCAI = currentCAI;
+          G4double prevRI = currentRI;
 
           // loop over all (photon momentum, refraction index)
           // pairs stored for this material
@@ -1242,28 +1242,28 @@ void KM3Cherenkov::BuildThePhysicsTable() {
 // ---------------
 //
 
-double KM3Cherenkov::GetMeanFreePath(const G4Track &, double,
+G4double KM3Cherenkov::GetMeanFreePath(const G4Track &, G4double,
                                        G4ForceCondition *) {
   return 1.;
 }
 
-double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
-    const G4Track &aTrack, double, G4ForceCondition *condition) {
+G4double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
+    const G4Track &aTrack, G4double, G4ForceCondition *condition) {
   *condition = NotForced;
-  double StepLimit = DBL_MAX;
+  G4double StepLimit = DBL_MAX;
 
   const G4DynamicParticle *aParticle = aTrack.GetDynamicParticle();
   const G4Material *aMaterial = aTrack.GetMaterial();
   const G4MaterialCutsCouple *couple = aTrack.GetMaterialCutsCouple();
 
-  double kineticEnergy = aParticle->GetKineticEnergy();
+  G4double kineticEnergy = aParticle->GetKineticEnergy();
   const G4ParticleDefinition *particleType = aParticle->GetDefinition();
-  double mass = particleType->GetPDGMass();
+  G4double mass = particleType->GetPDGMass();
 
   // particle beta
-  double beta = aParticle->GetTotalMomentum() / aParticle->GetTotalEnergy();
+  G4double beta = aParticle->GetTotalMomentum() / aParticle->GetTotalEnergy();
   // particle gamma
-  double gamma = aParticle->GetTotalEnergy() / mass;
+  G4double gamma = aParticle->GetTotalEnergy() / mass;
 
   G4MaterialPropertiesTable *aMaterialPropertiesTable =
       aMaterial->GetMaterialPropertiesTable();
@@ -1273,30 +1273,30 @@ double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
   if (aMaterialPropertiesTable)
     Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
 
-  double nMax;
+  G4double nMax;
   if (Rindex) {
     nMax = Rindex->GetMaxValue();
   } else {
     return StepLimit;
   }
 
-  double BetaMin = 1. / nMax;
+  G4double BetaMin = 1. / nMax;
   if (BetaMin >= 1.)
     return StepLimit;
 
-  double GammaMin = 1. / std::sqrt(1. - BetaMin * BetaMin);
+  G4double GammaMin = 1. / std::sqrt(1. - BetaMin * BetaMin);
 
   if (gamma < GammaMin)
     return StepLimit;
 
-  double kinEmin = mass * (GammaMin - 1.);
+  G4double kinEmin = mass * (GammaMin - 1.);
 
-  double RangeMin =
+  G4double RangeMin =
       G4LossTableManager::Instance()->GetRange(particleType, kinEmin, couple);
-  double Range = G4LossTableManager::Instance()->GetRange(
+  G4double Range = G4LossTableManager::Instance()->GetRange(
       particleType, kineticEnergy, couple);
 
-  double Step = Range - RangeMin;
+  G4double Step = Range - RangeMin;
   if (Step < 1. * um)
     return StepLimit;
 
@@ -1310,9 +1310,9 @@ double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
   if (fMaxPhotons > 0) {
 
     // particle charge
-    const double charge = aParticle->GetDefinition()->GetPDGCharge();
+    const G4double charge = aParticle->GetDefinition()->GetPDGCharge();
 
-    double MeanNumberOfPhotons =
+    G4double MeanNumberOfPhotons =
         GetAverageNumberOfPhotons(charge, beta, aMaterial, Rindex);
 
     Step = 0.;
@@ -1326,10 +1326,10 @@ double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
   // If user has defined an maximum allowed change in beta per step
   if (fMaxBetaChange > 0.) {
 
-    double dedx = G4LossTableManager::Instance()->GetDEDX(
+    G4double dedx = G4LossTableManager::Instance()->GetDEDX(
         particleType, kineticEnergy, couple);
 
-    double deltaGamma = gamma -
+    G4double deltaGamma = gamma -
                           1. / std::sqrt(1. -
                                          beta * beta * (1. - fMaxBetaChange) *
                                              (1. - fMaxBetaChange));
@@ -1350,21 +1350,21 @@ double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
 // GEANT-unit (millimeter) in the current medium.
 //             ^^^^^^^^^^
 
-double KM3Cherenkov::GetAverageNumberOfPhotons(
-    const double charge, const double beta, const G4Material *aMaterial,
+G4double KM3Cherenkov::GetAverageNumberOfPhotons(
+    const G4double charge, const G4double beta, const G4Material *aMaterial,
     G4MaterialPropertyVector *Rindex) const {
-  const double Rfact = 369.81 / (eV * cm);
+  const G4double Rfact = 369.81 / (eV * cm);
 
   if (beta <= 0.0)
     return 0.0;
 
-  double BetaInverse = 1. / beta;
+  G4double BetaInverse = 1. / beta;
 
   // Vectors used in computation of Cerenkov Angle Integral:
   // 	- Refraction Indices for the current material
   //	- new G4PhysicsOrderedFreeVector allocated to hold CAI's
 
-  int materialIndex = aMaterial->GetIndex();
+  G4int materialIndex = aMaterial->GetIndex();
 
   // Retrieve the Cerenkov Angle Integrals for this material
 
@@ -1375,17 +1375,17 @@ double KM3Cherenkov::GetAverageNumberOfPhotons(
     return 0.0;
 
   // Min and Max photon momenta
-  double Pmin = Rindex->GetMinLowEdgeEnergy();
-  double Pmax = Rindex->GetMaxLowEdgeEnergy();
+  G4double Pmin = Rindex->GetMinLowEdgeEnergy();
+  G4double Pmax = Rindex->GetMaxLowEdgeEnergy();
 
   // Min and Max Refraction Indices
-  double nMin = Rindex->GetMinValue();
-  double nMax = Rindex->GetMaxValue();
+  G4double nMin = Rindex->GetMinValue();
+  G4double nMax = Rindex->GetMaxValue();
 
   // Max Cerenkov Angle Integral
-  double CAImax = CerenkovAngleIntegrals->GetMaxValue();
+  G4double CAImax = CerenkovAngleIntegrals->GetMaxValue();
 
-  double dp, ge;
+  G4double dp, ge;
 
   // If n(Pmax) < 1/Beta -- no photons generated
 
@@ -1416,8 +1416,8 @@ double KM3Cherenkov::GetAverageNumberOfPhotons(
 
     // need boolean for current implementation of G4PhysicsVector
     // ==> being phased out
-    bool isOutRange;
-    double CAImin = CerenkovAngleIntegrals->GetValue(Pmin, isOutRange);
+    G4bool isOutRange;
+    G4double CAImin = CerenkovAngleIntegrals->GetValue(Pmin, isOutRange);
     ge = CAImax - CAImin;
 
     if (verboseLevel > 0) {
@@ -1427,7 +1427,7 @@ double KM3Cherenkov::GetAverageNumberOfPhotons(
   }
 
   // Calculate number of photons
-  double NumPhotons = Rfact * charge / eplus * charge / eplus *
+  G4double NumPhotons = Rfact * charge / eplus * charge / eplus *
                         (dp - ge * BetaInverse * BetaInverse);
 
   return NumPhotons;

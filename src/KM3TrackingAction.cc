@@ -42,17 +42,17 @@ void KM3TrackingAction::PreUserTrackingAction(const G4Track *aTrack) {
       theTrack->SetUserInformation(anInfo);
       // write info on evt file about the muon capture or decay secondaries
       if (useANTARESformat) {
-        std::string theCreatorProcess =
+        G4String theCreatorProcess =
             aTrack->GetCreatorProcess()->GetProcessName();
         if ((theCreatorProcess == "Decay") ||
             (theCreatorProcess == "muMinusCaptureAtRest")) {
-          int trackID = aTrack->GetTrackID();
-          int parentID = aTrack->GetParentID();
+          G4int trackID = aTrack->GetTrackID();
+          G4int parentID = aTrack->GetParentID();
           G4ThreeVector pos = aTrack->GetPosition();
           G4ThreeVector ddd = aTrack->GetMomentumDirection();
-          double TotalEnergy = aTrack->GetTotalEnergy();
-          double time = aTrack->GetGlobalTime();
-          int idPDG = aTrack->GetDefinition()->GetPDGEncoding();
+          G4double TotalEnergy = aTrack->GetTotalEnergy();
+          G4double time = aTrack->GetGlobalTime();
+          G4int idPDG = aTrack->GetDefinition()->GetPDGEncoding();
           TheEVTtoWrite->AddMuonDecaySecondaries(
               trackID, parentID, pos[0] / m, pos[1] / m, pos[2] / m, ddd[0],
               ddd[1], ddd[2], TotalEnergy, time, idPDG);
@@ -82,23 +82,23 @@ void KM3TrackingAction::PostUserTrackingAction(const G4Track *aTrack) {
 //       size_t nSeco = secondaries->size();
 //       if(nSeco>0){
 // 	for(size_t i=0;i<nSeco;i++){
-// 	  std::string
+// 	  G4String
 // aString=(*secondaries)[i]->GetDefinition()->GetParticleName();
-// 	  std::string
+// 	  G4String
 // aCrPr=(*secondaries)[i]->GetCreatorProcess()->GetProcessName();
-// 	  if(aString != std::string("opticalphoton")){
-// 	    int idpart;
-// 	    int idproc;
-// 	    if(aString == std::string("gamma"))idpart=0;
-// 	    if(aString == std::string("e-"))idpart=1;
-// 	    if(aString == std::string("e+"))idpart=2;
-// 	    if(aCrPr == std::string("muIoni"))idproc=0;
-// 	    if(aCrPr == std::string("muPairProd"))idproc=1;
-// 	    if(aCrPr == std::string("muBrems"))idproc=2;
+// 	  if(aString != G4String("opticalphoton")){
+// 	    G4int idpart;
+// 	    G4int idproc;
+// 	    if(aString == G4String("gamma"))idpart=0;
+// 	    if(aString == G4String("e-"))idpart=1;
+// 	    if(aString == G4String("e+"))idpart=2;
+// 	    if(aCrPr == G4String("muIoni"))idproc=0;
+// 	    if(aCrPr == G4String("muPairProd"))idproc=1;
+// 	    if(aCrPr == G4String("muBrems"))idproc=2;
 // 	    G4ThreeVector aMomentum=(*secondaries)[i]->GetMomentum();
-// 	    double momentum=aMomentum.mag();
+// 	    G4double momentum=aMomentum.mag();
 // 	    if(momentum > 0){
-// 	      double costheta=pDir.dot(aMomentum)/momentum;
+// 	      G4double costheta=pDir.dot(aMomentum)/momentum;
 // 	      printf("FromTracking %d %d %le
 // %le\n",idpart,idproc,momentum,costheta);
 // 	    }

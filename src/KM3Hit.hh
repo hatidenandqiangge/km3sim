@@ -23,46 +23,46 @@ public:
   inline void operator delete(void *);
 
 public:
-  void SetCathodId(int id) { CathodId = id; };
-  void SetTime(double tt) { time = tt; };
-  void SetoriginalInfo(int inf) { originalInfo = inf; };
-  void SetMany(int im) { IMany = im; };
+  void SetCathodId(G4int id) { CathodId = id; };
+  void SetTime(G4double tt) { time = tt; };
+  void SetoriginalInfo(G4int inf) { originalInfo = inf; };
+  void SetMany(G4int im) { IMany = im; };
 #ifdef G4MYLASER_PARAMETERIZATION
-  void SetIManyScatters(int im) { IManyScatters = im; };
-  void SetScatteringSteps(int is, double step) {
+  void SetIManyScatters(G4int im) { IManyScatters = im; };
+  void SetScatteringSteps(G4int is, G4double step) {
     ScatteringSteps[is] = step;
   };
-  void SetScatteringAngles(int is, double angle) {
+  void SetScatteringAngles(G4int is, G4double angle) {
     ScatteringAngles[is] = angle;
   };
 #endif
-  // short  void SetangleDirection(int an) {angleDirection = an;};
-  // short  void SetangleIncident(int an) {angleIncident = an;};
+  // short  void SetangleDirection(G4int an) {angleDirection = an;};
+  // short  void SetangleIncident(G4int an) {angleIncident = an;};
 
-  double GetTime() { return time; };
-  int GetCathodId() { return CathodId; };
-  int GetoriginalInfo() { return originalInfo; };
-  int GetMany() { return IMany; };
+  G4double GetTime() { return time; };
+  G4int GetCathodId() { return CathodId; };
+  G4int GetoriginalInfo() { return originalInfo; };
+  G4int GetMany() { return IMany; };
 #ifdef G4MYLASER_PARAMETERIZATION
-  int GetIManyScatters(void) { return IManyScatters; };
-  double GetScatteringSteps(int is) { return ScatteringSteps[is]; };
-  double GetScatteringAngles(int is) { return ScatteringAngles[is]; };
+  G4int GetIManyScatters(void) { return IManyScatters; };
+  G4double GetScatteringSteps(G4int is) { return ScatteringSteps[is]; };
+  G4double GetScatteringAngles(G4int is) { return ScatteringAngles[is]; };
 #endif
-  // short  int    GetangleDirection() {return angleDirection;};
-  // short  int    GetangleIncident() {return angleIncident;};
+  // short  G4int    GetangleDirection() {return angleDirection;};
+  // short  G4int    GetangleIncident() {return angleIncident;};
 
 private:
-  int CathodId;
-  double time;
-  int originalInfo;
-  int IMany;
+  G4int CathodId;
+  G4double time;
+  G4int originalInfo;
+  G4int IMany;
 #ifdef G4MYLASER_PARAMETERIZATION
-  int IManyScatters;
-  double ScatteringSteps[100];
-  double ScatteringAngles[100];
+  G4int IManyScatters;
+  G4double ScatteringSteps[100];
+  G4double ScatteringAngles[100];
 #endif
-  // short  int      angleIncident;
-  // short  int      angleDirection;
+  // short  G4int      angleIncident;
+  // short  G4int      angleDirection;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

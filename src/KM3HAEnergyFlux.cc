@@ -3,9 +3,9 @@
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
 
-KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, double QEmax,
-                                 double TotCathodArea, double EneMin,
-                                 double EneMax) {
+KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, G4double QEmax,
+                                 G4double TotCathodArea, G4double EneMin,
+                                 G4double EneMax) {
   NPartsDists = 2; // is the number of distributions kept (now it is 2, for 211
                    // (pi+) and 130 (KaonZeroLong))
   std::ifstream infile(infileParam, std::ios::in | std::ios::binary);
@@ -13,7 +13,7 @@ KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, double QEmax,
   keepEnergies->reserve(NPartsDists);
   EnergyMin = log10(EneMin); // the energy range the distributions apply
   EnergyMax = log10(EneMax);
-  for (int i = 0; i < NPartsDists; i++) {
+  for (G4int i = 0; i < NPartsDists; i++) {
     KM3EMDistanceFlux *aDistanceFlux = new KM3EMDistanceFlux(infile);
     keepEnergies->push_back(aDistanceFlux);
   }
@@ -70,7 +70,7 @@ KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, double QEmax,
 
 KM3HAEnergyFlux::~KM3HAEnergyFlux() {
   if (keepEnergies != NULL) {
-    for (int i = 0; i < NPartsDists; i++)
+    for (G4int i = 0; i < NPartsDists; i++)
       delete (*keepEnergies)[i];
     keepEnergies->clear();
     delete keepEnergies;
@@ -78,9 +78,9 @@ KM3HAEnergyFlux::~KM3HAEnergyFlux() {
   }
 }
 
-double KM3HAEnergyFlux::Rescale(int idbeam, double energyin,
-                                  double energydis) {
-  int irbin;
+G4double KM3HAEnergyFlux::Rescale(G4int idbeam, G4double energyin,
+                                  G4double energydis) {
+  G4int irbin;
   // they are for particles (-2212, -2112, 130, +-211, +-321, 2112, 2212) in
   // this order
   if (idbeam == -2212)
@@ -97,9 +97,9 @@ double KM3HAEnergyFlux::Rescale(int idbeam, double energyin,
     irbin = 5;
   else if (idbeam == 2212)
     irbin = 6;
-  double eneinlog = log10(energyin / TeV);
-  double enedislog = log10(energydis / TeV);
-  double ydis =
+  G4double eneinlog = log10(energyin / TeV);
+  G4double enedislog = log10(energydis / TeV);
+  G4double ydis =
       ParticleEnergyScaleFactors[irbin][0] +
       enedislog *
           (ParticleEnergyScaleFactors[irbin][1] +
@@ -108,7 +108,7 @@ double KM3HAEnergyFlux::Rescale(int idbeam, double energyin,
                 enedislog *
                     (ParticleEnergyScaleFactors[irbin][3] +
                      enedislog * (ParticleEnergyScaleFactors[irbin][4]))));
-  double yin =
+  G4double yin =
       ParticleEnergyScaleFactors[irbin][0] +
       eneinlog *
           (ParticleEnergyScaleFactors[irbin][1] +
@@ -124,8 +124,8 @@ double KM3HAEnergyFlux::Rescale(int idbeam, double energyin,
 // parametrization section
 // (see KM3SD and KM3EventAction)
 // so we use strictly poisson distribution until it is fixed
-void KM3HAEnergyFlux::FindBins(int idbeam, double energyin,
-                               double distancein, double anglein) {
+void KM3HAEnergyFlux::FindBins(G4int idbeam, G4double energyin,
+                               G4double distancein, G4double anglein) {
   // we have 2 catogories of hadronic particles for the parametrization. Charged
   // ones and neutral ones
   // since they show very different angular profiles
@@ -137,8 +137,8 @@ void KM3HAEnergyFlux::FindBins(int idbeam, double energyin,
 
   (*keepEnergies)[ibin]->FindBins(distancein, anglein);
 
-  double energydis = pow(10.0, (*keepEnergies)[ibin]->GiveEnergy());
-  double BoostRatio = Rescale(idbeam, energyin, energydis);
+  G4double energydis = pow(10.0, (*keepEnergies)[ibin]->GiveEnergy());
+  G4double BoostRatio = Rescale(idbeam, energyin, energydis);
 
   Flux = (*keepEnergies)[ibin]->GiveFlux();
 
@@ -151,17 +151,17 @@ void KM3HAEnergyFlux::FindBins(int idbeam, double energyin,
   // next sample according to the Polya (also called Pascal or negative
   // binomial) distribution
   // find the number of samples according to Flux and FluxRMS
-  // tempoR  double deviation=FluxRMS-Flux;// It is variance-mean.this should
+  // tempoR  G4double deviation=FluxRMS-Flux;// It is variance-mean.this should
   // be >0 for polya, =0 for poisson.
   // tempoR  if(deviation < 0.001){ //this case is for poisson (the limiting
   // case of polya as n->oo is the poisson).
-  NumberOfSamples = (int)CLHEP::RandPoisson::shoot(Flux);
+  NumberOfSamples = (G4int)CLHEP::RandPoisson::shoot(Flux);
   // tempoR  }
   // tempoR  else{
-  // tempoR    double p=Flux/FluxRMS; //this is mean/variance
-  // tempoR    double n=Flux*Flux/deviation;
-  // tempoR    double X = CLHEP::RandGamma::shoot(n,1.0);
-  // tempoR    NumberOfSamples = (int) CLHEP::RandPoisson::shoot(X*(1-p)/p);
+  // tempoR    G4double p=Flux/FluxRMS; //this is mean/variance
+  // tempoR    G4double n=Flux*Flux/deviation;
+  // tempoR    G4double X = CLHEP::RandGamma::shoot(n,1.0);
+  // tempoR    NumberOfSamples = (G4int) CLHEP::RandPoisson::shoot(X*(1-p)/p);
   // tempoR  }
   //  printf("inside %le %le %d\n",meannum,rmsnum,numofphotons);
 }

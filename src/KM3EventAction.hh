@@ -80,19 +80,19 @@ public:
   std::vector<G4ThreeVector> enterPost;
   std::vector<G4ThreeVector> leavePre;
   std::vector<G4ThreeVector> leavePost;
-  std::vector<double> centerMomentum;
-  std::vector<double> enterMomentum;
-  std::vector<double> leaveMomentum;
+  std::vector<G4double> centerMomentum;
+  std::vector<G4double> enterMomentum;
+  std::vector<G4double> leaveMomentum;
   std::vector<G4ThreeVector> centerPosition;
   std::vector<G4ThreeVector> enterPosition;
   std::vector<G4ThreeVector> leavePosition;
-  std::vector<double> centerTime;
-  std::vector<double> enterTime;
-  std::vector<double> leaveTime;
+  std::vector<G4double> centerTime;
+  std::vector<G4double> enterTime;
+  std::vector<G4double> leaveTime;
   std::vector<G4ThreeVector> stopPosition;
-  std::vector<double> stopTime;
+  std::vector<G4double> stopTime;
 #ifdef G4MYMUON_KEEPENERGY
-  std::vector<double> EnergyAtPosition;
+  std::vector<G4double> EnergyAtPosition;
 #endif
 #if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
   std::vector<long double> *myPhotonsNumber;
@@ -102,28 +102,28 @@ public:
   KM3PrimaryGeneratorAction *MyGenerator;
   KM3Detector *MyStDetector;
 #endif
-  bool useANTARESformat;
+  G4bool useANTARESformat;
   HOURSevtWRITE *TheEVTtoWrite;
 
 public:
   FILE *outfile;
-  inline void AddPrimaryNumber(int);
-  inline int GetSlot(int);
+  inline void AddPrimaryNumber(G4int);
+  inline G4int GetSlot(G4int);
   inline void Initialize(void) { numofMuons = 0; }
 
 private:
-  int numofMuons;
-  int MuonIds[210000]; // 100 before
+  G4int numofMuons;
+  G4int MuonIds[210000]; // 100 before
 };
 
-inline void KM3EventAction::AddPrimaryNumber(int aNumber) {
+inline void KM3EventAction::AddPrimaryNumber(G4int aNumber) {
   MuonIds[numofMuons] = aNumber;
   numofMuons++;
 }
 
-inline int KM3EventAction::GetSlot(int aNumber) {
-  int slot = -1;
-  for (int i = 0; i < numofMuons; i++) {
+inline G4int KM3EventAction::GetSlot(G4int aNumber) {
+  G4int slot = -1;
+  for (G4int i = 0; i < numofMuons; i++) {
     if (MuonIds[i] == aNumber) {
       slot = i;
       break;

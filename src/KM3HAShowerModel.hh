@@ -51,8 +51,8 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  KM3HAShowerModel(std::string, G4Region *);
-  KM3HAShowerModel(std::string);
+  KM3HAShowerModel(G4String, G4Region *);
+  KM3HAShowerModel(G4String);
   ~KM3HAShowerModel();
 
   //------------------------------
@@ -61,20 +61,20 @@ public:
   //------------------------------
 
   // -- IsApplicable
-  bool IsApplicable(const G4ParticleDefinition &);
+  G4bool IsApplicable(const G4ParticleDefinition &);
   // -- ModelTrigger
-  bool ModelTrigger(const G4FastTrack &);
+  G4bool ModelTrigger(const G4FastTrack &);
   // -- User method DoIt
   void DoIt(const G4FastTrack &, G4FastStep &);
   //  void SetDetector(KM3Detector*);
   KM3Detector *myStDetector;
   KM3SD *aMySD;
-  void InitializeFlux(char *, double, double);
+  void InitializeFlux(char *, G4double, G4double);
 
 private:
   KM3HAEnergyFlux *myFlux;
-  double EnergyMin;
-  double EnergyMax;
-  double thespeedmaxQE;
+  G4double EnergyMin;
+  G4double EnergyMax;
+  G4double thespeedmaxQE;
 };
 #endif

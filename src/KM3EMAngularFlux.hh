@@ -14,23 +14,23 @@ public:
   ~KM3EMAngularFlux();
 
 public:
-  void FindBins(double anglein);
-  double GiveDistance() { return Distance; };
-  double GiveFlux() { return Flux; };
-  double GiveFluxRMS() { return FluxRMS; };
+  void FindBins(G4double anglein);
+  G4double GiveDistance() { return Distance; };
+  G4double GiveFlux() { return Flux; };
+  G4double GiveFluxRMS() { return FluxRMS; };
   bool IsValid() { return IsThisValid; };
   onePE GetSamplePoint();
 
 private:
   std::vector<KM3EMTimePointDis *> *keepAngles;
-  int VertexSolidAngleBins;
-  double Distance;
+  G4int VertexSolidAngleBins;
+  G4double Distance;
   bool IsThisValid;
-  int ibin1;
-  int ibin2;
-  double Flux;
-  double FluxRMS;
-  double ratio;
+  G4int ibin1;
+  G4int ibin2;
+  G4double Flux;
+  G4double FluxRMS;
+  G4double ratio;
 };
 
 #endif

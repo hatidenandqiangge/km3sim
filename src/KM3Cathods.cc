@@ -12,8 +12,8 @@ KM3Cathods::~KM3Cathods() {
 }
 
 void KM3Cathods::addCathod(const G4Transform3D &trans, const G4ThreeVector &Pos,
-                           const G4ThreeVector &Dir, const double Radius,
-                           const double Height, const int Dep) {
+                           const G4ThreeVector &Dir, const G4double Radius,
+                           const G4double Height, const G4int Dep) {
   Cathod *aCathod = (Cathod *)malloc(sizeof(Cathod));
   aCathod->trans = trans;
   aCathod->Position = Pos;
@@ -21,23 +21,23 @@ void KM3Cathods::addCathod(const G4Transform3D &trans, const G4ThreeVector &Pos,
   aCathod->Radius = Radius;
   aCathod->Height = Height;
   aCathod->Depth = Dep;
-  std::vector<int> *aTree = new std::vector<int>;
+  std::vector<G4int> *aTree = new std::vector<G4int>;
   aTree->reserve(Dep);
   aCathod->Tree = aTree;
   theCathods.push_back(aCathod);
   NumOfCathods++;
 }
 
-void KM3Cathods::addToTree(const int hist) {
+void KM3Cathods::addToTree(const G4int hist) {
   theCathods[NumOfCathods - 1]->Tree->push_back(hist);
-  if ((int)(theCathods[NumOfCathods - 1]->Tree->size()) >
+  if ((G4int)(theCathods[NumOfCathods - 1]->Tree->size()) >
       theCathods[NumOfCathods - 1]->Depth)
     G4cout << "Warning: You add more History than declared" << G4endl;
 }
 
 // this method returns the cathod id  from the history tree
-int KM3Cathods::GetCathodId(const int dep, const int hist[]) {
-  int ih;
+G4int KM3Cathods::GetCathodId(const G4int dep, const G4int hist[]) {
+  G4int ih;
   ih = 0;
   iterator = 0;
   while (ih < dep) {
@@ -49,7 +49,7 @@ int KM3Cathods::GetCathodId(const int dep, const int hist[]) {
 }
 
 void KM3Cathods::PrintAllCathods(FILE *outfile) {
-  for (int i = 0; i < NumOfCathods; i++) {
+  for (G4int i = 0; i < NumOfCathods; i++) {
     fprintf(outfile, "%d\n", theCathods[i]->Depth);
     for (size_t ihi = 0; ihi < theCathods[i]->Depth; ihi++) {
       fprintf(outfile, "%d\n", (*(theCathods[i]->Tree))[ihi]);

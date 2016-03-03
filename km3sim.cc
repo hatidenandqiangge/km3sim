@@ -62,6 +62,45 @@ int main(int argc, char *argv[]) {
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
   TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
+
+  /** How to make a simple main:
+   *
+   * new G4Runmanager
+   * rm.SetUnserInit(Detector)
+   * rm.SetUnserInit(PhysicsList)
+   * rm.SetUnserInit(G4ActionInit)
+   * rm.init
+   *
+   * new uimng
+   * uimng.applu(options-verbose)
+   *
+   * rm.beamon(nevts)
+   * del rm
+   * return 0
+   */
+
+  /** how to detector:
+   *
+   * geometry
+   * materials
+   * sensitive regions
+   * redout schemes of sensitive regions
+   */
+
+  /** how to physics:
+   *
+   * particles to be used
+   * physics processes tbu
+   * range cuts on particles (overrides)
+   */
+
+  /** how to useraction:
+   *
+   * add UserActionClasses (see below?)
+   * define 1 mandatory UserAction
+   */
+
+
   //--------------------------------------------------------------------------
   G4RunManager *runManager = new G4RunManager;
 

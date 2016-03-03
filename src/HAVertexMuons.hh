@@ -12,19 +12,19 @@ class HAVertexMuons {
 public:
   HAVertexMuons(char *, char *);
   ~HAVertexMuons();
-  int GetNumberOfMuons(double HadronicEnergy);
+  G4int GetNumberOfMuons(G4double HadronicEnergy);
   void ReadMuon();
   inline G4ThreeVector GetPosition() { return thePosition; };
   inline G4ThreeVector GetMomentum() { return theMomentum; };
-  inline double GetTime() { return theTime; };
+  inline G4double GetTime() { return theTime; };
 
 private:
   std::ifstream *MuonsStream;
-  int numevents;
-  std::vector<float> *theEnergies;
-  std::vector<int> *theSizes;
-  std::vector<int> *thePositions;
-  double theTime;
+  G4int numevents;
+  std::vector<G4float> *theEnergies;
+  std::vector<G4int> *theSizes;
+  std::vector<G4int> *thePositions;
+  G4double theTime;
   G4ThreeVector thePosition;
   G4ThreeVector theMomentum;
 };
