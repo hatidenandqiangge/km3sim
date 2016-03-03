@@ -201,7 +201,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
 
   //  if(dist>10*m)fprintf(myStDetector->outfile,"Param %12.4e %12.4e %12.4e
   //  %12.4e %12.4e %12.4e\n",  //tempo
-  //  		       dist/m,cosangle1,cosangle2,cosangle3/degree,thetime,weight);
+  //             dist/m,cosangle1,cosangle2,cosangle3/degree,thetime,weight);
   //  //tempo
   // note: The binning in cosangle2,cosangle3 is not good enough
   // it must be done again
@@ -606,9 +606,9 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     //      aStep->GetTrack()->GetVertexMomentumDirection();
     //      G4double deviation=photonDirection.dot(DirIni);
     //      if(deviation<0.99999999){
-    //	aStep->GetTrack()->SetTrackStatus(fStopAndKill); //it is killed, because
+    //  aStep->GetTrack()->SetTrackStatus(fStopAndKill); //it is killed, because
     // it is useless
-    //	return false;
+    //  return false;
     //      }
     //    }
     //#else
@@ -998,8 +998,8 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           numpes = (*MyCollection)[i]->GetMany();
         }
         prevcathod = (*MyCollection)[i]->GetCathodId();
-        //	if(i == (NbHits-1) ){
-        //	if(numhit == (NbHitsWrite-1) ){
+        //  if(i == (NbHits-1) ){
+        //  if(numhit == (NbHitsWrite-1) ){
         if (numhit == (NbHitsWrite - LastPmtNumHits) && i == LastHitNumber) {
           if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition = myStDetector->allCathods->GetPosition(
@@ -1049,26 +1049,26 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
 // for(int ica=0;ica<TotalNumberOfCathods;ica++){ //for all benthos
 //   numphotons=0;firstphoton=1.E50;
 //   for(i=0;i<NbHits;i++){
-// 	if((*MyCollection)[i]->GetCathodId()==ica){
-// 	  numphotons++;  // hit number for this benthos
-// 	  if((*MyCollection)[i]->GetTime()-timefirst<firstphoton)firstphoton=(*MyCollection)[i]->GetTime()-timefirst;
-// 	}
+//   if((*MyCollection)[i]->GetCathodId()==ica){
+//     numphotons++;  // hit number for this benthos
+//     if((*MyCollection)[i]->GetTime()-timefirst<firstphoton)firstphoton=(*MyCollection)[i]->GetTime()-timefirst;
+//   }
 //   }
 //   if(numphotons>0){
-// 	if(myStDetector->vrmlhits){  //draw hits
-// 	  G4ThreeVector Cposition=myStDetector->allCathods->GetPosition(ica);
-// 	  DrawCathodHit(numphotons,Cposition);
-// 	}
-// 	fprintf(outfile,"%d %d %.7e
+//   if(myStDetector->vrmlhits){  //draw hits
+//     G4ThreeVector Cposition=myStDetector->allCathods->GetPosition(ica);
+//     DrawCathodHit(numphotons,Cposition);
+//   }
+//   fprintf(outfile,"%d %d %.7e
 // %d\n",ica,numphotons,firstphoton*1E-9,numphotons);
-// 	for (i=0;i<NbHits;i++){
-// 	  if((*MyCollection)[i]->GetCathodId()==ica)
-// 	    fprintf(outfile,"%.7e %d %d %d\n",
-// 		    ((*MyCollection)[i]->GetTime()-timefirst)*1E-9,
-// 		    (*MyCollection)[i]->GetangleIncident(),
-// 		    (*MyCollection)[i]->GetangleDirection(),
-// 		    (*MyCollection)[i]->GetoriginalInfo());
-// 	}
+//   for (i=0;i<NbHits;i++){
+//     if((*MyCollection)[i]->GetCathodId()==ica)
+//       fprintf(outfile,"%.7e %d %d %d\n",
+//         ((*MyCollection)[i]->GetTime()-timefirst)*1E-9,
+//         (*MyCollection)[i]->GetangleIncident(),
+//         (*MyCollection)[i]->GetangleDirection(),
+//         (*MyCollection)[i]->GetoriginalInfo());
+//   }
 //   }
 // }
 // old

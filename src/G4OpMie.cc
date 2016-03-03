@@ -34,7 +34,7 @@
 //
 // File:        G4OpMie.cc
 // Description: Discrete Process -- Mie scattering of optical
-//		photons
+//    photons
 //              Phase Functions taken from Vladimir I. Haltrin,
 //              http://dx.doi.org/10.1117/12.558313
 // Version:     1.0

@@ -118,17 +118,17 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
 // (aTrack->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition()) ){
 //   G4String theCreatorProcess=aTrack->GetCreatorProcess()->GetProcessName();
 //   if( (theCreatorProcess != "conv"  ) &&
-// 	(theCreatorProcess != "compt"   ) &&
+//   (theCreatorProcess != "compt"   ) &&
 //    (theCreatorProcess != "Decay"   ) &&
-// 	(theCreatorProcess != "eIoni"   ) &&
-// 	(theCreatorProcess != "eBrem"   ) &&
+//   (theCreatorProcess != "eIoni"   ) &&
+//   (theCreatorProcess != "eBrem"   ) &&
 //    (theCreatorProcess != "phot"   ) &&
-// 	(theCreatorProcess != "hIoni"   ) &&
-// 	(theCreatorProcess != "muIoni"   ) &&
-// 	(theCreatorProcess != "annihil"   ) &&
-// 	(theCreatorProcess != "muBrems"   ) &&
-// 	(theCreatorProcess != "muPairProd"   ) &&
-// 	(theCreatorProcess != "muonNuclear" )
+//   (theCreatorProcess != "hIoni"   ) &&
+//   (theCreatorProcess != "muIoni"   ) &&
+//   (theCreatorProcess != "annihil"   ) &&
+//   (theCreatorProcess != "muBrems"   ) &&
+//   (theCreatorProcess != "muPairProd"   ) &&
+//   (theCreatorProcess != "muonNuclear" )
 //       ){
 //     G4String theParticleName=aTrack->GetDefinition()->GetParticleName();
 //     kineticEnergy=aTrack->GetKineticEnergy();
@@ -279,13 +279,13 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
           /// NewStage (double code)
           if (idprikeep->size() == 500000) CreateAllWaitingPhotons();
           ////
-          // before	if(indexkeep == 0){
-          // before	  return fWaiting; //i do this in order to add the hits
+          // before  if(indexkeep == 0){
+          // before    return fWaiting; //i do this in order to add the hits
           // of
           // the delta rays at the end of the event
-          // before	  indexkeep=1;
-          // before	}
-          // before	else return fKill;
+          // before    indexkeep=1;
+          // before  }
+          // before  else return fKill;
           return fKill;  // now
         }
       }
@@ -477,20 +477,20 @@ void KM3StackingAction::NewStage() {
                   G4double sinth = sqrt(1.0 - costh * costh);
                   G4double cosphi = cos(aPE.phi);  // here change
                   G4double sinphi = sin(aPE.phi);  // here change
-                  // short		  G4ThreeVector
+                  // short      G4ThreeVector
                   // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
                   G4ThreeVector photonDirection =
                       (sinth * (cosphi * x + sinphi * y) + costh * z);
-                  // short		  G4double
+                  // short      G4double
                   // angleThetaDirection=photonDirection.theta();
-                  // short		  G4double
+                  // short      G4double
                   // anglePhiDirection=photonDirection.phi();
-                  // short		  angleThetaDirection *= 180./M_PI;
-                  // short		  anglePhiDirection *= 180./M_PI;
-                  // short		  if(anglePhiDirection <
+                  // short      angleThetaDirection *= 180./M_PI;
+                  // short      anglePhiDirection *= 180./M_PI;
+                  // short      if(anglePhiDirection <
                   // 0.0)anglePhiDirection
                   // += 360.0;
-                  // short		  G4int
+                  // short      G4int
                   // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
                   // + nearbyint(anglePhiDirection));
                   G4int ic =
@@ -661,20 +661,20 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
                   G4double sinth = sqrt(1.0 - costh * costh);
                   G4double cosphi = cos(aPE.phi);  // here change
                   G4double sinphi = sin(aPE.phi);  // here change
-                  // short		  G4ThreeVector
+                  // short      G4ThreeVector
                   // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
                   G4ThreeVector photonDirection =
                       (sinth * (cosphi * x + sinphi * y) + costh * z);
-                  // short		  G4double
+                  // short      G4double
                   // angleThetaDirection=photonDirection.theta();
-                  // short		  G4double
+                  // short      G4double
                   // anglePhiDirection=photonDirection.phi();
-                  // short		  angleThetaDirection *= 180./M_PI;
-                  // short		  anglePhiDirection *= 180./M_PI;
-                  // short		  if(anglePhiDirection <
+                  // short      angleThetaDirection *= 180./M_PI;
+                  // short      anglePhiDirection *= 180./M_PI;
+                  // short      if(anglePhiDirection <
                   // 0.0)anglePhiDirection
                   // += 360.0;
-                  // short		  G4int
+                  // short      G4int
                   // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
                   // + nearbyint(anglePhiDirection));
                   G4int ic =

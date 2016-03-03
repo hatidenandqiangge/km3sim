@@ -56,7 +56,7 @@
 //              2005-07-28 - add G4ProcessType to constructor
 //
 // Author:      Peter Gumplinger
-// 		adopted from work by Werner Keil - April 2/96
+//     adopted from work by Werner Keil - April 2/96
 // mail:        gum@triumf.ca
 //
 ////////////////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
     }
   }
 
-  //	if (Surface) OpticalSurface = dynamic_cast <G4OpticalSurface*>
+  //  if (Surface) OpticalSurface = dynamic_cast <G4OpticalSurface*>
   //(Surface->GetSurfaceProperty());
   if (Surface)
     OpticalSurface = (G4OpticalSurface *)Surface->GetSurfaceProperty();

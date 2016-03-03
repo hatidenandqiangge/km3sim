@@ -722,24 +722,24 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
             }
             for (G4int isa = 0; isa < NumberOfSamples; isa++) {
               onePE aPE = myFlux->GetSamplePoint();  // here change
-              //	G4cout << "OutFromParam "<<distancein<<" "<<anglein<<"
+              //  G4cout << "OutFromParam "<<distancein<<" "<<anglein<<"
               //"<<aPE.costh<<" "<<aPE.phi<<" "<<aPE.time<<G4endl;  //tempo
               G4double costh = aPE.costh;  // here change
               G4double sinth = sqrt(1.0 - costh * costh);
               G4double cosphi = cos(aPE.phi);  // here change
               G4double sinphi = sin(aPE.phi);  // here change
-              // short	      G4ThreeVector
+              // short        G4ThreeVector
               // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
               G4ThreeVector photonDirection =
                   (sinth * (cosphi * x + sinphi * y) + costh * z);
-              // short	      G4double
+              // short        G4double
               // angleThetaDirection=photonDirection.theta();
-              // short	      G4double anglePhiDirection=photonDirection.phi();
-              // short	      angleThetaDirection *= 180./M_PI;
-              // short	      anglePhiDirection *= 180./M_PI;
-              // short	      if(anglePhiDirection < 0.0)anglePhiDirection
+              // short        G4double anglePhiDirection=photonDirection.phi();
+              // short        angleThetaDirection *= 180./M_PI;
+              // short        anglePhiDirection *= 180./M_PI;
+              // short        if(anglePhiDirection < 0.0)anglePhiDirection
               // += 360.0;
-              // short	      G4int
+              // short        G4int
               // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0 +
               // nearbyint(anglePhiDirection));
               G4int ic = G4int(icstart + (icstop - icstart) * G4UniformRand());
@@ -1032,7 +1032,7 @@ void KM3Cherenkov::CreateDirectPhotons() {
       while ((counter < arraysize) && (idpri == (*idprikeep)[counter]) &&
              ((pospri - (*poskeep)[counter]).mag2() < distbin2)) {
         depene += (*depenekeep)[counter];
-        //	G4cout<<"CreateDirectPhotons1 "<<counter<<"
+        //  G4cout<<"CreateDirectPhotons1 "<<counter<<"
         //"<<(*depenekeep)[counter]<<G4endl;
         counter++;
       }
@@ -1042,14 +1042,14 @@ void KM3Cherenkov::CreateDirectPhotons() {
       if ((counter == arraysize) || ((*idprikeep)[counter] != idpri)) {
         p0 = (*poskeep)[counter - 1] - pospri;
         thispos = 0.5 * ((*poskeep)[counter - 1] + pospri);
-        //	G4cout<<"CreateDirectPhotons2 "<<counter-1<<"
+        //  G4cout<<"CreateDirectPhotons2 "<<counter-1<<"
         //"<<(*poskeep)[counter-1]<<" "<<pospri<<G4endl;
         thistime = 0.5 * ((*timekeep)[counter - 1] + timepri);
-        //	G4cout<<"CreateDirectPhotons3 "<<counter-1<<"
+        //  G4cout<<"CreateDirectPhotons3 "<<counter-1<<"
         //"<<(*timekeep)[counter-1]<<" "<<timepri<<G4endl;
         G4double step = p0.mag();
         if (step == 0.0) {
-          // before	  p0=pospri - (*poskeep)[counter-2];
+          // before    p0=pospri - (*poskeep)[counter-2];
           p0 = (*dirkeep)[counter - 1];  // this the case when one distance
           // interval is composed by only one step
           // at the end of the track
@@ -1057,10 +1057,10 @@ void KM3Cherenkov::CreateDirectPhotons() {
       } else {
         p0 = (*poskeep)[counter] - pospri;
         thispos = 0.5 * ((*poskeep)[counter] + pospri);
-        //	G4cout<<"CreateDirectPhotons4 "<<counter<<"
+        //  G4cout<<"CreateDirectPhotons4 "<<counter<<"
         //"<<(*poskeep)[counter]<<" "<<pospri<<G4endl;
         thistime = 0.5 * ((*timekeep)[counter] + timepri);
-        //	G4cout<<"CreateDirectPhotons5 "<<counter<<"
+        //  G4cout<<"CreateDirectPhotons5 "<<counter<<"
         //"<<(*timekeep)[counter]<<" "<<timepri<<G4endl;
       }
       //      G4cout<<"CreateDirectPhotons6 "<<thispos[0]/m<<"
@@ -1108,22 +1108,22 @@ void KM3Cherenkov::CreateDirectPhotons() {
                 G4double sinth = sqrt(1.0 - costh * costh);
                 G4double cosphi = cos(aPE.phi);  // here change
                 G4double sinphi = sin(aPE.phi);  // here change
-                //		G4cout <<"InC "<<x.mag2()<<" "<<y.mag2()<<"
+                //    G4cout <<"InC "<<x.mag2()<<" "<<y.mag2()<<"
                 //"<<z.mag2()<<G4endl;
-                // short		G4ThreeVector
+                // short    G4ThreeVector
                 // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
                 G4ThreeVector photonDirection =
                     (sinth * (cosphi * x + sinphi * y) + costh * z);
-                // short		G4double
+                // short    G4double
                 // angleThetaDirection=photonDirection.theta();
-                // short		G4double
+                // short    G4double
                 // anglePhiDirection=photonDirection.phi();
-                // short		angleThetaDirection *= 180./M_PI;
-                // short		anglePhiDirection *= 180./M_PI;
-                // short		if(anglePhiDirection <
+                // short    angleThetaDirection *= 180./M_PI;
+                // short    anglePhiDirection *= 180./M_PI;
+                // short    if(anglePhiDirection <
                 // 0.0)anglePhiDirection
                 // += 360.0;
-                // short		G4int
+                // short    G4int
                 // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
                 // + nearbyint(anglePhiDirection));
                 G4int ic =
@@ -1346,8 +1346,8 @@ G4double KM3Cherenkov::GetAverageNumberOfPhotons(
   G4double BetaInverse = 1. / beta;
 
   // Vectors used in computation of Cerenkov Angle Integral:
-  // 	- Refraction Indices for the current material
-  //	- new G4PhysicsOrderedFreeVector allocated to hold CAI's
+  //   - Refraction Indices for the current material
+  //  - new G4PhysicsOrderedFreeVector allocated to hold CAI's
 
   G4int materialIndex = aMaterial->GetIndex();
 
@@ -1374,10 +1374,10 @@ G4double KM3Cherenkov::GetAverageNumberOfPhotons(
   // If n(Pmax) < 1/Beta -- no photons generated
 
   if (nMax < BetaInverse) {
-    //	  G4cout<<aParticle->GetTotalEnergy()<<"
+    //    G4cout<<aParticle->GetTotalEnergy()<<"
     //"<<aParticle->GetKineticEnergy()<<G4endl;
-    //		dp = 0;
-    //	ge = 0;
+    //    dp = 0;
+    //  ge = 0;
     return 0.0;
   }
 

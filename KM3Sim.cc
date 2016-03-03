@@ -298,9 +298,9 @@ runManager->SetUserAction(myStepping);
 runManager->Initialize();
 //   for (G4int iom=0 ; iom < Mydet->allOMs->size() ; iom++){
 //     G4cout << G4BestUnit((*(Mydet->allOMs))[iom]->position(0),"Length")
-// 	   << G4BestUnit((*(Mydet->allOMs))[iom]->position(1),"Length")
-// 	   << G4BestUnit((*(Mydet->allOMs))[iom]->position(2),"Length")
-// 	   << G4BestUnit((*(Mydet->allOMs))[iom]->radius,"Length") <<"   "<< iom
+//     << G4BestUnit((*(Mydet->allOMs))[iom]->position(1),"Length")
+//     << G4BestUnit((*(Mydet->allOMs))[iom]->position(2),"Length")
+//     << G4BestUnit((*(Mydet->allOMs))[iom]->radius,"Length") <<"   "<< iom
 // <<"\n";
 //   }
 

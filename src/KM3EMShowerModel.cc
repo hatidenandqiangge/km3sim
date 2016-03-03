@@ -279,24 +279,24 @@ void KM3EMShowerModel::DoIt(const G4FastTrack &fastTrack,
           }
           for (G4int isa = 0; isa < NumberOfSamples; isa++) {
             onePE aPE = myFlux->GetSamplePoint();
-            //	    G4cout << "OutFromParam "<<distancein/m<<" "<<anglein<<"
+            //      G4cout << "OutFromParam "<<distancein/m<<" "<<anglein<<"
             //"<<aPE.costh<<" "<<aPE.phi<<G4endl;  //tempo
             G4double costh = aPE.costh;
             G4double sinth = sqrt(1.0 - costh * costh);
             G4double cosphi = cos(aPE.phi);
             G4double sinphi = sin(aPE.phi);
-            // short	    G4ThreeVector
+            // short      G4ThreeVector
             // photonDirection=-(sinth*(cosphi*x+sinphi*y)+costh*z);
             G4ThreeVector photonDirection =
                 (sinth * (cosphi * x + sinphi * y) + costh * z);
-            // short	    G4double
+            // short      G4double
             // angleThetaDirection=photonDirection.theta();
-            // short	    G4double anglePhiDirection=photonDirection.phi();
-            // short	    angleThetaDirection *= 180./M_PI;
-            // short	    anglePhiDirection *= 180./M_PI;
-            // short	    if(anglePhiDirection < 0.0)anglePhiDirection +=
+            // short      G4double anglePhiDirection=photonDirection.phi();
+            // short      angleThetaDirection *= 180./M_PI;
+            // short      anglePhiDirection *= 180./M_PI;
+            // short      if(anglePhiDirection < 0.0)anglePhiDirection +=
             // 360.0;
-            // short	    G4int
+            // short      G4int
             // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0 +
             // nearbyint(anglePhiDirection));
             G4int ic = G4int(icstart + (icstop - icstart) * G4UniformRand());
@@ -305,7 +305,7 @@ void KM3EMShowerModel::DoIt(const G4FastTrack &fastTrack,
             aMySD->InsertExternalHit(ic, (*myStDetector->allOMs)[io]->position,
                                      theFastTime + aPE.time, originalInfo,
                                      photonDirection);
-            //	    PhotonsSurviving++;
+            //      PhotonsSurviving++;
           }  // for(G4int isa=0 ; isa<NumberOfSamples ; isa++)
         }    // if(distancein<MaxAbsDist2)
       }      // for(int io=0;io<TotalNumberOfOMs;io++)

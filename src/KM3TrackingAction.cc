@@ -81,29 +81,29 @@ void KM3TrackingAction::PostUserTrackingAction(const G4Track *aTrack) {
 //     if(secondaries){
 //       size_t nSeco = secondaries->size();
 //       if(nSeco>0){
-// 	for(size_t i=0;i<nSeco;i++){
-// 	  G4String
+//   for(size_t i=0;i<nSeco;i++){
+//     G4String
 // aString=(*secondaries)[i]->GetDefinition()->GetParticleName();
-// 	  G4String
+//     G4String
 // aCrPr=(*secondaries)[i]->GetCreatorProcess()->GetProcessName();
-// 	  if(aString != G4String("opticalphoton")){
-// 	    G4int idpart;
-// 	    G4int idproc;
-// 	    if(aString == G4String("gamma"))idpart=0;
-// 	    if(aString == G4String("e-"))idpart=1;
-// 	    if(aString == G4String("e+"))idpart=2;
-// 	    if(aCrPr == G4String("muIoni"))idproc=0;
-// 	    if(aCrPr == G4String("muPairProd"))idproc=1;
-// 	    if(aCrPr == G4String("muBrems"))idproc=2;
-// 	    G4ThreeVector aMomentum=(*secondaries)[i]->GetMomentum();
-// 	    G4double momentum=aMomentum.mag();
-// 	    if(momentum > 0){
-// 	      G4double costheta=pDir.dot(aMomentum)/momentum;
-// 	      printf("FromTracking %d %d %le
+//     if(aString != G4String("opticalphoton")){
+//       G4int idpart;
+//       G4int idproc;
+//       if(aString == G4String("gamma"))idpart=0;
+//       if(aString == G4String("e-"))idpart=1;
+//       if(aString == G4String("e+"))idpart=2;
+//       if(aCrPr == G4String("muIoni"))idproc=0;
+//       if(aCrPr == G4String("muPairProd"))idproc=1;
+//       if(aCrPr == G4String("muBrems"))idproc=2;
+//       G4ThreeVector aMomentum=(*secondaries)[i]->GetMomentum();
+//       G4double momentum=aMomentum.mag();
+//       if(momentum > 0){
+//         G4double costheta=pDir.dot(aMomentum)/momentum;
+//         printf("FromTracking %d %d %le
 // %le\n",idpart,idproc,momentum,costheta);
-// 	    }
-// 	  }
-// 	}
+//       }
+//     }
+//   }
 //       }
 //     }
 //   }
@@ -121,7 +121,7 @@ void KM3TrackingAction::PostUserTrackingAction(const G4Track *aTrack) {
             KM3TrackInformation *infoNew = new KM3TrackInformation(info);
             (*secondaries)[i]->SetUserInformation(infoNew);
           } else {
-            //		    if((*secondaries)[i]->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition()){
+            //        if((*secondaries)[i]->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition()){
             KM3TrackInformation *infoNew =
                 (KM3TrackInformation *)((*secondaries)[i]
                                             ->GetUserInformation());
@@ -129,7 +129,7 @@ void KM3TrackingAction::PostUserTrackingAction(const G4Track *aTrack) {
                 infoNew->GetOriginalEnergy() == 0.0) {
               infoNew->SetMoreInformation(info);
             }
-            //		    }
+            //        }
           }
         }
       }
