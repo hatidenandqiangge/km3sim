@@ -304,10 +304,10 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
                                      photonDirection);
             PhotonsSurviving++;
           } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++)
-        } // if(distancein<MaxAbsDist2)
-      } // for(int io=0;io<TotalNumberOfOMs;io++)
-    } // if(distancetower2<MaxAbsDist2)
-  } // for(int it=0;it<TotalNumberOfTowers;it++)
+        }   // if(distancein<MaxAbsDist2)
+      }     // for(int io=0;io<TotalNumberOfOMs;io++)
+    }       // if(distancetower2<MaxAbsDist2)
+  }         // for(int it=0;it<TotalNumberOfTowers;it++)
 //  G4cout << "Total photons created "<< PhotonsSurviving <<G4endl;
 #else
   ;

@@ -30,7 +30,8 @@ public:
   void InsertExternalHit(G4int ic, const G4ThreeVector &OMPosition,
                          G4double time, G4int originalInfo,
                          const G4ThreeVector &photonDirection);
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   std::vector<long double> *myPhotonsNumber;
   std::vector<long double> *myPhotonsTime;
   std::vector<long double> *myPhotonsTh2Th3Num;
@@ -61,7 +62,8 @@ private:
                      G4double CathodHeight, bool);
   void MergeHits(G4int nfirst, G4int nlast, G4double MergeWindow);
   G4double thespeedmaxQE;
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   G4MaterialPropertyVector *VirtualAbsVector;
   G4MaterialPropertyVector *TrueAbsVector;
 #endif

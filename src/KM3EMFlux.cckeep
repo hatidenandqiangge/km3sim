@@ -82,8 +82,8 @@ void KM3EMFlux::SetEnergy(double TheE) {
   }
 }
 
-int KM3EMFlux::GiveNum(double area, int zbin, double Distance,
-                         double Thetarad, double qe) {
+int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
+                       double qe) {
   double Fentries[100];
   double Fentriesrms[100];
   int thetabin, ibin1, ibin2;
@@ -185,7 +185,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance,
   int polydegree = 3;
   Energylog = log10(Energy);
   if ((ienstop - ienstart) == 5) { // intermediate bins
-    if (Fentries[ienstart] > 0) { // all ok
+    if (Fentries[ienstart] > 0) {  // all ok
       iss = ienstart;
       ill = ienstop - 1;
       for (int ibin = iss; ibin < ill; ibin++) {
@@ -209,7 +209,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance,
           return 0;
       }
     }
-  } else { // edge bins have 4 points
+  } else {                     // edge bins have 4 points
     if (ienstart == ienbin1) { // first bin. ienbin1=0.
       iss = ienstart;
       ill = ienstop;
@@ -299,11 +299,11 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance,
     }
   }
 
-  double dndth = divdif(Fentrieslog, Fenergieslog, NumOfEnergiesInt,
-                          Energylog, polydegree);
+  double dndth = divdif(Fentrieslog, Fenergieslog, NumOfEnergiesInt, Energylog,
+                        polydegree);
   // also interpolate the spread.
   double dndthrms = divdif(Fentriesrmslog, Fenergieslog, NumOfEnergiesInt,
-                             Energylog, polydegree);
+                           Energylog, polydegree);
   dndth = pow(10.0, dndth) / thetabinningrad;
   dndthrms = pow(10.0, dndthrms) / thetabinningrad;
   // rms according to the rms of the mean of the edges of the energy bin (rude).
@@ -324,7 +324,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance,
   // binomial) distribution
   int numofphotons;
   double deviation = rmsnum - meannum; // It is variance-mean.this should be
-                                         // >0 for polya, =0 for poisson.
+                                       // >0 for polya, =0 for poisson.
   if (deviation < 0.001) { // this case is for poisson (the limiting case of
                            // polya as n->oo is the poisson).
     numofphotons = (int)CLHEP::RandPoisson::shoot(meannum);
@@ -379,8 +379,7 @@ int KM3EMFlux::GiveMaxZbin() {
   return ( Zbins[ienbin1] >? Zbins[ienbin2]);
 }
 
-double KM3EMFlux::divdif(double F[], double A[], int NN, double X,
-                           int MM) {
+double KM3EMFlux::divdif(double F[], double A[], int NN, double X, int MM) {
   double T[20];
   double D[20];
   bool EXTRA;

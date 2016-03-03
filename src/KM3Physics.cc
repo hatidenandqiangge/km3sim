@@ -217,7 +217,7 @@ void KM3Physics::ConstructEM() {
       G4GammaConversion *aGammaConversion = new G4GammaConversion();
       lowE = 2 * electron_mass_c2;
       highE = 100.0 * PeV; // 100TeV before
-      nBins = 220; // 120 before
+      nBins = 220;         // 120 before
       //      aGammaConversion->SetPhysicsTableBining(lowE,highE,nBins);
       //      //not applicable to Geant 4.8
       aGammaConversion->SetLambdaBinning(nBins);
@@ -229,7 +229,7 @@ void KM3Physics::ConstructEM() {
       G4ComptonScattering *aComptonScattering = new G4ComptonScattering();
       lowE = 1 * keV;
       highE = 100.0 * PeV; // 100TeV before
-      nBins = 220; // 120 before
+      nBins = 220;         // 120 before
       //      aComptonScattering->SetPhysicsTableBining(lowE,highE,nBins);
       //      //not applicable to Geant 4.8
       aComptonScattering->SetLambdaBinning(nBins);
@@ -242,7 +242,7 @@ void KM3Physics::ConstructEM() {
     } else if (particleName == "e-") {
       // electron
       highE = 100.0 * PeV; // 100TeV before
-      nBins = 220; // 120 before
+      nBins = 220;         // 120 before
       G4eMultipleScattering *theeminusMultipleScattering =
           new G4eMultipleScattering();
       //      theeminusMultipleScattering->SetBinning(nBins);
@@ -278,7 +278,7 @@ void KM3Physics::ConstructEM() {
     } else if (particleName == "e+") {
       // positron
       highE = 100.0 * PeV; // 100TeV before
-      nBins = 220; // 120 before
+      nBins = 220;         // 120 before
       G4eMultipleScattering *theeplusMultipleScattering =
           new G4eMultipleScattering();
       //      theeplusMultipleScattering->SetBinning(nBins);
@@ -327,7 +327,7 @@ void KM3Physics::ConstructEM() {
       // muon
       lowE = 500.0 * GeV;
       highE = 100.0 * PeV; // 100TeV before
-      nBins = 220; // 120 before
+      nBins = 220;         // 120 before
       G4MuMultipleScattering *aMultipleScattering =
           new G4MuMultipleScattering();
       //      aMultipleScattering->SetBinning(nBins);
@@ -387,7 +387,7 @@ void KM3Physics::ConstructEM() {
                (particle->GetParticleName() != "chargedgeantino")) {
       // all others charged particles except geantino
       highE = 100.0 * PeV; // 100TeV before
-      nBins = 220; // 120 before
+      nBins = 220;         // 120 before
 
       G4hMultipleScattering *aMultipleScattering = new G4hMultipleScattering();
       //      aMultipleScattering->SetBinning(nBins);
@@ -503,7 +503,7 @@ void KM3Physics::ConstructHA() {
       for (G4int iii = 0; iii < isi; iii++) {
         G4VProcess *app = (*aVector)[iii];
         //	G4cout <<"PPPPPnames "<<particleName<<" "<<
-        //app->GetProcessName() <<" "<<app->GetProcessSubType()<<G4endl;
+        // app->GetProcessName() <<" "<<app->GetProcessSubType()<<G4endl;
         if (app->GetProcessSubType() == 121 ||
             app->GetProcessSubType() ==
                 111) { // is hadronic inelastic or elastic process
@@ -1312,13 +1312,13 @@ void KM3Physics::SetCuts() {
   */
 
   printf("dfdfdfdfdfdfdfdf\n");
-  DumpCutValuesTable(5); // b quark
-  DumpCutValuesTable(22); // gamma
+  DumpCutValuesTable(5);   // b quark
+  DumpCutValuesTable(22);  // gamma
   DumpCutValuesTable(-11); // e+
-  DumpCutValuesTable(11); // e-
+  DumpCutValuesTable(11);  // e-
   DumpCutValuesTable(-13); // mu+
-  DumpCutValuesTable(13); // mu-
-  DumpCutValuesTable(0); // opticalphoton
+  DumpCutValuesTable(13);  // mu-
+  DumpCutValuesTable(0);   // opticalphoton
   printf("sssssssssssssssss\n");
 
   //  DumpCutValues();

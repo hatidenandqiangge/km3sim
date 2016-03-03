@@ -37,7 +37,8 @@
 #include "G4Types.hh"
 #include "G4UserEventAction.hh"
 #include "G4ThreeVector.hh"
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
 #include "KM3PrimaryGeneratorAction.hh"
 #include "KM3Detector.hh"
 #endif
@@ -94,7 +95,8 @@ public:
 #ifdef G4MYMUON_KEEPENERGY
   std::vector<G4double> EnergyAtPosition;
 #endif
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   std::vector<long double> *myPhotonsNumber;
   std::vector<long double> *myCumPhotons;
   std::vector<long double> *myCumPhotonsRms;

@@ -272,16 +272,17 @@ KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
           poskeep->push_back(x0);
           timekeep->push_back(aTrack->GetGlobalTime());
           //// here we create the photons from direct emission and delta rays
-          ///before the end of the event
+          /// before the end of the event
           //// in order for the memory usage not to grow too large (specially
-          ///dealing with multi muon signal - showers)
+          /// dealing with multi muon signal - showers)
           //// We also create the these photons at the end of the event through
-          ///NewStage (double code)
+          /// NewStage (double code)
           if (idprikeep->size() == 500000)
             CreateAllWaitingPhotons();
           ////
           // before	if(indexkeep == 0){
-          // before	  return fWaiting; //i do this in order to add the hits of
+          // before	  return fWaiting; //i do this in order to add the hits
+          // of
           // the delta rays at the end of the event
           // before	  indexkeep=1;
           // before	}
@@ -490,7 +491,8 @@ void KM3StackingAction::NewStage() {
                   // anglePhiDirection=photonDirection.phi();
                   // short		  angleThetaDirection *= 180./M_PI;
                   // short		  anglePhiDirection *= 180./M_PI;
-                  // short		  if(anglePhiDirection < 0.0)anglePhiDirection
+                  // short		  if(anglePhiDirection <
+                  // 0.0)anglePhiDirection
                   // += 360.0;
                   // short		  G4int
                   // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
@@ -503,13 +505,13 @@ void KM3StackingAction::NewStage() {
                       ic, (*MyStDetector->allOMs)[io]->position,
                       theFastTime + aPE.time, originalInfo, photonDirection);
                 } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
-              } // if(distancein<MyStDetector->MaxAbsDist){
-            } // for(int io=0;io<TotalNumberOfOMs;io++){
-          } // if(distancetower2<MaxAbsDist2)
-        } // for(int it=0;it<TotalNumberOfTowers;it++)
-      } // if(step > 0.0){
-    } // while( idpri == (*idprikeep)[counter] ){
-  } // while (counter<arraysize){
+              }   // if(distancein<MyStDetector->MaxAbsDist){
+            }     // for(int io=0;io<TotalNumberOfOMs;io++){
+          }       // if(distancetower2<MaxAbsDist2)
+        }         // for(int it=0;it<TotalNumberOfTowers;it++)
+      }           // if(step > 0.0){
+    }             // while( idpri == (*idprikeep)[counter] ){
+  }               // while (counter<arraysize){
   stackManager
       ->clear(); // delete all waiting tracks from delta rays and end the event
   ////////////////////////////////////
@@ -673,7 +675,8 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
                   // anglePhiDirection=photonDirection.phi();
                   // short		  angleThetaDirection *= 180./M_PI;
                   // short		  anglePhiDirection *= 180./M_PI;
-                  // short		  if(anglePhiDirection < 0.0)anglePhiDirection
+                  // short		  if(anglePhiDirection <
+                  // 0.0)anglePhiDirection
                   // += 360.0;
                   // short		  G4int
                   // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
@@ -686,13 +689,13 @@ void KM3StackingAction::CreateAllWaitingPhotons() {
                       ic, (*MyStDetector->allOMs)[io]->position,
                       theFastTime + aPE.time, originalInfo, photonDirection);
                 } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
-              } // if(distancein<MyStDetector->MaxAbsDist){
-            } // for(int io=0;io<TotalNumberOfOMs;io++){
-          } // if(distancetower2<MaxAbsDist2)
-        } // for(int it=0;it<TotalNumberOfTowers;it++)
-      } // if(step > 0.0){
-    } // while( idpri == (*idprikeep)[counter] ){
-  } // while (counter<arraysize){
+              }   // if(distancein<MyStDetector->MaxAbsDist){
+            }     // for(int io=0;io<TotalNumberOfOMs;io++){
+          }       // if(distancetower2<MaxAbsDist2)
+        }         // for(int it=0;it<TotalNumberOfTowers;it++)
+      }           // if(step > 0.0){
+    }             // while( idpri == (*idprikeep)[counter] ){
+  }               // while (counter<arraysize){
   idprikeep->clear();
   depenekeep->clear();
   poskeep->clear();

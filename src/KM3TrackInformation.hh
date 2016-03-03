@@ -11,7 +11,7 @@ public:
   KM3TrackInformation();
   KM3TrackInformation(const G4Track *aTrack);
   KM3TrackInformation(const KM3TrackInformation *aTrackInfo);
-  void SetMoreInformation(const G4Track *aTrack); // newmie
+  void SetMoreInformation(const G4Track *aTrack);                 // newmie
   void SetMoreInformation(const KM3TrackInformation *aTrackInfo); // newmie
   ~KM3TrackInformation();
 

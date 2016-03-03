@@ -752,10 +752,10 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
                                        theFastTime + aPE.time, originalInfo,
                                        photonDirection); // here change
             } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
-          } // if(distancein<MyStDetector->MaxAbsDist){
-        } // for(int io=0;io<TotalNumberOfOMs;io++){
-      } // if(distancetower2<MaxAbsDist2)
-    } // for(int it=0;it<TotalNumberOfTowers;it++)
+          }   // if(distancein<MyStDetector->MaxAbsDist){
+        }     // for(int io=0;io<TotalNumberOfOMs;io++){
+      }       // if(distancetower2<MaxAbsDist2)
+    }         // for(int it=0;it<TotalNumberOfTowers;it++)
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // at the end produce nothing for tracking
     // newmie aParticleChange.SetNumberOfSecondaries(0);
@@ -1122,7 +1122,8 @@ void KM3Cherenkov::CreateDirectPhotons() {
                 // anglePhiDirection=photonDirection.phi();
                 // short		angleThetaDirection *= 180./M_PI;
                 // short		anglePhiDirection *= 180./M_PI;
-                // short		if(anglePhiDirection < 0.0)anglePhiDirection
+                // short		if(anglePhiDirection <
+                // 0.0)anglePhiDirection
                 // += 360.0;
                 // short		G4int
                 // angleDirection=(G4int)(nearbyint(angleThetaDirection)*1000.0
@@ -1135,12 +1136,12 @@ void KM3Cherenkov::CreateDirectPhotons() {
                     ic, (*MyStDetector->allOMs)[io]->position,
                     theFastTime + aPE.time, originalInfo, photonDirection);
               } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
-            } // if(distancein<MyStDetector->MaxAbsDist){
-          } // for(int io=0;io<TotalNumberOfOMs;io++){
-        } // if(distancetower2<MaxAbsDist2)
-      } // for(int it=0;it<TotalNumberOfTowers;it++)
-    } // while( idpri == (*idprikeep)[counter] ){
-  } // while (counter<arraysize){
+            }   // if(distancein<MyStDetector->MaxAbsDist){
+          }     // for(int io=0;io<TotalNumberOfOMs;io++){
+        }       // if(distancetower2<MaxAbsDist2)
+      }         // for(int it=0;it<TotalNumberOfTowers;it++)
+    }           // while( idpri == (*idprikeep)[counter] ){
+  }             // while (counter<arraysize){
   poskeep->clear();
   timekeep->clear();
   idprikeep->clear();

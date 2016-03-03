@@ -94,7 +94,8 @@ void KM3EventAction::BeginOfEventAction(const G4Event *) {
   }
   if (useANTARESformat)
     TheEVTtoWrite->ReadEvent();
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   G4int TotalNumberOfCathods = MyStDetector->allCathods->GetNumberOfCathods();
   G4bool FineBin = false;
   G4int VertexSolidAngleBins = 51;
@@ -219,7 +220,8 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
   // write to output file
   if (useANTARESformat)
     TheEVTtoWrite->WriteEvent();
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   long double cont;
   G4int TotalNumberOfCathods = MyStDetector->allCathods->GetNumberOfCathods();
   G4bool FineBin = false;
@@ -275,8 +277,8 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
       G4int ibin_d1 = cang1bin + VertexSolidAngleBins * distbin;
       (*myCumNorma)[ibin_d1] += weight;
 
-      cont = (*myPhotonsNumber)[ibin_d1]; // newbin
-      (*myCumPhotons)[ibin_d1] += cont; // newbin
+      cont = (*myPhotonsNumber)[ibin_d1];         // newbin
+      (*myCumPhotons)[ibin_d1] += cont;           // newbin
       (*myCumPhotonsRms)[ibin_d1] += cont * cont; // newbin
     }
   }

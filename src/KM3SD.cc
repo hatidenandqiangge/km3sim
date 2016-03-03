@@ -141,7 +141,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   G4double thetime = aStep->GetPreStepPoint()->GetGlobalTime();
   G4double cosangle1 =
       (myStDetector->MyGenerator->direction).dot(FromGeneToOM) / dist; // D.z
-  G4double cosangle2 = (1.0 / dist) * FromGeneToOM.dot(Dir); // d.z
+  G4double cosangle2 = (1.0 / dist) * FromGeneToOM.dot(Dir);           // d.z
   G4double cosangle3;
   if (cosangle1 <= -1.0 || cosangle1 >= 1.0 || cosangle2 <= -1.0 ||
       cosangle2 >= 1.0) {
@@ -236,9 +236,9 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   //  if(fabs(cosangle2)<1.e-2)G4cout << "ppproblemmm "<<dist/m<<"
   //  "<<cosangle1<<" "<<cosangle2<<" "<<cosangle3/degree<<" "<<thetime<<G4endl;
   G4int cang1bin; // we estimate the theta1 bin
-  // theta bin limits are:
+                  // theta bin limits are:
   //-1 -0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 //15
-  //bins
+  // bins
   // 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 //8 bins
   // 0.700 0.705 0.710 0.715 0.720 0.725 0.730 0.735 0.740 0.745 0.750 0.755
   // 0.760 0.765 0.770 0.775 0.780 0.785 0.790 0.795 0.800 //20 bins
@@ -246,7 +246,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
 
   // new theta binning (only for direct)
   //-1 -0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 //15
-  //bins
+  // bins
   // 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 //8 bins
   // 0.700 0.705 0.710 0.715 0.720 0.725 //5 bins
   // 0.725 0.726 0.727 0.728 0.729 0.730 0.731 0.732 0.733 0.734 0.735 0.736
@@ -612,7 +612,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     //      G4double deviation=photonDirection.dot(DirIni);
     //      if(deviation<0.99999999){
     //	aStep->GetTrack()->SetTrackStatus(fStopAndKill); //it is killed, because
-    //it is useless
+    // it is useless
     //	return false;
     //      }
     //    }
@@ -783,7 +783,7 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     if (!AcceptAngle(photonDirection.dot(PMTDirection), 1.0, 1.0,
                      true)) { // the two 1.0 are the cathod radius and height
                               // that do not play any role in parametrization
-      return; // it is not accepted
+      return;                 // it is not accepted
     }
     // correct the time to correspond to the cathod positions and not the OM
     // position
@@ -846,9 +846,9 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
 #else
     outfile = myStDetector->outfile;
     G4int NbHits = MyCollection->entries();
-    static G4int ooo = 0; // count total
-    ooo += NbHits; // count total
-    G4cout << "Total Hits: " << ooo << G4endl; // count total
+    static G4int ooo = 0;                              // count total
+    ooo += NbHits;                                     // count total
+    G4cout << "Total Hits: " << ooo << G4endl;         // count total
     G4cout << "This Event Hits: " << NbHits << G4endl; // count for this event
     int i;
 

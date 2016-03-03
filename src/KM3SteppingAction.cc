@@ -104,7 +104,7 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
         }
       }
       //////////////new/ here kill muons that have not enough energy to reach
-      ///the can////////////////////////////
+      /// the can////////////////////////////
       // first check if it is inside the can
       G4double RRR2 =
           myStDetector->detectorMaxRho * myStDetector->detectorMaxRho;
@@ -302,7 +302,7 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
       }
 
       ////////here kill only muons that are leaving the can. All other particles
-      ///are already killed if outside the can
+      /// are already killed if outside the can
       G4ThreeVector distanceV;
       distanceV = x0 - myStDetector->detectorCenter;
       if ((x0[2] < myStDetector->bottomPosition) &&
@@ -325,7 +325,7 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
       }
 
     } // if muon
-  } // if initial particle
+  }   // if initial particle
 }
 
 G4double KM3SteppingAction::MuonRange(G4double KineticEnergy) {

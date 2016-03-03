@@ -61,7 +61,8 @@ public:
 #ifdef G4MYFIT_PARAMETERIZATION
   KM3EventAction *event_action;
 #endif
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   std::vector<long double> *myPhotonsNumber;
   std::vector<long double> *myPhotonsTime;
   std::vector<long double> *myPhotonsTh2Th3Num;

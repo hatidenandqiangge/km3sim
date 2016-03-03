@@ -342,7 +342,8 @@ int main(int argc, char *argv[]) {
   Mydet->EMParametrization_FILE = EMParametrization_FILE;
   Mydet->HAParametrization_FILE = HAParametrization_FILE;
   Mydet->outfilePar = outfilePar;
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   std::vector<long double> *myPhotonsTime = new std::vector<long double>;
   std::vector<long double> *myPhotonsNumber = new std::vector<long double>;
   std::vector<long double> *myCumPhotons = new std::vector<long double>;
@@ -395,8 +396,8 @@ int main(int argc, char *argv[]) {
   G4TrajectoryDrawByParticleID *model =
       new G4TrajectoryDrawByParticleID("KM3TrajectoryModel");
   model->SetDefault(G4Colour(1.0, 1.0, 1.0, 0.0)); // transparent white
-  model->Set("mu-", "red"); // assign red to mu-
-  model->Set("mu+", "red"); // also to mu+
+  model->Set("mu-", "red");                        // assign red to mu-
+  model->Set("mu+", "red");                        // also to mu+
   //  model->Set("e+", "magenta");
   // model->Set("e-", "magenta");
   //  model->Set("gamma", "green");
@@ -442,7 +443,7 @@ int main(int argc, char *argv[]) {
   event_action->TheEVTtoWrite = TheEVTtoWrite;
   event_action->useANTARESformat = useANTARESformat;
 #if !defined(G4MYEM_PARAMETERIZATION) &&                                       \
-    !defined(G4MYHA_PARAMETERIZATION) // newha
+    !defined(G4MYHA_PARAMETERIZATION)             // newha
   myGeneratorAction->event_action = event_action; // generator knows event to
                                                   // set the number of initial
                                                   // particles
@@ -452,7 +453,8 @@ int main(int argc, char *argv[]) {
                                       // particle when crosses the center of the
                                       // detector
 #endif
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   event_action->MyGenerator =
       myGeneratorAction; // event action knows generator for EM param purposes
   event_action->MyStDetector = Mydet;
@@ -583,7 +585,8 @@ int main(int argc, char *argv[]) {
 #ifdef G4MYFIT_PARAMETERIZATION
   fclose(outfilePar);
 #endif
-#if defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
+    defined(G4MYHA_PARAMETERIZATION) // newha
   fclose(outfilePar);
 #endif
 

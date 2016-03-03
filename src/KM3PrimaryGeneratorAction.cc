@@ -132,14 +132,14 @@ void KM3PrimaryGeneratorAction::Initialize() {
 // that covers almost everything, except exotic particles (monopoles etc)
 void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   static G4int ievent = 0;
-  G4int idneu; // type of neutrino interacting (PDG Code)
+  G4int idneu;    // type of neutrino interacting (PDG Code)
   G4int idtarget; // type of target if neutrino interaction (PDG Code)
   G4double xneu, yneu, zneu; // neutrino vertex (cm) if neutrino interaction
   G4double pxneu, pyneu,
-      pzneu; // neutrino momentum (GeV/c) if neutrino interaction
+      pzneu;              // neutrino momentum (GeV/c) if neutrino interaction
   G4double xx0, yy0, zz0; // Vertex of injected or produced particles (in cm)
   G4double pxx0, pyy0,
-      pzz0; // Momentum of injected or produced particles (in GeV/c)
+      pzz0;    // Momentum of injected or produced particles (in GeV/c)
   G4double t0; // initial time of injected particles(ns)
   ievent++;
 #ifndef G4MYFIT_PARAMETERIZATION
@@ -155,7 +155,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   if (!useHEPEvt) {
     idtarget = 0; // the target id is not relevant in case of injected
                   // particles.
-    idneu = 0; // neither is the neutrino id
+    idneu = 0;    // neither is the neutrino id
     xneu = 0.0;
     yneu = 0.0;
     zneu = 0.0; // or the neutrino interaction vertex
@@ -527,7 +527,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     sinphi = sin(phi);
     position[0] = random_R * sintheta * cosphi; // position x
     position[1] = random_R * sintheta * sinphi; // position y
-    position[2] = random_R * costheta; // position z
+    position[2] = random_R * costheta;          // position z
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, 0.0);
     //////////////////////
     numberofParticles = 1;
@@ -590,12 +590,12 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       fscanf(LaserData, "%lf %lf %lf %lf %lf %lf\n", &LaserX, &LaserY, &LaserZ,
              &LaserDX, &LaserDY, &LaserDZ);
       fclose(LaserData);
-      position[0] = LaserX * m; // laser position x
-      position[1] = LaserY * m; // laser position y
-      position[2] = LaserZ * m; // laser position z
-      direction[0] = LaserDX; // photon direction x
-      direction[1] = LaserDY; // photon direction y
-      direction[2] = LaserDZ; // photon direction z
+      position[0] = LaserX * m;     // laser position x
+      position[1] = LaserY * m;     // laser position y
+      position[2] = LaserZ * m;     // laser position z
+      direction[0] = LaserDX;       // photon direction x
+      direction[1] = LaserDY;       // photon direction y
+      direction[2] = LaserDZ;       // photon direction z
       direction = direction.unit(); // normalize the direction vector
       fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", LaserX, LaserY,
               LaserZ, LaserDX, LaserDY, LaserDZ, Wavelength_Laser_Photons / nm);
@@ -660,7 +660,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     G4double sinphi = sin(phi);
     direction[0] = sintheta * cosphi; // direction x
     direction[1] = sintheta * sinphi; // direction y
-    direction[2] = costheta; // direction z
+    direction[2] = costheta;          // direction z
 
     G4double rmax;
     do {
@@ -674,7 +674,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     sinphi = sin(phi);
     position[0] = random_R * sintheta * cosphi; // position x
     position[1] = random_R * sintheta * sinphi; // position y
-    position[2] = random_R * costheta; // position z
+    position[2] = random_R * costheta;          // position z
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, 0.0);
 
     G4double BR = G4UniformRand();
