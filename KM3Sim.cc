@@ -27,97 +27,14 @@
 
 int main(int argc, char *argv[]) {
 
-#ifdef G4HADRONIC_COMPILE
-  G4cout << "The program has been compiled with hadronic physics and full "
-            "particle list"
-         << G4endl;
-#else
-  G4cout << "The program has been compiled with no hadronic physics and "
-            "minimal particle list"
-         << G4endl;
-  G4cout << "Do not run this version for Pythia particle output. Only muons "
-            "and electrons initial particles"
-         << G4endl;
-#endif
-
-  if ((argv[1][0] == '-') && (argv[1][1] == '-') && (argv[1][2] == 'h') &&
-      (argv[1][3] == 'e') && (argv[1][4] == 'l') && (argv[1][5] == 'p') &&
-      (argv[1][6] == '\0')) {
-    G4cout << "argv[1] is a flag. If it is 'vrml' the detector is drawn in "
-              "VRML format."
-           << G4endl;
-    G4cout << "                   If it is 'vrmle' also the event particle "
-              "trajectories and hits are also shown"
-           << G4endl;
-    G4cout << "argv[2] is the random seed" << G4endl;
-    G4cout << "the output file is named according to the argv[3]" << G4endl;
-    G4cout << "the geometry file in gdml is argv[4]" << G4endl;
-    G4cout << "the parameter file is argv[5]" << G4endl;
-    G4cout << "if argv[6] is 'Pythia' then " << G4endl;
-    G4cout << "        the input is from neutrino interactions generator and"
-           << G4endl;
-    G4cout << "        argv[7] is the file name of the vertex and momentum "
-              "neutrino information and"
-           << G4endl;
-    G4cout << "        argv[8] is the particle output of Pythia" << G4endl;
-    G4cout << "else " << G4endl;
-    G4cout << "        it is single (or multiple) particles (of any type) and"
-           << G4endl;
-    G4cout << "        argv[6] is the file name of the input data" << G4endl;
-    G4cout << "endif" << G4endl;
-    return 0;
-    // input from pythia or not the fileParticles must have the same format
-    // which is :
-    // particle id, target id (meaningfull only for Pythia output), vertex (cm),
-    // momentum (GeV/c)
-  }
-
-  // find if visualization is requested
-  G4bool visual;
-  G4bool visuale;
-  if ((argv[1][0] == 'v') && (argv[1][1] == 'r') && (argv[1][2] == 'm') &&
-      (argv[1][3] == 'l') && (argv[1][4] == '\0')) {
-    visual = true;
-    visuale = false;
-  } else if ((argv[1][0] == 'v') && (argv[1][1] == 'r') &&
-             (argv[1][2] == 'm') && (argv[1][3] == 'l') &&
-             (argv[1][4] == 'e') && (argv[1][5] == '\0')) {
-    visual = true;
-    visuale = true;
-  } else {
-    visual = false;
-    visuale = false;
-  }
-
-  // check and input the seed
-  if (argv[2] == NULL) {
-    G4cout << "You must give a random seed" << G4endl;
-    return 1;
-  }
   G4long myseed = atol(argv[2]);
   G4cout << myseed << G4endl;
   CLHEP::HepRandom::setTheSeed(myseed);
 
-  // check for the output file
-  if (argv[3] == NULL) {
-    G4cout << "You must give an output file" << G4endl;
-    return 1;
-  }
-
-  // read the name of the geometry file
   char *Geometry_File = argv[4];
-
-  // read  the name of the parametres file
   char *Parameter_File = argv[5];
-
-  // read the name of the EM parametrization
   char *EMParametrization_FILE = argv[6];
-
-  // read the name of the HA parametrization
   char *HAParametrization_FILE = argv[7];
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  // check the rest of the command line and input filenames
   G4bool useHEPEvt;
   G4bool useANTARESformat;
   char *fileParticles;
@@ -127,56 +44,20 @@ int main(int argc, char *argv[]) {
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
-  if ((argv[8][0] == 'P') && (argv[8][1] == 'y') && (argv[8][2] == 't') &&
-      (argv[8][3] == 'h') && (argv[8][4] == 'i') && (argv[8][5] == 'a') &&
-      (argv[8][6] == '\0')) {
-    useHEPEvt = true;
-    useANTARESformat = false;
-    if (argv[9] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
-      return 1;
-    }
-    fileParticles = argv[9];
-    if (argv[10] == NULL) {
-      G4cout << "You must give a file with particle information from pythia"
-             << G4endl;
-      return 1;
-    }
-    filePythiaParticles = argv[10];
-  } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
+  if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
              (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
              (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
              (argv[8][6] == 'A') && (argv[8][7] == '\0')) {
     useHEPEvt = false;
     useANTARESformat = false;
-    if (argv[9] == NULL) {
-      G4cout << "You must give an output param file" << G4endl;
-      return 1;
-    } else {
-      if ((outfilePar = fopen(argv[9], "w")) == NULL) {
+    if ((outfilePar = fopen(argv[9], "w")) == NULL) {
         printf("Error open output Param file\n");
         return 1;
       }
     }
-    if (argv[10] == NULL) {
-      G4cout << "You must give an energy in GeV for Param" << G4endl;
-      return 1;
-    } else {
-      ParamEnergy = GeV * atof(argv[10]);
-    }
-    if (argv[11] == NULL) {
-      G4cout << "You must give the number of events for Param" << G4endl;
-      return 1;
-    } else {
-      ParamNumber = atoi(argv[11]);
-    }
-    if (argv[12] == NULL) {
-      G4cout << "You must give the PDG code of the particle for Param"
-             << G4endl;
-      return 1;
-    } else {
-      ParamParticle = atoi(argv[12]);
-    }
+    ParamEnergy = GeV * atof(argv[10]);
+    ParamNumber = atoi(argv[11]);
+    ParamParticle = atoi(argv[12]);
   } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
              (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
              (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
@@ -186,36 +67,14 @@ int main(int argc, char *argv[]) {
              (argv[8][12] == '\0')) {
     useHEPEvt = true;
     useANTARESformat = false;
-    if (argv[9] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
-      return 1;
-    }
     fileParticles = argv[9];
-    if (argv[10] == NULL) {
-      G4cout << "You must give a file with particle information from pythia"
-             << G4endl;
-      return 1;
-    }
     filePythiaParticles = argv[10];
-    if (argv[11] == NULL) {
-      G4cout << "You must give a file to write high energy muon information "
-                "for HA parameterization"
-             << G4endl;
-      return 1;
-    }
     fileParamHAmuons = argv[11]; // this is fed to stacking and generator
-    if (argv[12] == NULL) {
-      G4cout << "You must give a file to write photon information for HA "
-                "parameterization"
-             << G4endl;
+    if ((outfilePar = fopen(argv[12], "w")) ==
+        NULL) { // this works the same way as in ParamEM
+      printf("Error open output Param photon file for Hadronic "
+             "parameterization\n");
       return 1;
-    } else {
-      if ((outfilePar = fopen(argv[12], "w")) ==
-          NULL) { // this works the same way as in ParamEM
-        printf("Error open output Param photon file for Hadronic "
-               "parameterization\n");
-        return 1;
-      }
     }
   } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
              (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
@@ -233,52 +92,21 @@ int main(int argc, char *argv[]) {
         return 1;
       }
     }
-    if (argv[10] == NULL) {
-      G4cout << "You must give an energy in GeV for Param" << G4endl;
-      return 1;
-    } else {
-      ParamEnergy = GeV * atof(argv[10]);
-    }
-    if (argv[11] == NULL) {
-      G4cout << "You must give the number of events for Param" << G4endl;
-      return 1;
-    } else {
-      ParamNumber = atoi(argv[11]);
-    }
+    ParamEnergy = GeV * atof(argv[10]);
+    ParamNumber = atoi(argv[11]);
   } else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') &&
              (argv[8][2] == 'r') && (argv[8][3] == 'a') &&
              (argv[8][4] == 'm') && (argv[8][5] == 'E') &&
              (argv[8][6] == 'M') && (argv[8][7] == '\0')) {
     useHEPEvt = false;
     useANTARESformat = false;
-    if (argv[9] == NULL) {
-      G4cout << "You must give an output param file" << G4endl;
+    if ((outfilePar = fopen(argv[9], "w")) == NULL) {
+      printf("Error open output Param file\n");
       return 1;
-    } else {
-      if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-        printf("Error open output Param file\n");
-        return 1;
-      }
     }
-    if (argv[10] == NULL) {
-      G4cout << "You must give an energy in GeV for Param" << G4endl;
-      return 1;
-    } else {
-      ParamEnergy = GeV * atof(argv[10]);
-    }
-    if (argv[11] == NULL) {
-      G4cout << "You must give the number of events for Param" << G4endl;
-      return 1;
-    } else {
-      ParamNumber = atoi(argv[11]);
-    }
-    if (argv[12] == NULL) {
-      G4cout << "You must give the PDG code of the particle for Param"
-             << G4endl;
-      return 1;
-    } else {
-      ParamParticle = atoi(argv[12]);
-    }
+    ParamEnergy = GeV * atof(argv[10]);
+    ParamNumber = atoi(argv[11]);
+    ParamParticle = atoi(argv[12]);
   } else if ((argv[8][0] == 'A') && (argv[8][1] == 'N') &&
              (argv[8][2] == 'T') && (argv[8][3] == 'A') &&
              (argv[8][4] == 'R') && (argv[8][5] == 'E') &&
@@ -291,16 +119,8 @@ int main(int argc, char *argv[]) {
              (argv[8][18] == '\0')) {
     useHEPEvt = true;
     useANTARESformat = true;
-    if (argv[9] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
-      return 1;
-    }
     fileParticles = argv[9];
   } else {
-    if (argv[8] == NULL) {
-      G4cout << "You must give an input file" << G4endl;
-      return 1;
-    }
     useHEPEvt = false;
     useANTARESformat = false;
     fileParticles = argv[8];
@@ -313,8 +133,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 #endif
-  //--------------------------------------------------------------------------------------------------------------------------------------------------
-  // open the output file
+
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
   if (!useANTARESformat) {
@@ -325,11 +144,9 @@ int main(int argc, char *argv[]) {
   } else {
     TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------------
-  // Run manager
+
   G4RunManager *runManager = new G4RunManager;
 
-  // UserInitialization classes (mandatory)
   KM3Detector *Mydet = new KM3Detector;
   runManager->SetUserInitialization(Mydet);
   KM3Physics *MyPhys = new KM3Physics;
