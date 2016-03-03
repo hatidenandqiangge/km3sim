@@ -28,15 +28,15 @@
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "KM3TrackingAction.hh"
 #include "G4ThreeVector.hh"
-#if !defined(G4MYEM_PARAMETERIZATION) &&                                       \
-    !defined(G4MYHA_PARAMETERIZATION) // newha
+#if !defined(G4MYEM_PARAMETERIZATION) && \
+    !defined(G4MYHA_PARAMETERIZATION)  // newha
 #include "KM3EventAction.hh"
 #endif
 
 #include <stdio.h>
 #include "globals.hh"
 #ifdef G4MYMUON_PARAMETERIZATION
-#include "KM3MuonParam.hh" //for muon param vs distance
+#include "KM3MuonParam.hh"  //for muon param vs distance
 #endif
 
 #ifdef G4MYHAMUONS_PARAMETERIZATION
@@ -63,11 +63,11 @@ class G4VPrimaryGenerator;
 #include "HOURSevtREAD.hh"
 
 class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
-public:
+ public:
   KM3PrimaryGeneratorAction();
   ~KM3PrimaryGeneratorAction();
 
-public:
+ public:
   int nevents;
   FILE *outfile;
   FILE *infile;
@@ -79,12 +79,12 @@ public:
   G4bool useHEPEvt;
   G4bool useANTARESformat;
   KM3TrackingAction *myTracking;
-#if !defined(G4MYEM_PARAMETERIZATION) &&                                       \
-    !defined(G4MYHA_PARAMETERIZATION) // newha
+#if !defined(G4MYEM_PARAMETERIZATION) && \
+    !defined(G4MYHA_PARAMETERIZATION)  // newha
   KM3EventAction *event_action;
 #endif
   G4double ParamEnergy;
-  G4int idbeam; // type of injected or produced particles (PDG Code)
+  G4int idbeam;  // type of injected or produced particles (PDG Code)
   G4double random_R;
   G4ThreeVector position;
   G4ThreeVector direction;
@@ -92,11 +92,11 @@ public:
   std::ofstream *outMuonHAFile;
 #endif
 
-private:
+ private:
   G4VPrimaryGenerator *HEPEvt;
   HOURSevtREAD *antaresHEPEvt;
 #ifdef G4MYMUON_PARAMETERIZATION
-  KM3MuonParam *myMuonParam; // for muon param vs distance
+  KM3MuonParam *myMuonParam;  // for muon param vs distance
 #endif
   G4double EventWeight;
   G4ThreeVector detectorCenter;
@@ -121,10 +121,10 @@ private:
 
 #ifdef G4MYSN_PARAMETERIZATION
   G4double SNRadius;
-  G4double NeutrinoTheta, NeutrinoPhi; // momentum vector
+  G4double NeutrinoTheta, NeutrinoPhi;  // momentum vector
 #endif
 
-public:
+ public:
   void PutFromDetector(G4ThreeVector dC, G4double dMR, G4double dMz,
                        G4double bP) {
     detectorCenter = dC;

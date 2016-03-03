@@ -29,15 +29,14 @@
 #include "KM3EventAction.hh"
 
 class KM3SteppingAction : public G4UserSteppingAction {
-
-public:
+ public:
   KM3SteppingAction();
   virtual ~KM3SteppingAction(){};
   virtual void UserSteppingAction(const G4Step *aStep);
   KM3Detector *myStDetector;
   KM3EventAction *event_action;
 
-private:
+ private:
   G4double MuonRange(G4double);
   G4double P7[8];
   G4double P1LOW[2];

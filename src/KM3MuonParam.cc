@@ -6,7 +6,7 @@ KM3MuonParam::KM3MuonParam() {
   G4double energy, distance, prob0;
   G4int nbins;
   G4double tempoArray[10000];
-  EnergyCutoff = 250.0 * GeV; // 100GeV before
+  EnergyCutoff = 250.0 * GeV;  // 100GeV before
   if ((infile = fopen("SimLengthProb", "r")) == NULL) {
     G4Exception("Error open input Range-Energy Muons file\n", "",
                 FatalException, "");
@@ -16,13 +16,11 @@ KM3MuonParam::KM3MuonParam() {
     while (fscanf(infile, "%lf %lf %lf %d\n", &energy, &distance, &prob0,
                   &nbins) != EOF) {
       energy *= GeV;
-      for (G4int i = 0; i < nbins; i++)
-        fscanf(infile, "%lf\n", &tempoArray[i]);
+      for (G4int i = 0; i < nbins; i++) fscanf(infile, "%lf\n", &tempoArray[i]);
       // this code is for the redefinition of the lowest cutoff
       // first redefine the the prob0
       G4double numofentries = 0;
-      for (G4int i = 0; i < nbins; i++)
-        numofentries += tempoArray[i];
+      for (G4int i = 0; i < nbins; i++) numofentries += tempoArray[i];
       G4double numrejected = 0;
       G4int iterat = 1;
       G4double stopbin = energy * double(iterat + 1) / double(nbins);

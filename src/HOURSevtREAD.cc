@@ -11,10 +11,8 @@ HOURSevtREAD::HOURSevtREAD(char *infilechar) {
   hasbundleinfo = true;
   while (evt->read(infile) == 0) {
     nevents++;
-    if (nevents < 10 && evt->ndat("neutrino") == 0)
-      isneutrinoevent = false;
-    if (nevents < 10 && evt->ndat("track_bundle") == 0)
-      hasbundleinfo = false;
+    if (nevents < 10 && evt->ndat("neutrino") == 0) isneutrinoevent = false;
+    if (nevents < 10 && evt->ndat("track_bundle") == 0) hasbundleinfo = false;
   }
   // position to the beggining of the file
   infile.clear();
@@ -64,8 +62,7 @@ int HOURSevtREAD::GetNumberOfParticles(void) {
 
 void HOURSevtREAD::Initialize(void) {
   // convert hep to pdg
-  for (int i = 0; i <= 173; i++)
-    ICONPDG[i] = 0;
+  for (int i = 0; i <= 173; i++) ICONPDG[i] = 0;
 
   ICONPDG[1] = 22;
   ICONPDG[2] = -11;
@@ -170,8 +167,7 @@ void HOURSevtREAD::Initialize(void) {
   ICONPDG[173] = -4114;
 
   // hep masses
-  for (int i = 0; i <= 173; i++)
-    PDGMASS[i] = 0.0;
+  for (int i = 0; i <= 173; i++) PDGMASS[i] = 0.0;
 
   PDGMASS[1] = 0.0;
   PDGMASS[2] = 0.510998902E-3;
@@ -290,21 +286,21 @@ void HOURSevtREAD::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   double args[100];
   int argnumber;
   GetArgs(ParticleInfo, argnumber, args);
-  if ((int)args[9] <= 0) { // in order to get rid off particles that are not
-                           // standard (pythia or genie internal code particles
-                           // e.g. 93)
+  if ((int)args[9] <= 0) {  // in order to get rid off particles that are not
+                            // standard (pythia or genie internal code particles
+                            // e.g. 93)
     idbeam = 0;
     return;
   }
-  if (isneutrinoevent && hasbundleinfo) { // in order to select particles from
-                                          // neutrino interaction or muon bundle
+  if (isneutrinoevent && hasbundleinfo) {  // in order to select particles from
+    // neutrino interaction or muon bundle
     if (ReadNeutrinoVertexParticles &&
-        (int)args[11] == 1) { // selsct neutrino interaction particles
+        (int)args[11] == 1) {  // selsct neutrino interaction particles
       idbeam = 0;
       return;
     }
     if (!ReadNeutrinoVertexParticles &&
-        (int)args[11] == 0) { // selsct bundle muons
+        (int)args[11] == 0) {  // selsct bundle muons
       idbeam = 0;
       return;
     }
@@ -313,7 +309,7 @@ void HOURSevtREAD::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
     idbeam = (int)args[10];
   else
     idbeam = ConvertHEPToPDG((int)args[9]);
-  xx0 = args[1] * m / cm; // convert to cm
+  xx0 = args[1] * m / cm;  // convert to cm
   yy0 = args[2] * m / cm;
   zz0 = args[3] * m / cm;
   double totenergy = args[7];
@@ -340,8 +336,7 @@ void HOURSevtREAD::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
   pxneu = 0.0;
   pyneu = 0.0;
   pzneu = 0.0;
-  if (!isneutrinoevent)
-    return;
+  if (!isneutrinoevent) return;
   evt->ndat("neutrino");
   string NeutrinoInfo = evt->next("neutrino");
   double args[100];
@@ -352,7 +347,7 @@ void HOURSevtREAD::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
     idtarget = (int)args[14];
   else
     idtarget = 1445;
-  xneu = args[1] * m / cm; // convert to cm
+  xneu = args[1] * m / cm;  // convert to cm
   yneu = args[2] * m / cm;
   zneu = args[3] * m / cm;
   double pmom = args[7];
@@ -421,7 +416,7 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
     G4ThreeVector zero;
     G4PrimaryVertex *vertex = new G4PrimaryVertex(zero, t0);
     // add the particles from neutrino interaction to the vertex
-    int NHEP; // number of entries
+    int NHEP;  // number of entries
     NHEP = GetNumberOfParticles();
     ReadNeutrinoVertexParticles = true;
     int idbeam;
@@ -429,12 +424,12 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
     double pxx0, pyy0, pzz0;
     for (int IHEP = 0; IHEP < NHEP; IHEP++) {
       GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
-      if (idbeam != 0) { // do not load particles not within PDG coding (e.g.
-                         // 93) and from muon bundle
+      if (idbeam != 0) {  // do not load particles not within PDG coding (e.g.
+                          // 93) and from muon bundle
         if (abs(idbeam) != 411 && abs(idbeam) != 421 && abs(idbeam) != 431 &&
             abs(idbeam) != 4122 && abs(idbeam) != 4212 &&
-            abs(idbeam) != 4222) { // these particles are not defined or have
-                                   // not decay modes in GEANT4
+            abs(idbeam) != 4222) {  // these particles are not defined or have
+                                    // not decay modes in GEANT4
           G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
           particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
           vertex->SetPrimary(particle);
@@ -450,7 +445,7 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
     ReadNeutrinoVertexParticles = false;
     for (int IHEP = 0; IHEP < NHEP; IHEP++) {
       GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
-      if (idbeam != 0) { // load particles from muon bundle only
+      if (idbeam != 0) {  // load particles from muon bundle only
         G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
         particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
         vertex = new G4PrimaryVertex(
@@ -465,7 +460,7 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
     double particle_time = 0.0;
     G4PrimaryVertex *vertex = new G4PrimaryVertex(zero, particle_time);
 
-    int NHEP; // number of entries
+    int NHEP;  // number of entries
     NHEP = GetNumberOfParticles();
     for (int IHEP = 0; IHEP < NHEP; IHEP++) {
       int idbeam;
@@ -473,12 +468,12 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
       double pxx0, pyy0, pzz0;
       double t0;
       GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
-      if (idbeam != 0) { // do not load particles not within PDG coding (e.g.
-                         // 93)
+      if (idbeam != 0) {  // do not load particles not within PDG coding (e.g.
+                          // 93)
         if (abs(idbeam) != 411 && abs(idbeam) != 421 && abs(idbeam) != 431 &&
             abs(idbeam) != 4122 && abs(idbeam) != 4212 &&
-            abs(idbeam) != 4222) { // these particles are not defined or have
-                                   // not decay modes in GEANT4
+            abs(idbeam) != 4222) {  // these particles are not defined or have
+                                    // not decay modes in GEANT4
           G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
           particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
           vertex->SetPrimary(particle);

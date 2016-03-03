@@ -37,8 +37,8 @@
 #include "G4Types.hh"
 #include "G4UserEventAction.hh"
 #include "G4ThreeVector.hh"
-#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
-    defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) || \
+    defined(G4MYHA_PARAMETERIZATION)  // newha
 #include "KM3PrimaryGeneratorAction.hh"
 #include "KM3Detector.hh"
 #endif
@@ -62,19 +62,19 @@ class G4Event;
 //
 
 class KM3EventAction : public G4UserEventAction {
-public:
+ public:
   KM3EventAction() { ; }
   ~KM3EventAction() { ; }
   inline void SetEventManager(G4EventManager *value) { fpEventManager = value; }
 
-public: // with description
+ public:  // with description
   void BeginOfEventAction(const G4Event *anEvent);
   void EndOfEventAction(const G4Event *anEvent);
   // Two virtual method the user can override.
-protected:
+ protected:
   G4EventManager *fpEventManager;
 
-public:
+ public:
   std::vector<G4ThreeVector> centerPre;
   std::vector<G4ThreeVector> centerPost;
   std::vector<G4ThreeVector> enterPre;
@@ -95,8 +95,8 @@ public:
 #ifdef G4MYMUON_KEEPENERGY
   std::vector<G4double> EnergyAtPosition;
 #endif
-#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
-    defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) || \
+    defined(G4MYHA_PARAMETERIZATION)  // newha
   std::vector<long double> *myPhotonsNumber;
   std::vector<long double> *myCumPhotons;
   std::vector<long double> *myCumPhotonsRms;
@@ -107,15 +107,15 @@ public:
   G4bool useANTARESformat;
   HOURSevtWRITE *TheEVTtoWrite;
 
-public:
+ public:
   FILE *outfile;
   inline void AddPrimaryNumber(G4int);
   inline G4int GetSlot(G4int);
   inline void Initialize(void) { numofMuons = 0; }
 
-private:
+ private:
   G4int numofMuons;
-  G4int MuonIds[210000]; // 100 before
+  G4int MuonIds[210000];  // 100 before
 };
 
 inline void KM3EventAction::AddPrimaryNumber(G4int aNumber) {

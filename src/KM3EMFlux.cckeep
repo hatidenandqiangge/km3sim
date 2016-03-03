@@ -15,12 +15,12 @@ KM3EMFlux::KM3EMFlux() {
 }
 KM3EMFlux::~KM3EMFlux() { ; }
 
-void KM3EMFlux::Initialize() // reads data from files
+void KM3EMFlux::Initialize()  // reads data from files
 {
-  lamdacoeff = (4.136E-9 - 2.034E-9) * 1000.0; // is the coefficient for the
-                                               // photon momentum emmision
-                                               // (MeV/c). Corresponds from 300
-                                               // to 610 nm
+  lamdacoeff = (4.136E-9 - 2.034E-9) * 1000.0;  // is the coefficient for the
+                                                // photon momentum emmision
+                                                // (MeV/c). Corresponds from 300
+                                                // to 610 nm
   double tempo1, tempo2;
   int icount;
   FILE *inEMFile;
@@ -42,7 +42,7 @@ void KM3EMFlux::Initialize() // reads data from files
           fscanf(inEMFile, "%lf %lf\n", &tempo1, &tempo2);
           keepData.push_back(tempo1);
           keepDatarms.push_back(
-              tempo2 * tempo2); // from now on this vector keeps the variance
+              tempo2 * tempo2);  // from now on this vector keeps the variance
           icount++;
         }
       }
@@ -52,7 +52,7 @@ void KM3EMFlux::Initialize() // reads data from files
 
 bool KM3EMFlux::ModelTrigger(double TheE) {
   if (TheE < Energies[0] || TheE > Energies[NumOfEnergies - 1])
-    return false; // no extrapolation is used
+    return false;  // no extrapolation is used
   else
     return true;
 }
@@ -60,23 +60,21 @@ bool KM3EMFlux::ModelTrigger(double TheE) {
 void KM3EMFlux::SetEnergy(double TheE) {
   Energy = TheE;
   for (ienbin2 = 0; ienbin2 < NumOfEnergies; ienbin2++)
-    if (Energy < Energies[ienbin2])
-      break;
-  if (ienbin2 == NumOfEnergies)
-    ienbin2 = NumOfEnergies - 1;
+    if (Energy < Energies[ienbin2]) break;
+  if (ienbin2 == NumOfEnergies) ienbin2 = NumOfEnergies - 1;
   ienbin1 = ienbin2 - 1;
   // the interpolation is for 4 total points. However we must keep at least 3
   // points above the energy in order to extrapolate for the zero bins
-  if (ienbin1 == 0) { // first bin
+  if (ienbin1 == 0) {  // first bin
     ienstart = ienbin1;
     ienstop = ienbin2 + 3;
-  } else if (ienbin2 == NumOfEnergies - 2) { // prelast bin
+  } else if (ienbin2 == NumOfEnergies - 2) {  // prelast bin
     ienstart = ienbin1 - 1;
     ienstop = ienbin2 + 2;
-  } else if (ienbin2 == NumOfEnergies - 1) { // last bin
+  } else if (ienbin2 == NumOfEnergies - 1) {  // last bin
     ienstart = ienbin1 - 2;
     ienstop = ienbin2 + 1;
-  } else { // intermediate bins
+  } else {  // intermediate bins
     ienstart = ienbin1 - 1;
     ienstop = ienbin2 + 3;
   }
@@ -94,10 +92,8 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
   double f1, f2;
   int ibin;
 
-  if (Thetarad == 0.0)
-    return 0;
-  if (zbin >= GiveMaxZbin())
-    return 0;
+  if (Thetarad == 0.0) return 0;
+  if (zbin >= GiveMaxZbin()) return 0;
   Theta = Thetarad * 180.0 / M_PI;
   ////////////////////////////////////////
 
@@ -105,7 +101,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
     if (zbin < Zbins[ien]) {
       thetabin = int(Theta / thetabinningdeg);
       if (thetabin == 1799)
-        thetabin = 1798; // so that it does not get out of the valid bins
+        thetabin = 1798;  // so that it does not get out of the valid bins
       ibin1 = IStart[ien][zbin] + thetabin;
       ibin2 = ibin1 + 1;
       f1 = keepData[ibin1];
@@ -113,37 +109,33 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
       // check for zero values flux
       // does not check for the case that there is only one bin with non zero
       // value (rare?)
-      if (f1 == 0) { // find a lower point
+      if (f1 == 0) {  // find a lower point
         for (ibin = ibin1 - 1; ibin >= IStart[ien][zbin]; ibin--)
-          if (keepData[ibin] > 0)
-            break;
-        if (ibin ==
-            (IStart[ien][zbin] - 1)) { // no lower point found search for higher
+          if (keepData[ibin] > 0) break;
+        if (ibin == (IStart[ien][zbin] -
+                     1)) {  // no lower point found search for higher
           for (ibin = ibin1 + 1; ibin < IStart[ien][zbin] + 1800; ibin++)
-            if (keepData[ibin] > 0)
-              break;
+            if (keepData[ibin] > 0) break;
           if (ibin == IStart[ien][zbin] + 1800)
-            return 0; // this the case that no non-zero bin found
+            return 0;  // this the case that no non-zero bin found
         }
         ibin1 = ibin;
         f1 = keepData[ibin1];
       }
-      if (ibin1 >= ibin2) { // this is the case that no lower point found and
-                            // the start is greater than the stop interval
+      if (ibin1 >= ibin2) {  // this is the case that no lower point found and
+                             // the start is greater than the stop interval
         for (ibin = ibin1 + 1; ibin < IStart[ien][zbin] + 1800; ibin++)
-          if (keepData[ibin] > 0)
-            break;
+          if (keepData[ibin] > 0) break;
         if (ibin == IStart[ien][zbin] + 1800)
-          return 0; // this the case that no second non-zero bin found
+          return 0;  // this the case that no second non-zero bin found
         ibin2 = ibin;
         f2 = keepData[ibin2];
       }
-      if (f2 == 0) { // find a higher point
+      if (f2 == 0) {  // find a higher point
         for (ibin = ibin2 + 1; ibin < IStart[ien][zbin] + 1800; ibin++)
-          if (keepData[ibin] > 0)
-            break;
+          if (keepData[ibin] > 0) break;
         if (ibin == IStart[ien][zbin] + 1800)
-          return 0; // this the case that no second non-zero bin found
+          return 0;  // this the case that no second non-zero bin found
         ibin2 = ibin;
         f2 = keepData[ibin2];
       }
@@ -156,7 +148,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
       // coeff2=(Theta-thbin1)/thetabinningdeg;
       coeff2 = (Theta - thbin1) / (thbin2 - thbin1);
       coeff1 = 1.0 - coeff2;
-      Fentries[ien] = coeff1 * f1 + coeff2 * f2; // linear interpolation
+      Fentries[ien] = coeff1 * f1 + coeff2 * f2;  // linear interpolation
       // if the interpolated flux is negative return 0. This case is too
       // difficult to encounter generally.
       // Since we are talking about the angle and for any energies the angular
@@ -184,8 +176,8 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
   int NumOfEnergiesInt = 4;
   int polydegree = 3;
   Energylog = log10(Energy);
-  if ((ienstop - ienstart) == 5) { // intermediate bins
-    if (Fentries[ienstart] > 0) {  // all ok
+  if ((ienstop - ienstart) == 5) {  // intermediate bins
+    if (Fentries[ienstart] > 0) {   // all ok
       iss = ienstart;
       ill = ienstop - 1;
       for (int ibin = iss; ibin < ill; ibin++) {
@@ -193,7 +185,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
         Fentrieslog[ibin - iss] = log10(Fentries[ibin]);
         Fentriesrmslog[ibin - iss] = log10(Fentriesrms[ibin]);
       }
-    } else { // the first bin is zero
+    } else {  // the first bin is zero
       iss = ienstart + 1;
       ill = ienstop;
       for (int ibin = iss; ibin < ill; ibin++) {
@@ -201,16 +193,14 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
         Fentrieslog[ibin - iss] = log10(Fentries[ibin]);
         Fentriesrmslog[ibin - iss] = log10(Fentriesrms[ibin]);
       }
-      if (Fentries[iss] == 0) { // both 2 first bins are zero. In this case
-                                // extrapolate the second bin
-        if (!extrapolate(Fentrieslog, Fenergieslog))
-          return 0;
-        if (!extrapolate(Fentriesrmslog, Fenergieslog))
-          return 0;
+      if (Fentries[iss] == 0) {  // both 2 first bins are zero. In this case
+                                 // extrapolate the second bin
+        if (!extrapolate(Fentrieslog, Fenergieslog)) return 0;
+        if (!extrapolate(Fentriesrmslog, Fenergieslog)) return 0;
       }
     }
-  } else {                     // edge bins have 4 points
-    if (ienstart == ienbin1) { // first bin. ienbin1=0.
+  } else {                      // edge bins have 4 points
+    if (ienstart == ienbin1) {  // first bin. ienbin1=0.
       iss = ienstart;
       ill = ienstop;
       for (int ibin = iss; ibin < ill; ibin++) {
@@ -218,13 +208,11 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
         Fentrieslog[ibin - iss] = log10(Fentries[ibin]);
         Fentriesrmslog[ibin - iss] = log10(Fentriesrms[ibin]);
       }
-      if (Fentries[iss] == 0) { // first entry is zero. extrapolate
-        if (!extrapolate(Fentrieslog, Fenergieslog))
-          return 0;
-        if (!extrapolate(Fentriesrmslog, Fenergieslog))
-          return 0;
+      if (Fentries[iss] == 0) {  // first entry is zero. extrapolate
+        if (!extrapolate(Fentrieslog, Fenergieslog)) return 0;
+        if (!extrapolate(Fentriesrmslog, Fenergieslog)) return 0;
       }
-    } else if (ienstart == (ienbin1 - 1)) { // prelast bin
+    } else if (ienstart == (ienbin1 - 1)) {  // prelast bin
       if (Fentries[ienstart + 1] > 0) {
         iss = ienstart;
         ill = ienstop;
@@ -233,14 +221,13 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
           Fentrieslog[ibin - iss] = log10(Fentries[ibin]);
           Fentriesrmslog[ibin - iss] = log10(Fentriesrms[ibin]);
         }
-        if (Fentries[iss] == 0) { // first entry is zero. extrapolate
-          if (!extrapolate(Fentrieslog, Fenergieslog))
-            return 0;
-          if (!extrapolate(Fentriesrmslog, Fenergieslog))
-            return 0;
+        if (Fentries[iss] == 0) {  // first entry is zero. extrapolate
+          if (!extrapolate(Fentrieslog, Fenergieslog)) return 0;
+          if (!extrapolate(Fentriesrmslog, Fenergieslog)) return 0;
         }
-      } else { // both start entries are zero. cannot extrapolate quadratically.
-               // extrapolate linearly
+      } else {  // both start entries are zero. cannot extrapolate
+                // quadratically.
+                // extrapolate linearly
         iss = ienstart + 2;
         ill = ienstop;
         for (int ibin = iss; ibin < ill; ibin++) {
@@ -251,7 +238,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
         NumOfEnergiesInt = 2;
         polydegree = 1;
       }
-    } else { // last bin
+    } else {  // last bin
       if (Fentries[ienstart + 1] > 0) {
         iss = ienstart;
         ill = ienstop;
@@ -260,15 +247,13 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
           Fentrieslog[ibin - iss] = log10(Fentries[ibin]);
           Fentriesrmslog[ibin - iss] = log10(Fentriesrms[ibin]);
         }
-        if (Fentries[iss] == 0) { // first entry is zero. extrapolate
-          if (!extrapolate(Fentrieslog, Fenergieslog))
-            return 0;
-          if (!extrapolate(Fentriesrmslog, Fenergieslog))
-            return 0;
+        if (Fentries[iss] == 0) {  // first entry is zero. extrapolate
+          if (!extrapolate(Fentrieslog, Fenergieslog)) return 0;
+          if (!extrapolate(Fentriesrmslog, Fenergieslog)) return 0;
         }
       } else if (Fentries[ienstart + 2] >
-                 0) { // both start entries are zero. cannot extrapolate
-                      // quadratically. extrapolate linearly
+                 0) {  // both start entries are zero. cannot extrapolate
+                       // quadratically. extrapolate linearly
         iss = ienstart + 2;
         ill = ienstop;
         for (int ibin = iss; ibin < ill; ibin++) {
@@ -281,8 +266,8 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
         // printf("slope %d %f %f\n",zbin,Theta,slope);
         NumOfEnergiesInt = 2;
         polydegree = 1;
-      } else { // only the last entry is not zero.use the mean slope from above
-               // (0.91) with rms 0.5
+      } else {  // only the last entry is not zero.use the mean slope from above
+                // (0.91) with rms 0.5
         Fenergieslog[0] = log10(Energies[ienstop - 2]);
         Fenergieslog[1] = log10(Energies[ienstop - 1]);
         Fentrieslog[1] = log10(Fentries[ienstop - 1]);
@@ -310,7 +295,7 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
   // double
   // dndthrms=sqrt(Fentriesrms[ienbin1]*Fentriesrms[ienbin1]+Fentriesrms[ienbin2]*Fentriesrms[ienbin2])/thetabinningrad;
   double coeff = M_PI2 * Distance * Distance * sin(Thetarad);
-  double flux = dndth / coeff; // it is dN/d(area)
+  double flux = dndth / coeff;  // it is dN/d(area)
   double fluxrms = dndthrms / coeff;
   //  printf("flux and rms %d %.3e %.3e %.3e\n",zbin,Theta,flux,fluxrms);
   double meannum = flux * area * qe;
@@ -323,13 +308,13 @@ int KM3EMFlux::GiveNum(double area, int zbin, double Distance, double Thetarad,
   // next sample according to the Polya (also called Pascal or negative
   // binomial) distribution
   int numofphotons;
-  double deviation = rmsnum - meannum; // It is variance-mean.this should be
-                                       // >0 for polya, =0 for poisson.
-  if (deviation < 0.001) { // this case is for poisson (the limiting case of
-                           // polya as n->oo is the poisson).
+  double deviation = rmsnum - meannum;  // It is variance-mean.this should be
+                                        // >0 for polya, =0 for poisson.
+  if (deviation < 0.001) {  // this case is for poisson (the limiting case of
+                            // polya as n->oo is the poisson).
     numofphotons = (int)CLHEP::RandPoisson::shoot(meannum);
   } else {
-    double p = meannum / rmsnum; // this is mean/variance
+    double p = meannum / rmsnum;  // this is mean/variance
     double n = meannum * meannum / deviation;
     double X = CLHEP::RandGamma::shoot(n, 1.0);
     numofphotons = (int)CLHEP::RandPoisson::shoot(X * (1 - p) / p);
@@ -358,7 +343,7 @@ bool KM3EMFlux::extrapolate(double F[], double A[]) {
   CLHEP::HepVector C = solve(M, B);
   F[0] = (C[0] * A[0] + C[1]) * A[0] + C[2];
   // check that the value is less than F[1]
-  if (F[0] > F[1]) { // extrapolation does not work
+  if (F[0] > F[1]) {  // extrapolation does not work
     // if there are 2 falling values use them for linear extrapolation, else
     // return 0
     if (F[1] < F[2]) {
@@ -392,43 +377,37 @@ double KM3EMFlux::divdif(double F[], double A[], int NN, double X, int MM) {
   //  TABULAR INTERPOLATION USING SYMMETRICALLY PLACED ARGUMENT POINTS.
   //
   //  START.  FIND SUBSCRIPT IX OF X IN ARRAY A.
-  if ((NN < 2) || (MM < 1))
-    goto L20;
+  if ((NN < 2) || (MM < 1)) goto L20;
   N = NN;
   //  M=MIN(MM,MIN(MMAX,N-1));
   M = MM < ? (MMAX < ? (N - 1));
   MPLUS = M + 1;
   IX = 0;
   IY = N + 1;
-  if (A[0] > A[N - 1])
-    goto L4;
+  if (A[0] > A[N - 1]) goto L4;
 //     (SEARCH INCREASING ARGUMENTS.)
 L1:
   MID = (IX + IY) / 2;
-  if (X >= A[MID - 1])
-    goto L2;
+  if (X >= A[MID - 1]) goto L2;
   IY = MID;
   goto L3;
 //        (IF TRUE.)
 L2:
   IX = MID;
 L3:
-  if ((IY - IX) > 1)
-    goto L1;
+  if ((IY - IX) > 1) goto L1;
   goto L7;
 //     (SEARCH DECREASING ARGUMENTS.)
 L4:
   MID = (IX + IY) / 2;
-  if (X <= A[MID - 1])
-    goto L5;
+  if (X <= A[MID - 1]) goto L5;
   IY = MID;
   goto L6;
 //        (IF TRUE.)
 L5:
   IX = MID;
 L6:
-  if ((IY - IX) > 1)
-    goto L4;
+  if ((IY - IX) > 1) goto L4;
 //
 //  COPY REORDERED INTERPOLATION POINTS INTO (T(I),D(I)), SETTING
 //  *EXTRA* TO TRUE IF M+2 POINTS TO BE USED.
@@ -439,12 +418,10 @@ L7:
   goto L9;
 L8:
   L = -L;
-  if (L >= 0)
-    L = L + 1;
+  if (L >= 0) L = L + 1;
 L9:
   ISUB = IX + L;
-  if ((1 <= ISUB) && (ISUB <= N))
-    goto L10;
+  if ((1 <= ISUB) && (ISUB <= N)) goto L10;
   //        (SKIP POINT.)
   NPTS = MPLUS;
   goto L11;
@@ -454,15 +431,13 @@ L10:
   T[IP - 1] = A[ISUB - 1];
   D[IP - 1] = F[ISUB - 1];
 L11:
-  if (IP < NPTS)
-    goto L8;
+  if (IP < NPTS) goto L8;
   EXTRA = (NPTS != MPLUS);
   //
   //  REPLACE D BY THE LEADING DIAGONAL OF A DIVIDED-DIFFERENCE TABLE, SUP-
   //  PLEMENTED BY AN EXTRA LINE IF *EXTRA* IS TRUE.
   for (L = 1; L <= M; L++) {
-    if (!EXTRA)
-      goto L12;
+    if (!EXTRA) goto L12;
     ISUB = MPLUS - L;
     D[M + 1] = (D[M + 1] - D[M - 1]) / (T[M + 1] - T[ISUB - 1]);
   L12:
@@ -477,8 +452,7 @@ L11:
   //  EVALUATE THE NEWTON INTERPOLATION FORMULA AT X, AVERAGING TWO VALUES
   //  OF LAST DIFFERENCE IF *EXTRA* IS TRUE.
   SUM = D[MPLUS - 1];
-  if (EXTRA)
-    SUM = 0.5 * (SUM + D[M + 1]);
+  if (EXTRA) SUM = 0.5 * (SUM + D[M + 1]);
   J = M;
   for (L = 1; L <= M; L++) {
     SUM = D[J - 1] + (X - T[J - 1]) * SUM;

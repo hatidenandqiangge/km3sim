@@ -18,9 +18,8 @@
 #include "KM3EventAction.hh"
 #include "KM3Detector.hh"
 
-
 static const char USAGE[] =
-R"(km3sim.
+    R"(km3sim.
 
   Usage:
     km3sim [--seed=<sd>] (-i PARAMS) (-d DETECTOR) (-o OUTFILE)
@@ -39,8 +38,8 @@ R"(km3sim.
 
 int main(int argc, char *argv[]) {
   str::map<std::string, doctopt::value> args =
-    doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
-  for (auto const& arg : args) {
+      doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
+  for (auto const &arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
   }
 
@@ -100,7 +99,6 @@ int main(int argc, char *argv[]) {
    * define 1 mandatory UserAction
    */
 
-
   //--------------------------------------------------------------------------
   G4RunManager *runManager = new G4RunManager;
 
@@ -157,7 +155,6 @@ int main(int argc, char *argv[]) {
   G4UImanager *UI = G4UImanager::GetUIpointer();
   G4UIsession *session = 0;
   session = new G4UIterminal();
-
 
   // inactivate the parametrization
   UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");

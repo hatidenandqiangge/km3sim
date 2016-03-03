@@ -35,11 +35,11 @@
 #endif
 
 class KM3StackingAction : public G4UserStackingAction {
-public:
+ public:
   KM3StackingAction();
   virtual ~KM3StackingAction();
 
-public:
+ public:
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track *aTrack);
   virtual void NewStage();
   virtual void PrepareNewEvent();
@@ -48,7 +48,7 @@ public:
   std::ofstream *outMuonHAFile;
 #endif
 
-private:
+ private:
   KM3Detector *MyStDetector;
 #if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
 #ifdef G4ENABLE_MIE
@@ -73,7 +73,7 @@ private:
   std::vector<G4ThreeVector> *theMomentums;
 #endif
 
-protected:
+ protected:
 };
 
 #endif

@@ -9,17 +9,17 @@
 #include "KM3EMDistanceFlux.hh"
 
 class KM3HAEnergyFlux {
-public:
+ public:
   KM3HAEnergyFlux(char *, G4double, G4double, G4double, G4double);
   ~KM3HAEnergyFlux();
 
-public:
+ public:
   void FindBins(G4int idbeam, G4double energyin, G4double distancein,
                 G4double anglein);
   G4int GetNumberOfSamples() { return NumberOfSamples; };
   onePE GetSamplePoint();
 
-private:
+ private:
   G4double Rescale(G4int idbeam, G4double energyin, G4double energydis);
   G4int NPartsDists;
   std::vector<KM3EMDistanceFlux *> *keepEnergies;

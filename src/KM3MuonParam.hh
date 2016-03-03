@@ -23,7 +23,7 @@ struct forMuon {
 };
 
 class KM3MuonParam {
-public:
+ public:
   KM3MuonParam();
   ~KM3MuonParam();
   G4bool IsCapable(G4int idmuon);
@@ -34,7 +34,7 @@ public:
   void Finalize(void);
   void Initialize(void);
 
-private:
+ private:
   std::vector<PDFSList *> thePDFS;
   std::vector<forMuon *> theDistributions;
   G4double MinLogEnergy;

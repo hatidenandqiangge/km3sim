@@ -100,8 +100,7 @@ enum G4OpBoundaryProcessStatus {
 };
 
 class G4OpBoundaryProcess : public G4VDiscreteProcess {
-
-private:
+ private:
   //////////////
   // Operators
   //////////////
@@ -110,7 +109,7 @@ private:
 
   // G4OpBoundaryProcess(const G4OpBoundaryProcess &right);
 
-public: // Without description
+ public:  // Without description
   ////////////////////////////////
   // Constructors and Destructor
   ////////////////////////////////
@@ -124,7 +123,7 @@ public: // Without description
   // Methods
   ////////////
 
-public: // With description
+ public:  // With description
   G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
   // Returns true -> 'is applicable' only for an optical photon.
 
@@ -148,7 +147,7 @@ public: // With description
   // Set the optical surface model to be followed
   // (glisur || unified).
 
-private:
+ private:
   void G4Swap(G4double *a, G4double *b) const;
 
   void G4Swap(G4Material *a, G4Material *b) const;
@@ -173,7 +172,7 @@ private:
   void DoAbsorption();
   void DoReflection();
 
-private:
+ private:
   G4double thePhotonMomentum;
 
   G4ThreeVector OldMomentum;
@@ -258,7 +257,6 @@ inline G4ThreeVector G4OpBoundaryProcess::G4IsotropicRand() const {
   G4double len2;
 
   do {
-
     vect.setX(G4UniformRand() - 0.5);
     vect.setY(G4UniformRand() - 0.5);
     vect.setZ(G4UniformRand() - 0.5);
@@ -270,8 +268,8 @@ inline G4ThreeVector G4OpBoundaryProcess::G4IsotropicRand() const {
   return vect.unit();
 }
 
-inline G4ThreeVector
-G4OpBoundaryProcess::G4LambertianRand(const G4ThreeVector &normal) {
+inline G4ThreeVector G4OpBoundaryProcess::G4LambertianRand(
+    const G4ThreeVector &normal) {
   /* Returns a random lambertian unit vector. */
 
   G4ThreeVector vect;
@@ -291,8 +289,8 @@ G4OpBoundaryProcess::G4LambertianRand(const G4ThreeVector &normal) {
   return vect;
 }
 
-inline G4ThreeVector
-G4OpBoundaryProcess::G4PlaneVectorRand(const G4ThreeVector &normal) const
+inline G4ThreeVector G4OpBoundaryProcess::G4PlaneVectorRand(
+    const G4ThreeVector &normal) const
 
 /* This function chooses a random vector within a plane given
    by the unit normal */
@@ -308,8 +306,8 @@ G4OpBoundaryProcess::G4PlaneVectorRand(const G4ThreeVector &normal) const
   return cosphi * vec1 + sinphi * vec2;
 }
 
-inline G4bool
-G4OpBoundaryProcess::IsApplicable(const G4ParticleDefinition &aParticleType) {
+inline G4bool G4OpBoundaryProcess::IsApplicable(
+    const G4ParticleDefinition &aParticleType) {
   return (&aParticleType == G4OpticalPhoton::OpticalPhoton());
 }
 
@@ -343,7 +341,6 @@ inline void G4OpBoundaryProcess::DoAbsorption() {
   theStatus = Absorption;
 
   if (G4BooleanRand(theEfficiency)) {
-
     // EnergyDeposited =/= 0 means: photon has been detected
     theStatus = Detection;
     aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
@@ -360,19 +357,16 @@ inline void G4OpBoundaryProcess::DoAbsorption() {
 
 inline void G4OpBoundaryProcess::DoReflection() {
   if (theStatus == LambertianReflection) {
-
     NewMomentum = G4LambertianRand(theGlobalNormal);
     theFacetNormal = (NewMomentum - OldMomentum).unit();
 
   } else if (theFinish == ground) {
-
     theStatus = LobeReflection;
     theFacetNormal = GetFacetNormal(OldMomentum, theGlobalNormal);
     G4double PdotN = OldMomentum * theFacetNormal;
     NewMomentum = OldMomentum - (2. * PdotN) * theFacetNormal;
 
   } else {
-
     theStatus = SpikeReflection;
     theFacetNormal = theGlobalNormal;
     G4double PdotN = OldMomentum * theFacetNormal;

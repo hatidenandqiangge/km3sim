@@ -12,11 +12,11 @@
 using namespace std;
 
 class HOURSevtREAD {
-public:
+ public:
   HOURSevtREAD(char *infile);
   ~HOURSevtREAD();
 
-public:
+ public:
   int GetNumberOfEvents();
   void ReadEvent(void);
   void GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu, double &yneu,
@@ -29,7 +29,7 @@ public:
 
   void GeneratePrimaryVertex(G4Event *anEvent);
 
-private:
+ private:
   event *evt;
   int nevents;
   ifstream infile;

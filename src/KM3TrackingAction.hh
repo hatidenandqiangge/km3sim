@@ -29,15 +29,14 @@
 #include "G4Types.hh"
 
 class KM3TrackingAction : public G4UserTrackingAction {
-
-public:
+ public:
   KM3TrackingAction(){};
   virtual ~KM3TrackingAction(){};
 
   virtual void PreUserTrackingAction(const G4Track *);
   virtual void PostUserTrackingAction(const G4Track *);
 
-public:
+ public:
   int numofInitialParticles;
   HOURSevtWRITE *TheEVTtoWrite;
   G4bool useANTARESformat;

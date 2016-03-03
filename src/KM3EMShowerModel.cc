@@ -38,13 +38,13 @@
 KM3EMShowerModel::KM3EMShowerModel(G4String modelName, G4Region *envelope)
     : G4VFastSimulationModel(modelName, envelope) {
   EnergyThreshold =
-      31.6 * MeV; // this just for speed. Param. slows sim below that threshold
+      31.6 * MeV;  // this just for speed. Param. slows sim below that threshold
 }
 
 KM3EMShowerModel::KM3EMShowerModel(G4String modelName)
     : G4VFastSimulationModel(modelName) {
   EnergyThreshold =
-      31.6 * MeV; // this just for speed. Param. slows sim below that threshold
+      31.6 * MeV;  // this just for speed. Param. slows sim below that threshold
 }
 
 KM3EMShowerModel::~KM3EMShowerModel() {
@@ -70,13 +70,13 @@ void KM3EMShowerModel::InitializeFlux(char *infileParam,
 // do not need hadronic- they are pretty rare and they produce muons that are
 // not descibed by the parametrization
 // due to the long range.
-G4bool
-KM3EMShowerModel::IsApplicable(const G4ParticleDefinition &particleType) {
+G4bool KM3EMShowerModel::IsApplicable(
+    const G4ParticleDefinition &particleType) {
   if (&particleType == G4Electron::ElectronDefinition() ||
       &particleType == G4Positron::PositronDefinition() ||
-      &particleType == G4Gamma::GammaDefinition() // do not to need the pi0 it
-                                                  // is discribed by gamma
-                                                  // (through decay)
+      &particleType == G4Gamma::GammaDefinition()  // do not to need the pi0 it
+                                                   // is discribed by gamma
+                                                   // (through decay)
       ) {
     return true;
   }
@@ -120,9 +120,9 @@ void KM3EMShowerModel::DoIt(const G4FastTrack &fastTrack,
     aMaterial = G4Material::GetMaterial("Water");
     G4MaterialPropertyVector *GroupVel =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
-    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE); // coresponds to the maximum
-                                                   // qe each time. This is the
-                                                   // right one
+    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);  // coresponds to the maximum
+                                                    // qe each time. This is the
+                                                    // right one
     // thespeedmaxQE=GroupVel->GetProperty(3.102*eV); //coresponds to 400nm
   }
 
@@ -306,11 +306,11 @@ void KM3EMShowerModel::DoIt(const G4FastTrack &fastTrack,
                                      theFastTime + aPE.time, originalInfo,
                                      photonDirection);
             //	    PhotonsSurviving++;
-          } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++)
-        }   // if(distancein<MaxAbsDist2)
-      }     // for(int io=0;io<TotalNumberOfOMs;io++)
-    }       // if(distancetower2<MaxAbsDist2)
-  }         // for(int it=0;it<TotalNumberOfTowers;it++)
+          }  // for(G4int isa=0 ; isa<NumberOfSamples ; isa++)
+        }    // if(distancein<MaxAbsDist2)
+      }      // for(int io=0;io<TotalNumberOfOMs;io++)
+    }        // if(distancetower2<MaxAbsDist2)
+  }          // for(int it=0;it<TotalNumberOfTowers;it++)
 //  G4cout << "Total photons created "<< PhotonsSurviving <<G4endl;
 #else
   ;

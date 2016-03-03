@@ -38,8 +38,7 @@
 // Class Definition
 /////////////////////
 class KM3Cherenkov : public G4VProcess {
-
-public:
+ public:
   ////////////////////////////////
   // Constructors and Destructor
   ////////////////////////////////
@@ -55,14 +54,14 @@ public:
   // Methods
   ////////////
 
-private:
+ private:
   //////////////
   // Operators
   //////////////
 
   KM3Cherenkov &operator=(const KM3Cherenkov &right);
 
-public: // With description
+ public:  // With description
   void SetDetector(KM3Detector *);
 
   G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
@@ -134,7 +133,7 @@ public: // With description
 #endif
 #endif
 
-private:
+ private:
 #if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
 #ifdef G4ENABLE_MIE
 #ifndef G4DISABLE_PARAMETRIZATION
@@ -150,8 +149,9 @@ private:
 #ifdef G4JUST_COUNT_PHOTONS
   long double Count_Photons;
   long double Posit_Photons_Mean;
-  long double Posit_Photons_Histo[3002]; // 20 meters every 1cm from -10m to 20m
-                                         // , and 2 for underflow and overflow
+  long double
+      Posit_Photons_Histo[3002];  // 20 meters every 1cm from -10m to 20m
+                                  // , and 2 for underflow and overflow
 #endif
 
   void BuildThePhysicsTable();
@@ -168,13 +168,13 @@ private:
   // Class Data Members
   ///////////////////////
 
-protected:
+ protected:
   G4PhysicsTable *thePhysicsTable;
   //  A Physics Table can be either a cross-sections table or
   //  an energy table (or can be used for other specific
   //  purposes).
 
-private:
+ private:
   G4bool fTrackSecondariesFirst;
   G4double fMaxBetaChange;
   G4int fMaxPhotons;
@@ -187,8 +187,8 @@ private:
   KM3EMDirectFlux *myFlux;
 #endif
 #endif
-#if !defined(G4ENABLE_MIE) ||                                                  \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
+#if !defined(G4ENABLE_MIE) || \
+    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
   G4double HITBENTHOS[20000][10];
   G4int icountHitBenthos;
   G4double globalMaxCos, globalMinCos;
@@ -217,12 +217,10 @@ private:
 // Inline methods
 ////////////////////
 
-inline G4bool
-KM3Cherenkov::IsApplicable(const G4ParticleDefinition &aParticleType) {
-  if (aParticleType.GetParticleName() == "chargedgeantino")
-    return false;
-  if (aParticleType.IsShortLived())
-    return false;
+inline G4bool KM3Cherenkov::IsApplicable(
+    const G4ParticleDefinition &aParticleType) {
+  if (aParticleType.GetParticleName() == "chargedgeantino") return false;
+  if (aParticleType.IsShortLived()) return false;
   return (aParticleType.GetPDGCharge() != 0);
 }
 

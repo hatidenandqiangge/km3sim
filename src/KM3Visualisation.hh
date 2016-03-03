@@ -8,11 +8,10 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 class KM3Visualisation : public G4VisManager {
-
-public:
+ public:
   KM3Visualisation();
 
-private:
+ private:
   void RegisterGraphicsSystems();
 };
 

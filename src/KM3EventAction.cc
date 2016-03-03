@@ -39,12 +39,15 @@ void KM3EventAction::BeginOfEventAction(const G4Event *) {
     G4String msg;
     msg = " You are instantiating G4UserEventAction BEFORE your\n";
     msg += "G4VUserPhysicsList is instantiated and assigned to G4RunManager.\n";
-    msg += " Such an instantiation is prohibited by Geant4 version 8.0. To fix "
-           "this problem,\n";
-    msg += "please make sure that your main() instantiates G4VUserPhysicsList "
-           "AND\n";
-    msg += "set it to G4RunManager before instantiating other user action "
-           "classes\n";
+    msg +=
+        " Such an instantiation is prohibited by Geant4 version 8.0. To fix "
+        "this problem,\n";
+    msg +=
+        "please make sure that your main() instantiates G4VUserPhysicsList "
+        "AND\n";
+    msg +=
+        "set it to G4RunManager before instantiating other user action "
+        "classes\n";
     msg += "such as G4UserEventAction.";
     G4Exception("G4UserEventAction::G4UserEventAction()", "Event0001",
                 FatalException, msg);
@@ -92,10 +95,9 @@ void KM3EventAction::BeginOfEventAction(const G4Event *) {
     stopPosition.push_back(vzero);
     stopTime.push_back(izero);
   }
-  if (useANTARESformat)
-    TheEVTtoWrite->ReadEvent();
-#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
-    defined(G4MYHA_PARAMETERIZATION) // newha
+  if (useANTARESformat) TheEVTtoWrite->ReadEvent();
+#if defined(G4MYEM_PARAMETERIZATION) || \
+    defined(G4MYHA_PARAMETERIZATION)  // newha
   G4int TotalNumberOfCathods = MyStDetector->allCathods->GetNumberOfCathods();
   G4bool FineBin = false;
   G4int VertexSolidAngleBins = 51;
@@ -119,8 +121,7 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
   G4ThreeVector vzero(0.0, 0.0, 0.0);
   G4double izero = 0.0;
 #ifndef G4MYK40_PARAMETERIZATION
-  if (!useANTARESformat)
-    fprintf(outfile, "%d\n", numofMuons);
+  if (!useANTARESformat) fprintf(outfile, "%d\n", numofMuons);
 #endif
   for (G4int ip = 0; ip < numofMuons; ip++) {
     // record entering position//////
@@ -213,15 +214,14 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
 #ifdef G4MYMUON_KEEPENERGY
   if (useANTARESformat) {
     for (int ien = 0; ien < EnergyAtPosition.size(); ien++)
-      EnergyAtPosition[ien] = EnergyAtPosition[ien] / GeV; // convert to GeV
+      EnergyAtPosition[ien] = EnergyAtPosition[ien] / GeV;  // convert to GeV
     TheEVTtoWrite->AddMuonEnergyInfo(EnergyAtPosition);
   }
 #endif
   // write to output file
-  if (useANTARESformat)
-    TheEVTtoWrite->WriteEvent();
-#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
-    defined(G4MYHA_PARAMETERIZATION) // newha
+  if (useANTARESformat) TheEVTtoWrite->WriteEvent();
+#if defined(G4MYEM_PARAMETERIZATION) || \
+    defined(G4MYHA_PARAMETERIZATION)  // newha
   long double cont;
   G4int TotalNumberOfCathods = MyStDetector->allCathods->GetNumberOfCathods();
   G4bool FineBin = false;
@@ -236,8 +236,8 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
     // G4double cosangle1=(MyGenerator->direction).dot(FromGeneToOM)/dist;
 
     G4double dist = MyStDetector->allCathods->GetCathodRadius(icath);
-    G4int distbin =
-        icath; // for the definition of distances look at the gdml geometry file
+    G4int distbin = icath;  // for the definition of distances look at the gdml
+                            // geometry file
     G4int cang1bin;
     for (cang1bin = 0; cang1bin < VertexSolidAngleBins; cang1bin++) {
       G4double weight = 2 * pi * dist * dist;
@@ -277,9 +277,9 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
       G4int ibin_d1 = cang1bin + VertexSolidAngleBins * distbin;
       (*myCumNorma)[ibin_d1] += weight;
 
-      cont = (*myPhotonsNumber)[ibin_d1];         // newbin
-      (*myCumPhotons)[ibin_d1] += cont;           // newbin
-      (*myCumPhotonsRms)[ibin_d1] += cont * cont; // newbin
+      cont = (*myPhotonsNumber)[ibin_d1];          // newbin
+      (*myCumPhotons)[ibin_d1] += cont;            // newbin
+      (*myCumPhotonsRms)[ibin_d1] += cont * cont;  // newbin
     }
   }
 #endif

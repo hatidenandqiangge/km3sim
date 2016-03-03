@@ -23,7 +23,7 @@
 #include "G4ParticleTable.hh"
 #include "G4Material.hh"
 #include "G4ios.hh"
-#include "G4FastSimulationManagerProcess.hh" //--apostolis parametrization------------
+#include "G4FastSimulationManagerProcess.hh"  //--apostolis parametrization------------
 //#include "g4std/iomanip"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -135,8 +135,8 @@ void KM3Physics::ConstructProcess() {
   AddParameterisation();
   ConstructEM();
 #ifdef G4HADRONIC_COMPILE
-  ConstructHA(); // construct hadronic processes only in case of Pythia input
-                 // (for apparent reasons)
+  ConstructHA();  // construct hadronic processes only in case of Pythia input
+                  // (for apparent reasons)
 #endif
   ConstructGeneral();
   ConstructOP();
@@ -188,8 +188,8 @@ void KM3Physics::ConstructProcess() {
 #include "G4MuPairProduction.hh"
 #ifdef G4HADRONIC_COMPILE
 #include "G4MuonMinusCaptureAtRest.hh"
-#include "G4MuonNuclearProcess.hh" //transition to 4.9.6
-#include "G4MuonVDNuclearModel.hh" //transition to 4.9.6
+#include "G4MuonNuclearProcess.hh"  //transition to 4.9.6
+#include "G4MuonVDNuclearModel.hh"  //transition to 4.9.6
 #include "G4hBremsstrahlung.hh"
 #include "G4hPairProduction.hh"
 #endif
@@ -216,8 +216,8 @@ void KM3Physics::ConstructEM() {
       // gamma conversion to e+e- pair
       G4GammaConversion *aGammaConversion = new G4GammaConversion();
       lowE = 2 * electron_mass_c2;
-      highE = 100.0 * PeV; // 100TeV before
-      nBins = 220;         // 120 before
+      highE = 100.0 * PeV;  // 100TeV before
+      nBins = 220;          // 120 before
       //      aGammaConversion->SetPhysicsTableBining(lowE,highE,nBins);
       //      //not applicable to Geant 4.8
       aGammaConversion->SetLambdaBinning(nBins);
@@ -228,8 +228,8 @@ void KM3Physics::ConstructEM() {
       //      pmanager->AddDiscreteProcess(new G4GammaConversionToMuons());
       G4ComptonScattering *aComptonScattering = new G4ComptonScattering();
       lowE = 1 * keV;
-      highE = 100.0 * PeV; // 100TeV before
-      nBins = 220;         // 120 before
+      highE = 100.0 * PeV;  // 100TeV before
+      nBins = 220;          // 120 before
       //      aComptonScattering->SetPhysicsTableBining(lowE,highE,nBins);
       //      //not applicable to Geant 4.8
       aComptonScattering->SetLambdaBinning(nBins);
@@ -241,8 +241,8 @@ void KM3Physics::ConstructEM() {
 
     } else if (particleName == "e-") {
       // electron
-      highE = 100.0 * PeV; // 100TeV before
-      nBins = 220;         // 120 before
+      highE = 100.0 * PeV;  // 100TeV before
+      nBins = 220;          // 120 before
       G4eMultipleScattering *theeminusMultipleScattering =
           new G4eMultipleScattering();
       //      theeminusMultipleScattering->SetBinning(nBins);
@@ -277,8 +277,8 @@ void KM3Physics::ConstructEM() {
 
     } else if (particleName == "e+") {
       // positron
-      highE = 100.0 * PeV; // 100TeV before
-      nBins = 220;         // 120 before
+      highE = 100.0 * PeV;  // 100TeV before
+      nBins = 220;          // 120 before
       G4eMultipleScattering *theeplusMultipleScattering =
           new G4eMultipleScattering();
       //      theeplusMultipleScattering->SetBinning(nBins);
@@ -326,8 +326,8 @@ void KM3Physics::ConstructEM() {
     } else if (particleName == "mu+" || particleName == "mu-") {
       // muon
       lowE = 500.0 * GeV;
-      highE = 100.0 * PeV; // 100TeV before
-      nBins = 220;         // 120 before
+      highE = 100.0 * PeV;  // 100TeV before
+      nBins = 220;          // 120 before
       G4MuMultipleScattering *aMultipleScattering =
           new G4MuMultipleScattering();
       //      aMultipleScattering->SetBinning(nBins);
@@ -386,8 +386,8 @@ void KM3Physics::ConstructEM() {
                (particle->GetPDGCharge() != 0.0) &&
                (particle->GetParticleName() != "chargedgeantino")) {
       // all others charged particles except geantino
-      highE = 100.0 * PeV; // 100TeV before
-      nBins = 220;         // 120 before
+      highE = 100.0 * PeV;  // 100TeV before
+      nBins = 220;          // 120 before
 
       G4hMultipleScattering *aMultipleScattering = new G4hMultipleScattering();
       //      aMultipleScattering->SetBinning(nBins);
@@ -463,7 +463,7 @@ void KM3Physics::ConstructHA() {
 
   // hadron physics (elastic)
   G4HadronElasticPhysics *theHadronElasticPhysics =
-      new G4HadronElasticPhysics(2); // verbose level
+      new G4HadronElasticPhysics(2);  // verbose level
   theHadronElasticPhysics->ConstructProcess();
 
   // hadron physics (inelastic). from HadronPhysicsQGSP_FTFP_BERT builder
@@ -506,7 +506,7 @@ void KM3Physics::ConstructHA() {
         // app->GetProcessName() <<" "<<app->GetProcessSubType()<<G4endl;
         if (app->GetProcessSubType() == 121 ||
             app->GetProcessSubType() ==
-                111) { // is hadronic inelastic or elastic process
+                111) {  // is hadronic inelastic or elastic process
           G4HadronicProcess *aHp = (G4HadronicProcess *)(*aVector)[iii];
           G4EnergyRangeManager *aMan = aHp->GetManagerPointer();
           G4cout << aHp->GetProcessName() << G4endl;
@@ -1168,7 +1168,6 @@ void KM3Physics::ConstructOP() {
 #include "G4Ions.hh"
 
 void KM3Physics::ConstructGeneral() {
-
   // Add Decay Process
   G4Decay *theDecayProcess = new G4Decay();
   theParticleIterator->reset();
@@ -1312,13 +1311,13 @@ void KM3Physics::SetCuts() {
   */
 
   printf("dfdfdfdfdfdfdfdf\n");
-  DumpCutValuesTable(5);   // b quark
-  DumpCutValuesTable(22);  // gamma
-  DumpCutValuesTable(-11); // e+
-  DumpCutValuesTable(11);  // e-
-  DumpCutValuesTable(-13); // mu+
-  DumpCutValuesTable(13);  // mu-
-  DumpCutValuesTable(0);   // opticalphoton
+  DumpCutValuesTable(5);    // b quark
+  DumpCutValuesTable(22);   // gamma
+  DumpCutValuesTable(-11);  // e+
+  DumpCutValuesTable(11);   // e-
+  DumpCutValuesTable(-13);  // mu+
+  DumpCutValuesTable(13);   // mu-
+  DumpCutValuesTable(0);    // opticalphoton
   printf("sssssssssssssssss\n");
 
   //  DumpCutValues();

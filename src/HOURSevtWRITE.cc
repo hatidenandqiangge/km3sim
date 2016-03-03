@@ -19,8 +19,7 @@ HOURSevtWRITE::HOURSevtWRITE(char *infilechar, char *outfilechar) {
       hasbundleinfo = false;
       break;
     }
-    if (nevents == 10)
-      break;
+    if (nevents == 10) break;
   }
   // position to the beggining of the file
   infile.clear();
@@ -39,14 +38,12 @@ HOURSevtWRITE::~HOURSevtWRITE() {
 }
 
 void HOURSevtWRITE::ReadRunHeader() {
-  if (!RunHeaderIsRead)
-    evt->read(infile);
+  if (!RunHeaderIsRead) evt->read(infile);
   RunHeaderIsRead = true;
 }
 
 void HOURSevtWRITE::WriteRunHeader() {
-  if (!RunHeaderIsWrite)
-    evt->write(outfile);
+  if (!RunHeaderIsWrite) evt->write(outfile);
   RunHeaderIsWrite = true;
 }
 
@@ -93,7 +90,7 @@ void HOURSevtWRITE::ReadEvent() {
       ParticleInfo = evt->next("track_in");
     GetArgs(ParticleInfo, argnumber, args);
     if ((int)args[9] >
-        0) { // do not count particles not within standard pdg coding
+        0) {  // do not count particles not within standard pdg coding
       ParticlesIdNumber[icount] = (int)args[0];
       ParticlesHEPNumber[icount] = (int)args[9];
       icount++;
@@ -137,12 +134,12 @@ void HOURSevtWRITE::AddHit(int id, int PMTid, double pe, double t, int trackid,
     Gid = ParticlesHEPNumber[trackid - 1];
     trackid =
         ParticlesIdNumber[trackid -
-                          1]; // convert from geant track id to input track id
+                          1];  // convert from geant track id to input track id
   } else {
     Gid = 6;
     trackid = 999999;
   }
-  PMTid++; // in the evt file the numbering of pmts starts from 1
+  PMTid++;  // in the evt file the numbering of pmts starts from 1
   sprintf(buffer, "%8d %6d %6.2f %10.2f %4d %4d %3d %10.2f %4d", id, PMTid, pe,
           t, Gid, trackid, npepure, ttpure, creatorProcess);
   string dw(buffer);
@@ -165,7 +162,7 @@ void HOURSevtWRITE::AddMuonPositionInfo(int tracknumber, int positionnumber,
   char buffer[256];
   tracknumber =
       ParticlesIdNumber[tracknumber -
-                        1]; // convert from geant track id to input track id
+                        1];  // convert from geant track id to input track id
   sprintf(buffer,
           "%4d %2d %8.2f %8.2f %8.2f %10.6f %10.6f %10.6f %12.6e %10.2f",
           tracknumber, positionnumber, posx, posy, posz, momx, momy, momz, mom,
@@ -181,7 +178,7 @@ void HOURSevtWRITE::AddMuonPositionInfo(int tracknumber, int positionnumber,
   char buffer[256];
   tracknumber =
       ParticlesIdNumber[tracknumber -
-                        1]; // convert from geant track id to input track id
+                        1];  // convert from geant track id to input track id
   sprintf(buffer, "%4d %2d %8.2f %8.2f %8.2f %10.2f", tracknumber,
           positionnumber, posx, posy, posz, time);
   string dw(buffer);
@@ -193,14 +190,12 @@ void HOURSevtWRITE::AddMuonDecaySecondaries(int trackID, int parentID,
                                             double posz, double dx, double dy,
                                             double dz, double energy,
                                             double time, int idPDG) {
-  if (parentID > NumberOfParticles)
-    return;
+  if (parentID > NumberOfParticles) return;
   int Gid = ParticlesHEPNumber[parentID - 1];
-  if ((Gid != 5) && (Gid != 6))
-    return;
+  if ((Gid != 5) && (Gid != 6)) return;
   parentID =
       ParticlesIdNumber[parentID -
-                        1]; // convert from geant track id to input track id
+                        1];  // convert from geant track id to input track id
   string dt("muon_decay");
   char buffer[256];
   sprintf(
@@ -213,16 +208,14 @@ void HOURSevtWRITE::AddMuonDecaySecondaries(int trackID, int parentID,
 
 #ifdef G4MYMUON_KEEPENERGY
 void HOURSevtWRITE::AddMuonEnergyInfo(const vector<double> &info) {
-  if (info.size() == 0)
-    return;
+  if (info.size() == 0) return;
   string dt("muonenergy_info");
   char buffer[256];
   int NumberOfTags = int((info.size() - 1) / 10.0) + 1;
   for (int itag = 0; itag < NumberOfTags; itag++) {
     int istart = 10 * itag;
     int istop = istart + 10;
-    if (istop > info.size())
-      istop = info.size();
+    if (istop > info.size()) istop = info.size();
     int nentries = istop - istart;
     int i = istart;
     if (nentries == 10)

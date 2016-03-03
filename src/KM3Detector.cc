@@ -9,11 +9,11 @@
 #include "G4VUserDetectorConstruction.hh"
 #include "KM3SD.hh"
 #include "KM3StackingAction.hh"
-#include "KM3EMShowerModel.hh" //apostolis parametrization
+#include "KM3EMShowerModel.hh"  //apostolis parametrization
 KM3EMShowerModel *myEMShowerModel;
 
 #ifdef G4HADRONIC_COMPILE
-#include "KM3HAShowerModel.hh" //apostolis parametrization
+#include "KM3HAShowerModel.hh"  //apostolis parametrization
 KM3HAShowerModel *myHAShowerModel;
 #endif
 
@@ -39,9 +39,9 @@ KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();
   allStoreys = new std::vector<StoreysPositions *>;
   allOMs = new std::vector<OMPositions *>;
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) && \
     !defined(G4DISABLE_PARAMETRIZATION)
-  allTowers = new std::vector<TowersPositions *>; // new towers
+  allTowers = new std::vector<TowersPositions *>;  // new towers
 #endif
 }
 KM3Detector::~KM3Detector() {
@@ -64,7 +64,7 @@ KM3Detector::~KM3Detector() {
   allStoreys->clear();
   delete allStoreys;
 
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) && \
     !defined(G4DISABLE_PARAMETRIZATION)
   for (size_t i = 0; i < allTowers->size(); i++) {
     (*allTowers)[i]->BenthosIDs->clear();
@@ -102,15 +102,11 @@ void KM3Detector::FindDetectorRadius() {
     G4ThreeVector pos = (*(allStoreys))[isto]->position;
     G4double radius = (*(allStoreys))[isto]->radius;
     G4double dist = pos.mag() + radius;
-    if (absdetectorRadius < dist)
-      absdetectorRadius = dist;
-    if (pos[2] < lowestStorey)
-      lowestStorey = pos[2];
-    if (pos[2] > highestStorey)
-      highestStorey = pos[2];
+    if (absdetectorRadius < dist) absdetectorRadius = dist;
+    if (pos[2] < lowestStorey) lowestStorey = pos[2];
+    if (pos[2] > highestStorey) highestStorey = pos[2];
     G4double distRho = sqrt(pos[0] * pos[0] + pos[1] * pos[1]) + radius;
-    if (outerStorey < distRho)
-      outerStorey = distRho;
+    if (outerStorey < distRho) outerStorey = distRho;
   }
   detectorMaxRho = outerStorey + MaxAbsDist;
   detectorRadius = MaxAbsDist + absdetectorRadius;
@@ -158,14 +154,14 @@ void KM3Detector::SetUpVariables() {
     HepTool::Evaluator fCalc;
     fCalc.setSystemOfUnits(
         1.e+3, 1. / 1.60217733e-25, 1.e+9, 1. / 1.60217733e-10, 1.0, 1.0,
-        1.0); // asign default variables to evaluator (Geant4 Units)
+        1.0);  // asign default variables to evaluator (Geant4 Units)
     while (fscanf(infile, "%s", varname) != EOF) {
       G4String thename = G4String(varname);
       if (thename == String0) {
         readvalues[0] = 1;
         fscanf(infile, "%s\n", expression);
         detectorDepth = fCalc.evaluate(expression);
-      } // this should be the detector depth at the center of the detector. It
+      }  // this should be the detector depth at the center of the detector. It
       // is used to calculate
       // the seawater density using the compressibility of the sea water (see
       // below)
@@ -173,7 +169,7 @@ void KM3Detector::SetUpVariables() {
         readvalues[1] = 1;
         fscanf(infile, "%s\n", expression);
         bottomPosition = fCalc.evaluate(expression);
-      } // this is the position of the bottom of the sea relative to detector
+      }  // this is the position of the bottom of the sea relative to detector
       // center
       else if (thename == String2) {
         readvalues[2] = 1;
@@ -189,9 +185,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String3) {
         readvalues[3] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_WATER[i] = fCalc.evaluate(expression);
@@ -201,14 +198,15 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String4) {
         readvalues[4] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         fscanf(infile, "%s", expression);
         Water_Transparency = fCalc.evaluate(expression);
         fscanf(infile, "%s", expression);
-        MaxRelDist = fCalc.evaluate(expression); // How many absorption lengths
-                                                 // optical photons can cross
+        MaxRelDist = fCalc.evaluate(expression);  // How many absorption lengths
+                                                  // optical photons can cross
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_WATER[i] = Water_Transparency / fCalc.evaluate(expression);
@@ -216,7 +214,7 @@ void KM3Detector::SetUpVariables() {
         fscanf(infile, "%s\n", expression);
         ABSORPTION_WATER[NUMENTRIES - 1] =
             Water_Transparency / fCalc.evaluate(expression);
-#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
+#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) && \
     !defined(G4MYK40_PARAMETERIZATION)
         // here we put a virtual absorption length (300m) to a large value to
         // have more photons detected on large distances
@@ -231,9 +229,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String5) {
         readvalues[5] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_GLASS[i] = fCalc.evaluate(expression);
@@ -243,9 +242,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String6) {
         readvalues[6] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_GLASS[i] = fCalc.evaluate(expression);
@@ -255,9 +255,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String7) {
         readvalues[7] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_GELL[i] = fCalc.evaluate(expression);
@@ -267,9 +268,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String8) {
         readvalues[8] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_GELL[i] = fCalc.evaluate(expression);
@@ -279,9 +281,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String9) {
         readvalues[9] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_AIR[i] = fCalc.evaluate(expression);
@@ -291,9 +294,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String10) {
         readvalues[10] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_AIR[i] = fCalc.evaluate(expression);
@@ -303,9 +307,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String11) {
         readvalues[11] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           RINDEX_CATH[i] = fCalc.evaluate(expression);
@@ -315,9 +320,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String12) {
         readvalues[12] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           ABSORPTION_CATH[i] = fCalc.evaluate(expression);
@@ -327,12 +333,13 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String13) {
         readvalues[13] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property (PPCKOV keyword)",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property (PPCKOV keyword)",
+              "", FatalException, "");
         fscanf(infile, "%s", expression);
         Quantum_Efficiency = fCalc.evaluate(
-            expression); // maximum quantum efficienscy, used in KM3Cherenkov
+            expression);  // maximum quantum efficienscy, used in KM3Cherenkov
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           Q_EFF[i] = fCalc.evaluate(expression);
@@ -342,9 +349,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String14) {
         readvalues[14] = 1;
         if (NUMENTRIES < 0)
-          G4Exception("Wavelengths of Optical Photons must be set before "
-                      "setting any other Optical Property (PPCKOV keyword)",
-                      "", FatalException, "");
+          G4Exception(
+              "Wavelengths of Optical Photons must be set before "
+              "setting any other Optical Property (PPCKOV keyword)",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES - 1; i++) {
           fscanf(infile, "%s", expression);
           SCATTER_WATER[i] = fCalc.evaluate(expression);
@@ -355,7 +363,7 @@ void KM3Detector::SetUpVariables() {
         readvalues[15] = 1;
         fscanf(infile, "%s\n", expression);
         MieModel = fCalc.evaluate(expression);
-      } // Mie model as of mie phase factors file
+      }  // Mie model as of mie phase factors file
       else if (thename == String16) {
         readvalues[16] = 1;
         fscanf(infile, "%s", expression);
@@ -369,9 +377,10 @@ void KM3Detector::SetUpVariables() {
       } else if (thename = String17) {
         readvalues[17] = 1;
         if (NUMENTRIES_ANGLEACC < 0)
-          G4Exception("Cosine angles values must be set before setting angular "
-                      "acceptance values",
-                      "", FatalException, "");
+          G4Exception(
+              "Cosine angles values must be set before setting angular "
+              "acceptance values",
+              "", FatalException, "");
         for (G4int i = 0; i < NUMENTRIES_ANGLEACC - 1; i++) {
           fscanf(infile, "%s", expression);
           ACCEPTANCE[i] = fCalc.evaluate(expression);
@@ -385,60 +394,60 @@ void KM3Detector::SetUpVariables() {
     for (G4int i = 0; i < 18; i++) {
       if (readvalues[i] == 0) {
         switch (i) {
-        case 0:
-          G4Exception("detectorDepth not set", "", FatalException, "");
-          break;
-        case 1:
-          G4Exception("bottomPosition not set", "", FatalException, "");
-          break;
-        case 2:
-          G4Exception("PPCKOV not set", "", FatalException, "");
-          break;
-        case 3:
-          G4Exception("RINDEX_WATER not set", "", FatalException, "");
-          break;
-        case 4:
-          G4Exception("ABSORPTION_WATER not set", "", FatalException, "");
-          break;
-        case 5:
-          G4Exception("RINDEX_GLASS not set", "", FatalException, "");
-          break;
-        case 6:
-          G4Exception("ABSORPTION_GLASS not set", "", FatalException, "");
-          break;
-        case 7:
-          G4Exception("RINDEX_GELL not set", "", FatalException, "");
-          break;
-        case 8:
-          G4Exception("ABSORPTION_GELL not set", "", FatalException, "");
-          break;
-        case 9:
-          G4Exception("RINDEX_AIR not set", "", FatalException, "");
-          break;
-        case 10:
-          G4Exception("ABSORPTION_AIR not set", "", FatalException, "");
-          break;
-        case 11:
-          G4Exception("RINDEX_CATH not set", "", FatalException, "");
-          break;
-        case 12:
-          G4Exception("ABSORPTION_CATH not set", "", FatalException, "");
-          break;
-        case 13:
-          G4Exception("Q_EFF not set", "", FatalException, "");
-          break;
-        case 14:
-          G4Exception("MIE_WATER not set", "", FatalException, "");
-          break;
-        case 15:
-          G4Exception("MIE_MODEL not set", "", FatalException, "");
-          break;
-        case 16:
-          G4Exception("COS_ANGLES not set", "", FatalException, "");
-          break;
-        case 17:
-          G4Exception("ANG_ACCEPT not set", "", FatalException, "");
-          break;
+          case 0:
+            G4Exception("detectorDepth not set", "", FatalException, "");
+            break;
+          case 1:
+            G4Exception("bottomPosition not set", "", FatalException, "");
+            break;
+          case 2:
+            G4Exception("PPCKOV not set", "", FatalException, "");
+            break;
+          case 3:
+            G4Exception("RINDEX_WATER not set", "", FatalException, "");
+            break;
+          case 4:
+            G4Exception("ABSORPTION_WATER not set", "", FatalException, "");
+            break;
+          case 5:
+            G4Exception("RINDEX_GLASS not set", "", FatalException, "");
+            break;
+          case 6:
+            G4Exception("ABSORPTION_GLASS not set", "", FatalException, "");
+            break;
+          case 7:
+            G4Exception("RINDEX_GELL not set", "", FatalException, "");
+            break;
+          case 8:
+            G4Exception("ABSORPTION_GELL not set", "", FatalException, "");
+            break;
+          case 9:
+            G4Exception("RINDEX_AIR not set", "", FatalException, "");
+            break;
+          case 10:
+            G4Exception("ABSORPTION_AIR not set", "", FatalException, "");
+            break;
+          case 11:
+            G4Exception("RINDEX_CATH not set", "", FatalException, "");
+            break;
+          case 12:
+            G4Exception("ABSORPTION_CATH not set", "", FatalException, "");
+            break;
+          case 13:
+            G4Exception("Q_EFF not set", "", FatalException, "");
+            break;
+          case 14:
+            G4Exception("MIE_WATER not set", "", FatalException, "");
+            break;
+          case 15:
+            G4Exception("MIE_MODEL not set", "", FatalException, "");
+            break;
+          case 16:
+            G4Exception("COS_ANGLES not set", "", FatalException, "");
+            break;
+          case 17:
+            G4Exception("ANG_ACCEPT not set", "", FatalException, "");
+            break;
         }
       }
     }
@@ -621,7 +630,7 @@ void KM3Detector::ConstructMaterials() {
   Properties_Water->AddProperty("RINDEX", PPCKOV, RINDEX_WATER, NUMENTRIES);
   Properties_Water->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_WATER,
                                 NUMENTRIES);
-#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
+#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) && \
     !defined(G4MYK40_PARAMETERIZATION)
   Properties_Water->AddProperty("ABSLENGTH_TRUE", PPCKOV, ABSORPTION_WATER_TRUE,
                                 NUMENTRIES);
@@ -668,9 +677,9 @@ void KM3Detector::ConstructMaterials() {
 G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   static G4int Cathods = 0;
   static G4int Storeys = 0;
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) && \
     !defined(G4DISABLE_PARAMETRIZATION)
-  static G4int Towers = 0; // new towers
+  static G4int Towers = 0;  // new towers
 #endif
   static G4int OMs = 0;
   static G4AffineTransform AffineTrans;
@@ -678,15 +687,15 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   static G4int Depth = 0;
   static G4int Hist[20];
   static std::vector<G4int>
-      *aBenthosIDs; // static in order to load the benthos (OMs)
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+      *aBenthosIDs;  // static in order to load the benthos (OMs)
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) && \
     !defined(G4DISABLE_PARAMETRIZATION)
-  static std::vector<G4int> *aTowerBenthosIDs; // static in order to load the
-                                               // benthos (OMs) in towers //new
-                                               // towers
+  static std::vector<G4int> *aTowerBenthosIDs;  // static in order to load the
+                                                // benthos (OMs) in towers //new
+                                                // towers
 #endif
   static std::vector<G4int>
-      *aCathodsIDs; // static in order to load the cathods (Cathods)
+      *aCathodsIDs;  // static in order to load the cathods (Cathods)
 
   //  G4cout <<Depth<<" "<<aPVolume->GetCopyNo()<<"
   //  "<<aPVolume->GetName()<<G4endl; //tempotest
@@ -695,17 +704,17 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue();
   //  if(aPVolume->GetName() == "CathodVolume_PV"){ //for newgeant  add "_PV" at
   //  the end of physical volume name
-  if ((aPVolume->GetName()).contains("CathodVolume")) { // for newgeant  add
-                                                        // "_PV" at the end of
-                                                        // physical volume name
+  if ((aPVolume->GetName()).contains("CathodVolume")) {  // for newgeant  add
+                                                         // "_PV" at the end of
+                                                         // physical volume name
     G4ThreeVector Position =
         AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
     G4Transform3D trans(RotationMatr, Position);
     // estimate cathod radius///////////////////////////////
     G4double CathodRadius = 0.0;
-    G4double CathodHeight = -1.0 * mm; // set default to begative, since it is
-                                       // not applicable to spherical cathods
+    G4double CathodHeight = -1.0 * mm;  // set default to begative, since it is
+                                        // not applicable to spherical cathods
     if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
         G4String("G4Sphere")) {
       CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
@@ -715,31 +724,32 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
               ->GetInnerRadius();
       if ((CathodRadius - InnerRadius) < 1.001 * mm)
         CathodRadius =
-            0.5 * (CathodRadius +
-                   InnerRadius); // applicable mainly to shell type cathods (EM)
+            0.5 *
+            (CathodRadius +
+             InnerRadius);  // applicable mainly to shell type cathods (EM)
     } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
                G4String("G4Tubs")) {
       CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-                         ->GetOuterRadius(); // applicable to thin tube cathods
-                                             // (normal run)
+                         ->GetOuterRadius();  // applicable to thin tube cathods
+                                              // (normal run)
       CathodHeight = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
                          ->GetZHalfLength();
-      CathodHeight *= 2.0; // full height
+      CathodHeight *= 2.0;  // full height
     }
     ///////////////////////////////////////////
     allCathods->addCathod(trans, Position, Direction, CathodRadius,
                           CathodHeight, Depth - 1);
-    for (G4int i = 1; i < Depth; i++)
-      allCathods->addToTree(Hist[i]);
+    for (G4int i = 1; i < Depth; i++) allCathods->addToTree(Hist[i]);
     // G4cout << Depth <<" "<<Hist[0]<<" "<<Hist[1]<<" "<<Hist[2]<<"
     // "<<Hist[3]<<" "<<Hist[4]<<" "<<Hist[5]<<G4endl; //tempotest
     // G4cout << Position <<" "<<Direction<<G4endl; //tempotest
     aCathodsIDs->push_back(Cathods);
     Cathods++;
   } else {
-    if ((aPVolume->GetName()).contains("OMVolume")) { // for newgeant  add "_PV"
-                                                      // at the end of physical
-                                                      // volume name
+    if ((aPVolume->GetName())
+            .contains("OMVolume")) {  // for newgeant  add "_PV"
+                                      // at the end of physical
+                                      // volume name
       OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
       aOM->position =
           AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
@@ -761,8 +771,8 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
                                ->GetOuterRadius();
         aOM->radius = sqrt(zLength * zLength + oRadius * oRadius);
       } else {
-        G4VoxelLimits voxelLimits;         // Defaults to "infinite" limits.
-        G4AffineTransform affineTransform; // no transform
+        G4VoxelLimits voxelLimits;          // Defaults to "infinite" limits.
+        G4AffineTransform affineTransform;  // no transform
         G4double xmin, xmax, ymin, ymax, zmin, zmax;
         aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
             kXAxis, voxelLimits, affineTransform, xmin, xmax);
@@ -777,15 +787,15 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       }
       allOMs->push_back(aOM);
       aBenthosIDs->push_back(OMs);
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) && \
     !defined(G4DISABLE_PARAMETRIZATION)
-      aTowerBenthosIDs->push_back(OMs); // new towers
+      aTowerBenthosIDs->push_back(OMs);  // new towers
 #endif
       OMs++;
     }
     if ((aPVolume->GetName())
-            .contains("StoreyVolume")) { // for newgeant  add "_PV" at the end
-                                         // of physical volume name
+            .contains("StoreyVolume")) {  // for newgeant  add "_PV" at the end
+                                          // of physical volume name
       StoreysPositions *aStorey =
           (StoreysPositions *)malloc(sizeof(StoreysPositions));
       aStorey->position =
@@ -795,11 +805,11 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       allStoreys->push_back(aStorey);
       Storeys++;
     }
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) &&  \
+#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION) && \
     !defined(G4DISABLE_PARAMETRIZATION)
     if ((aPVolume->GetName())
-            .contains("TowerVolume")) { // new towers //for newgeant  add "_PV"
-                                        // at the end of physical volume name
+            .contains("TowerVolume")) {  // new towers //for newgeant  add "_PV"
+                                         // at the end of physical volume name
       TowersPositions *aTower =
           (TowersPositions *)malloc(sizeof(TowersPositions));
       aTower->position =
@@ -827,7 +837,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
 }
 
 // newgeant #include "G4Processor/GDMLProcessor.h"
-#include "G4GDMLParser.hh" //newgeant
+#include "G4GDMLParser.hh"  //newgeant
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4GeometryManager.hh"
@@ -841,13 +851,14 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // newgeant fWorld =  (G4VPhysicalVolume
   // *)GDMLProcessor::GetInstance()->GetWorldVolume();
-  G4GDMLParser parser;                                   // newgeant
-  parser.Read(Geometry_File);                            // newgeant
-  fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume(); // newgeant
+  G4GDMLParser parser;                                    // newgeant
+  parser.Read(Geometry_File);                             // newgeant
+  fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume();  // newgeant
   if (fWorld == 0)
-    G4Exception("World volume not set properly check your setup selection "
-                "criteria or GDML input!",
-                "", FatalException, "");
+    G4Exception(
+        "World volume not set properly check your setup selection "
+        "criteria or GDML input!",
+        "", FatalException, "");
 
   G4cout << "Total Cathods " << TotalPMTEntities(fWorld) << G4endl;
 
@@ -866,8 +877,8 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   KM3SD *aMySD = new KM3SD(MySDname);
   aMySD->SetVerboseLevel(1);
   aMySD->myStDetector = this;
-#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
-    defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) || \
+    defined(G4MYHA_PARAMETERIZATION)  // newha
   aMySD->myPhotonsNumber = myPhotonsNumber;
   aMySD->myPhotonsTime = myPhotonsTime;
   aMySD->myPhotonsTh2Th3Num = myPhotonsTh2Th3Num;
@@ -973,8 +984,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
       G4ThreeVector OMposition = (*allOMs)[iOM]->position;
       G4double OMradius = (*allOMs)[iOM]->radius;
       G4double dist = (storeyposition - OMposition).mag() + OMradius;
-      if (dist > MAXdist)
-        MAXdist = dist;
+      if (dist > MAXdist) MAXdist = dist;
     }
     (*allStoreys)[istorey]->radius = MAXdist;
   }
@@ -990,8 +1000,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // here in case of antares evt format I should write something general about
   // simulation
-  if (useANTARESformat)
-    TheEVTtoWrite->ReadRunHeader();
+  if (useANTARESformat) TheEVTtoWrite->ReadRunHeader();
 
   if (outfile == NULL && !useANTARESformat)
     G4cout << "ERROR OUTFILE\n" << G4endl;
@@ -1010,11 +1019,10 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   }
 #endif
 
-  if (useANTARESformat)
-    TheEVTtoWrite->WriteRunHeader();
+  if (useANTARESformat) TheEVTtoWrite->WriteRunHeader();
 
-#if !defined(G4ENABLE_MIE) ||                                                  \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
+#if !defined(G4ENABLE_MIE) || \
+    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
   // initialize the splitted spheres
   initializeSpheres();
 #endif
@@ -1023,11 +1031,11 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
   TotCathodArea =
       CaPerOM * pi * allCathods->GetCathodRadius(0) *
-      allCathods->GetCathodRadius(0); // this is valid only if at simulation
-                                      // level (not EM or HA param) all cathods
-                                      // have the same radius. Easy to change to
-                                      // account for a detector with varius
-                                      // cathod types
+      allCathods->GetCathodRadius(0);  // this is valid only if at simulation
+                                       // level (not EM or HA param) all cathods
+  // have the same radius. Easy to change to
+  // account for a detector with varius
+  // cathod types
 
   //-----------apostolis Parameterisation ------------------------------
   G4Region *defRegion =
@@ -1050,8 +1058,8 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   return fWorld;
 }
 
-#if !defined(G4ENABLE_MIE) ||                                                  \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
+#if !defined(G4ENABLE_MIE) || \
+    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
 //--new initialize spheres
 void KM3Detector::initializeSpheres(void) {
   // allmyBenthos keep for each sphere the positions and radii of the PMts that
@@ -1107,7 +1115,7 @@ void KM3Detector::splitSpheresCluster(
       mySpherenext->allnext = thenextnext;
       mySphere->allnext->push_back(mySpherenext);
     }
-    return; // this is the end of the line
+    return;  // this is the end of the line
   }
 
   // load all benthos indexing in array ALLSTOREYS[1000] (needed only for
@@ -1146,11 +1154,11 @@ void KM3Detector::splitSpheresCluster(
     imanymax = howmanyStoreys - imanymin;
   }
   G4int iter = 0;
-  while (nmove > 0) { // while the iteration process has not converged to an
-                      // acceptable solution
+  while (nmove > 0) {  // while the iteration process has not converged to an
+                       // acceptable solution
     nmove = 0;
     for (G4int i = 0; i < howmanyStoreys;
-         i++) { // find each storey to what center belongs (is closer)
+         i++) {  // find each storey to what center belongs (is closer)
       G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
       distm = 1.0e20;
       for (G4int j = 0; j < numofCenters; j++) {
@@ -1169,23 +1177,23 @@ void KM3Detector::splitSpheresCluster(
     }
 
     igood = 1;
-    if (nmove == 0) { // if it has converged see if the solution is acceptable
+    if (nmove == 0) {  // if it has converged see if the solution is acceptable
       for (G4int j = 0; j < numofCenters; j++) {
         imanystoreysarr[j] = 0;
         for (G4int i = 0; i < howmanyStoreys; i++)
-          if (ALLSTOREYS[i] == j)
-            imanystoreysarr[j]++;
+          if (ALLSTOREYS[i] == j) imanystoreysarr[j]++;
       }
       for (G4int j = 0; j < numofCenters; j++) {
         if ((imanystoreysarr[j] < imanymin) || (imanystoreysarr[j] > imanymax))
           igood = 0;
       }
       if (igood ==
-          0) { // if it is not acceptable then find randomly other centers
+          0) {  // if it is not acceptable then find randomly other centers
         iter++;
-        imanyminMAX = int(fmax(double(imanyminMAX),
-                               fmin(imanystoreysarr[0],
-                                    imanystoreysarr[1]))); // for only 2 centers
+        imanyminMAX =
+            int(fmax(double(imanyminMAX),
+                     fmin(imanystoreysarr[0],
+                          imanystoreysarr[1])));  // for only 2 centers
         if (iter > 1000) {
           imanymin = imanyminMAX;
           imanymax = howmanyStoreys - imanymin;
@@ -1203,8 +1211,8 @@ void KM3Detector::splitSpheresCluster(
       }
     }
 
-    if (igood == 1) {   // if the solution is acceptable or it has not converged
-      if (nmove != 0) { // if it has not converged
+    if (igood == 1) {  // if the solution is acceptable or it has not converged
+      if (nmove != 0) {  // if it has not converged
         // find the new center coordinates
         for (G4int j = 0; j < numofCenters; j++) {
           centers[j][0] = 0.0;
@@ -1228,7 +1236,7 @@ void KM3Detector::splitSpheresCluster(
         }
       }
     } else
-      nmove = 10; // the solution is not good and do again
+      nmove = 10;  // the solution is not good and do again
   }
 
   //------------end of clustering---------------------------
@@ -1238,9 +1246,9 @@ void KM3Detector::splitSpheresCluster(
   std::vector<StoreysPositions *> *negativemyStoreys =
       new std::vector<StoreysPositions *>;
   for (G4int i = 0; i < howmanyStoreys; i++) {
-    if (ALLSTOREYS[i] == 0) { // the first center
+    if (ALLSTOREYS[i] == 0) {  // the first center
       positivemyStoreys->push_back((*allmyStoreys)[i]);
-    } else { // the second center
+    } else {  // the second center
       negativemyStoreys->push_back((*allmyStoreys)[i]);
     }
   }

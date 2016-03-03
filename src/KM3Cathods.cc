@@ -41,8 +41,7 @@ G4int KM3Cathods::GetCathodId(const G4int dep, const G4int hist[]) {
   ih = 0;
   iterator = 0;
   while (ih < dep) {
-    while (hist[ih] != (*(theCathods[iterator]->Tree))[ih])
-      iterator++;
+    while (hist[ih] != (*(theCathods[iterator]->Tree))[ih]) iterator++;
     ih++;
   }
   return iterator;

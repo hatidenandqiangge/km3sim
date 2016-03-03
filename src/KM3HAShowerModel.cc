@@ -75,8 +75,8 @@ void KM3HAShowerModel::InitializeFlux(char *infileParam,
 
 // the following is for ha cascades only for pion plus and pion minus generated
 // it is applied also too all other frequently generated hadronic particles
-G4bool
-KM3HAShowerModel::IsApplicable(const G4ParticleDefinition &particleType) {
+G4bool KM3HAShowerModel::IsApplicable(
+    const G4ParticleDefinition &particleType) {
   if (&particleType == G4PionPlus::PionPlusDefinition() ||
       &particleType == G4PionMinus::PionMinusDefinition() ||
       &particleType == G4KaonPlus::KaonPlusDefinition() ||
@@ -106,8 +106,8 @@ G4bool KM3HAShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
   //  else Energy = fastTrack.GetPrimaryTrack()->GetTotalEnergy(); //if it is a
   //  meson use total energy
   Energy = (fastTrack.GetPrimaryTrack()->GetMomentum())
-               .mag(); // in fact the parametrization creation is according to
-                       // momentum
+               .mag();  // in fact the parametrization creation is according to
+                        // momentum
   return ((Energy >= EnergyMin) && (Energy <= EnergyMax) &&
           (materialName == "Water"));
 }
@@ -134,9 +134,9 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
     aMaterial = G4Material::GetMaterial("Water");
     G4MaterialPropertyVector *GroupVel =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
-    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE); // coresponds to the maximum
-                                                   // qe each time. This is the
-                                                   // right one
+    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);  // coresponds to the maximum
+                                                    // qe each time. This is the
+                                                    // right one
     // thespeedmaxQE=GroupVel->GetProperty(3.102*eV); //coresponds to 400nm
   }
 
@@ -162,8 +162,8 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
   //  else primaryShowerEnergy = fastTrack.GetPrimaryTrack()->GetTotalEnergy();
   //  //if it is a meson use total energy
   primaryShowerEnergy = (fastTrack.GetPrimaryTrack()->GetMomentum())
-                            .mag(); // in fact the parametrization creation is
-                                    // according to momentum
+                            .mag();  // in fact the parametrization creation is
+                                     // according to momentum
   // axis of the shower, in global reference frame (normalized to unity):
   G4ThreeVector primaryShowerAxis =
       fastTrack.GetPrimaryTrack()->GetMomentumDirection();
@@ -303,11 +303,11 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
                                      theFastTime + aPE.time, originalInfo,
                                      photonDirection);
             PhotonsSurviving++;
-          } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++)
-        }   // if(distancein<MaxAbsDist2)
-      }     // for(int io=0;io<TotalNumberOfOMs;io++)
-    }       // if(distancetower2<MaxAbsDist2)
-  }         // for(int it=0;it<TotalNumberOfTowers;it++)
+          }  // for(G4int isa=0 ; isa<NumberOfSamples ; isa++)
+        }    // if(distancein<MaxAbsDist2)
+      }      // for(int io=0;io<TotalNumberOfOMs;io++)
+    }        // if(distancetower2<MaxAbsDist2)
+  }          // for(int it=0;it<TotalNumberOfTowers;it++)
 //  G4cout << "Total photons created "<< PhotonsSurviving <<G4endl;
 #else
   ;

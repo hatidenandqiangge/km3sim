@@ -15,18 +15,18 @@ struct onePE {
 };
 
 class KM3EMTimePointDis {
-public:
+ public:
   KM3EMTimePointDis(std::ifstream &, bool &ok);
   ~KM3EMTimePointDis();
 
-public:
+ public:
   onePE GetSamplePoint();
   G4double GiveAngle() { return angle; };
   G4double GiveFlux() { return Flux; };
   G4double GiveFluxRMS() { return FluxRMS; };
   bool IsValid() { return IsThisValid; };
 
-private:
+ private:
   std::vector<G4float> *keepDis;
   std::vector<G4float> *keepTh2Th3Num;
   std::vector<G4float> *keepExpoTh2;
@@ -38,7 +38,7 @@ private:
   G4double FluxRMS;
   bool IsThisValid;
   // definition of bins limits for direction sampling
-  G4double theta_Low[834]; // this should be OMSolidAngleBins below
+  G4double theta_Low[834];  // this should be OMSolidAngleBins below
   G4double theta_High[834];
   G4double phi_Low[834];
   G4double phi_High[834];

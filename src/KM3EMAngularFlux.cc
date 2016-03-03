@@ -23,8 +23,7 @@ KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
       count = 0;
     else
       count++;
-    if (count > 1)
-      countall++;
+    if (count > 1) countall++;
     if (!oka)
       G4cout << "Null for Distance " << Distance / meter << " and angle "
              << aTimePointDis->GiveAngle() << G4endl;
@@ -37,8 +36,7 @@ KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
     IsThisValid = true;
   else {
     IsThisValid = false;
-    for (G4int i = 0; i < VertexSolidAngleBins; i++)
-      delete (*keepAngles)[i];
+    for (G4int i = 0; i < VertexSolidAngleBins; i++) delete (*keepAngles)[i];
     keepAngles->clear();
     delete keepAngles;
     keepAngles = NULL;
@@ -46,8 +44,7 @@ KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
 }
 KM3EMAngularFlux::~KM3EMAngularFlux() {
   if (keepAngles != NULL) {
-    for (G4int i = 0; i < VertexSolidAngleBins; i++)
-      delete (*keepAngles)[i];
+    for (G4int i = 0; i < VertexSolidAngleBins; i++) delete (*keepAngles)[i];
     keepAngles->clear();
     delete keepAngles;
     keepAngles = NULL;
@@ -60,36 +57,31 @@ void KM3EMAngularFlux::FindBins(G4double anglein) {
   G4int i;
   for (i = 0; i < VertexSolidAngleBins; i++) {
     if ((*keepAngles)[i]->IsValid()) {
-      if (anglein < (*keepAngles)[i]->GiveAngle())
-        break;
+      if (anglein < (*keepAngles)[i]->GiveAngle()) break;
     }
   }
   ibin2 = i;
   if (ibin2 == VertexSolidAngleBins) {
     for (i = VertexSolidAngleBins - 1; i >= 0; i--) {
-      if ((*keepAngles)[i]->IsValid())
-        break;
+      if ((*keepAngles)[i]->IsValid()) break;
     }
     ibin2 = i;
   }
   for (i = ibin2 - 1; i >= 0; i--) {
-    if ((*keepAngles)[i]->IsValid())
-      break;
+    if ((*keepAngles)[i]->IsValid()) break;
   }
   ibin1 = i;
   if (ibin1 == -1) {
     ibin1 = ibin2;
     for (i = ibin1 + 1; i < VertexSolidAngleBins; i++) {
-      if ((*keepAngles)[i]->IsValid())
-        break;
+      if ((*keepAngles)[i]->IsValid()) break;
     }
     ibin2 = i;
   }
   if (ibin2 == 0) {
     ibin1 = ibin2;
     for (i = ibin1 + 1; i < VertexSolidAngleBins; i++) {
-      if ((*keepAngles)[i]->IsValid())
-        break;
+      if ((*keepAngles)[i]->IsValid()) break;
     }
     ibin2 = i;
   }

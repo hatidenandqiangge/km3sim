@@ -47,7 +47,7 @@
 #include "KM3SD.hh"
 
 class KM3EMShowerModel : public G4VFastSimulationModel {
-public:
+ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
@@ -71,7 +71,7 @@ public:
   KM3SD *aMySD;
   void InitializeFlux(char *, G4double, G4double);
 
-private:
+ private:
   KM3EMEnergyFlux *myFlux;
   G4double EnergyThreshold;
   G4double thespeedmaxQE;

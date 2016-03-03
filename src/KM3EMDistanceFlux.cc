@@ -11,7 +11,7 @@ KM3EMDistanceFlux::KM3EMDistanceFlux(std::ifstream &infile) {
   for (G4int i = 0; i < VertexDistanceBins; i++) {
     bool oka;
     KM3EMAngularFlux *aAngularFlux =
-        new KM3EMAngularFlux(infile, oka, false); // false is for fine binning
+        new KM3EMAngularFlux(infile, oka, false);  // false is for fine binning
     keepDistances->push_back(aAngularFlux);
     if (!oka)
       G4cout << "Null for Energy " << Energy << " and distance "
@@ -20,8 +20,7 @@ KM3EMDistanceFlux::KM3EMDistanceFlux(std::ifstream &infile) {
 }
 KM3EMDistanceFlux::~KM3EMDistanceFlux() {
   if (keepDistances != NULL) {
-    for (G4int i = 0; i < VertexDistanceBins; i++)
-      delete (*keepDistances)[i];
+    for (G4int i = 0; i < VertexDistanceBins; i++) delete (*keepDistances)[i];
     keepDistances->clear();
     delete keepDistances;
     keepDistances = NULL;
@@ -31,36 +30,31 @@ void KM3EMDistanceFlux::FindBins(G4double distancein, G4double anglein) {
   G4int i;
   for (i = 0; i < VertexDistanceBins; i++) {
     if ((*keepDistances)[i]->IsValid()) {
-      if (distancein < (*keepDistances)[i]->GiveDistance())
-        break;
+      if (distancein < (*keepDistances)[i]->GiveDistance()) break;
     }
   }
   ibin2 = i;
   if (ibin2 == VertexDistanceBins) {
     for (i = VertexDistanceBins - 1; i >= 0; i--) {
-      if ((*keepDistances)[i]->IsValid())
-        break;
+      if ((*keepDistances)[i]->IsValid()) break;
     }
     ibin2 = i;
   }
   for (i = ibin2 - 1; i >= 0; i--) {
-    if ((*keepDistances)[i]->IsValid())
-      break;
+    if ((*keepDistances)[i]->IsValid()) break;
   }
   ibin1 = i;
   if (ibin1 == -1) {
     ibin1 = ibin2;
     for (i = ibin1 + 1; i < VertexDistanceBins; i++) {
-      if ((*keepDistances)[i]->IsValid())
-        break;
+      if ((*keepDistances)[i]->IsValid()) break;
     }
     ibin2 = i;
   }
   if (ibin2 == 0) {
     ibin1 = ibin2;
     for (i = ibin1 + 1; i < VertexDistanceBins; i++) {
-      if ((*keepDistances)[i]->IsValid())
-        break;
+      if ((*keepDistances)[i]->IsValid()) break;
     }
     ibin2 = i;
   }

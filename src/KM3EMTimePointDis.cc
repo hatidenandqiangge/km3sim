@@ -23,8 +23,7 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   Flux = double(*(float *)valC);
   infile.read(valC, 4);
   FluxRMS = double(*(float *)valC);
-  if (FluxRMS <= 0.0)
-    FluxRMS = sqrt(Flux);
+  if (FluxRMS <= 0.0) FluxRMS = sqrt(Flux);
   FluxRMS = FluxRMS * FluxRMS;
   Flux = log(Flux);
   FluxRMS = log(FluxRMS);
@@ -62,8 +61,7 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   for (G4int it23 = 0; it23 < TimeSolidAngleBins; it23++) {
     G4int ilast = it23 * TimeBins + TimeBins - 1;
     time_ok[it23] = ((*keepDis)[ilast] > 0.999);
-    if (!time_ok[it23])
-      G4cout << "Time bin is null " << it23 << G4endl;
+    if (!time_ok[it23]) G4cout << "Time bin is null " << it23 << G4endl;
   }
   //  G4cout<<"KM3EMTimePointDis "<<angle<<" "<<Flux<<"
   //  "<<(*keepTh2Th3Num)[833]<<G4endl;
@@ -95,8 +93,7 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
     cosmin = cosmin * cosmin;
     G4double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
     G4double dphi = acos(cosdphi) / degree;
-    if (dphi < 9.0)
-      dphi = 9.0;
+    if (dphi < 9.0) dphi = 9.0;
     G4int NumberOfPhis = int(ceil(180.0 / dphi));
     dphi = 180.0 / NumberOfPhis;
     for (G4int iph = 0; iph < NumberOfPhis; iph++) {
@@ -104,12 +101,10 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
       G4double phihigh = philow + dphi;
       theta_Low[ibinNum_Tot] = thetalow;
       theta_High[ibinNum_Tot] = thetahigh;
-      if (ith == NumberOfThetas1 - 1)
-        theta_High[ibinNum_Tot] = Theta1Max;
+      if (ith == NumberOfThetas1 - 1) theta_High[ibinNum_Tot] = Theta1Max;
       phi_Low[ibinNum_Tot] = philow;
       phi_High[ibinNum_Tot] = phihigh;
-      if (iph == NumberOfPhis - 1)
-        phi_High[ibinNum_Tot] = 180.0;
+      if (iph == NumberOfPhis - 1) phi_High[ibinNum_Tot] = 180.0;
       ibinNum_Tot++;
     }
   }
@@ -129,8 +124,7 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
     cosmin = cosmin * cosmin;
     G4double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
     G4double dphi = acos(cosdphi) / degree;
-    if (dphi < 9.0)
-      dphi = 9.0;
+    if (dphi < 9.0) dphi = 9.0;
     G4int NumberOfPhis = int(ceil(180.0 / dphi));
     dphi = 180.0 / NumberOfPhis;
     for (G4int iph = 0; iph < NumberOfPhis; iph++) {
@@ -138,19 +132,17 @@ KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
       G4double phihigh = philow + dphi;
       theta_Low[ibinNum_Tot] = thetalow;
       theta_High[ibinNum_Tot] = thetahigh;
-      if (ith == NumberOfThetas - 1)
-        theta_High[ibinNum_Tot] = Theta2Max;
+      if (ith == NumberOfThetas - 1) theta_High[ibinNum_Tot] = Theta2Max;
       phi_Low[ibinNum_Tot] = philow;
       phi_High[ibinNum_Tot] = phihigh;
-      if (iph == NumberOfPhis - 1)
-        phi_High[ibinNum_Tot] = 180.0;
+      if (iph == NumberOfPhis - 1) phi_High[ibinNum_Tot] = 180.0;
       ibinNum_Tot++;
     }
   }
   if (ibinNum_Tot != OMSolidAngleBins)
     G4Exception(
         "Error calculated direction bins are not the same as in KM3SD\n", "",
-        FatalException, ""); // number needs to change
+        FatalException, "");  // number needs to change
   //////////////////////////////////////////////////
 }
 KM3EMTimePointDis::~KM3EMTimePointDis() {
@@ -180,8 +172,7 @@ onePE KM3EMTimePointDis::GetSamplePoint() {
   G4double rrr = G4UniformRand();
   G4int ibinNum23;
   for (ibinNum23 = 0; ibinNum23 < OMSolidAngleBins; ibinNum23++) {
-    if (rrr < (*keepTh2Th3Num)[ibinNum23])
-      break;
+    if (rrr < (*keepTh2Th3Num)[ibinNum23]) break;
   }
   // next we sample an exponential theta and phi that belongs to this slice
   // the definitions of the bin limits are calculated in the constructor
@@ -227,7 +218,7 @@ onePE KM3EMTimePointDis::GetSamplePoint() {
   // next we must find the time bins that belongs this photon
   // follows the limits of the bins
   static double maxth2[17] = {
-      4.43924, // the definitions of the array and the next one is in KM3SD.cc
+      4.43924,  // the definitions of the array and the next one is in KM3SD.cc
       6.27957, 8.10961, 9.93636, 11.4783, 14.0699, 18.1949, 22.3316, 25.8419,
       36.8699, 45.5730, 53.1301, 63.2563, 90.0000, 113.578, 143.130, 180.0};
   static double maxth3[52] = {
@@ -236,23 +227,19 @@ onePE KM3EMTimePointDis::GetSamplePoint() {
       40.0,  75.0,  180.0, 30.0,  45.0,  95.0,  180.0, 40.0,  75.0,
       110.0, 180.0, 30.0,  45.0,  85.0,  145.0, 180.0, 40.0,  75.0,
       115.0, 180.0, 40.0,  95.0,  180.0, 45.0,  85.0,  180.0, 40.0,
-      110.0, 180.0, 65.0,  120.0, 180.0, 180.0, 180.0}; // dimension 52 should
-                                                        // be equal to
-                                                        // TimeSolidAngleBins
+      110.0, 180.0, 65.0,  120.0, 180.0, 180.0, 180.0};  // dimension 52 should
+                                                         // be equal to
+                                                         // TimeSolidAngleBins
   static int indexes[18] = {0,  3,  6,  9,  12, 15, 18, 21, 25,
                             29, 34, 38, 41, 44, 47, 50, 51, 52};
   G4int ith;
   for (ith = 0; ith < 17; ith++)
-    if (theta < maxth2[ith])
-      break;
-  if (ith > 16)
-    ith = 16;
+    if (theta < maxth2[ith]) break;
+  if (ith > 16) ith = 16;
   G4int iph;
   for (iph = indexes[ith]; iph < indexes[ith + 1]; iph++)
-    if (phi < maxth3[iph])
-      break;
-  if (iph > indexes[ith + 1] - 1)
-    iph = indexes[ith + 1] - 1;
+    if (phi < maxth3[iph]) break;
+  if (iph > indexes[ith + 1] - 1) iph = indexes[ith + 1] - 1;
   //  G4cout<<" iph= "<<iph<<G4endl;
   ////here we must check that the iph time bin in not null and find another
   ////////////////////////////
@@ -262,8 +249,7 @@ onePE KM3EMTimePointDis::GetSamplePoint() {
   G4int ibint;
   for (ibint = TimeBins * cang23bin; ibint < TimeBins * cang23bin + TimeBins;
        ibint++) {
-    if (rrr < (*keepDis)[ibint])
-      break;
+    if (rrr < (*keepDis)[ibint]) break;
   }
   ibint -= cang23bin * TimeBins;
   if (ibint < 40)
@@ -283,8 +269,7 @@ onePE KM3EMTimePointDis::GetSamplePoint() {
   costh = cos(theta * degree);
   phi *= degree;
 
-  if (G4UniformRand() < 0.5)
-    phi = pi2 - phi;
+  if (G4UniformRand() < 0.5) phi = pi2 - phi;
   aPE.time = time;
   aPE.costh = costh;
   aPE.phi = phi;

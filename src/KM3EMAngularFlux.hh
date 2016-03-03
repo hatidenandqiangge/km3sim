@@ -9,11 +9,11 @@
 #include "KM3EMTimePointDis.hh"
 
 class KM3EMAngularFlux {
-public:
+ public:
   KM3EMAngularFlux(std::ifstream &, bool &ok, bool FineBin);
   ~KM3EMAngularFlux();
 
-public:
+ public:
   void FindBins(G4double anglein);
   G4double GiveDistance() { return Distance; };
   G4double GiveFlux() { return Flux; };
@@ -21,7 +21,7 @@ public:
   bool IsValid() { return IsThisValid; };
   onePE GetSamplePoint();
 
-private:
+ private:
   std::vector<KM3EMTimePointDis *> *keepAngles;
   G4int VertexSolidAngleBins;
   G4double Distance;

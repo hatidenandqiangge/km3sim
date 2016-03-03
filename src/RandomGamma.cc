@@ -46,8 +46,7 @@ double RandomGamma(double p) {
     if (m > 0) {
       double x = 1.;
       CLHEP::RandFlat::shootArray(m, stor);
-      for (int i = 0; i < m; i++)
-        x *= stor[i];
+      for (int i = 0; i < m; i++) x *= stor[i];
       h = -log(x);
     }
     if (f >= 0.00001) {

@@ -11,11 +11,11 @@
 using namespace std;
 
 class HOURSevtWRITE {
-public:
+ public:
   HOURSevtWRITE(char *infile, char *outfile);
   ~HOURSevtWRITE();
 
-public:
+ public:
   void ReadRunHeader();
   void WriteRunHeader();
   void ReadEvent();
@@ -36,7 +36,7 @@ public:
   void AddMuonEnergyInfo(const vector<double> &info);
 #endif
 
-private:
+ private:
   event *evt;
   ifstream infile;
   ofstream outfile;

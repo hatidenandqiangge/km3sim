@@ -13,14 +13,14 @@ struct StoreysPositions {
   std::vector<int> *BenthosIDs;
 };
 
-struct TowersPositions // new towers
+struct TowersPositions  // new towers
     {
   G4ThreeVector position;
   std::vector<int> *BenthosIDs;
 };
 
-#if !defined(G4ENABLE_MIE) ||                                                  \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
+#if !defined(G4ENABLE_MIE) || \
+    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
 struct Spheres {
   G4ThreeVector center;
   double radius;

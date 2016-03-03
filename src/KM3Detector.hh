@@ -22,11 +22,11 @@ class G4VPhysicalVolume;
 // newgeant #include "Saxana/ProcessingConfigurator.h"
 
 class KM3Detector : public G4VUserDetectorConstruction {
-public:
+ public:
   KM3Detector();
   ~KM3Detector();
 
-public:
+ public:
   FILE *outfile;
   FILE *outfilePar;
   G4bool useANTARESformat;
@@ -40,14 +40,15 @@ public:
   G4double highestStorey;
   G4double outerStorey;
   G4double detectorRadius;
-  G4double detectorMaxz; // this is the maximum vertical distance of the storeys
-                         // from the center plus a number of absorpion lengths
-  G4double detectorMaxRho; // this is the maximum orizontal distance of the
-                           // storeys plus a number of absorption lengths
+  G4double
+      detectorMaxz;  // this is the maximum vertical distance of the storeys
+                     // from the center plus a number of absorpion lengths
+  G4double detectorMaxRho;  // this is the maximum orizontal distance of the
+                            // storeys plus a number of absorption lengths
   std::vector<StoreysPositions *> *allStoreys;
   std::vector<OMPositions *> *allOMs;
 #if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
-  std::vector<TowersPositions *> *allTowers; // new towers
+  std::vector<TowersPositions *> *allTowers;  // new towers
 #endif
   KM3Cathods *allCathods;
   G4double MaxAbsDist;
@@ -61,8 +62,8 @@ public:
 #ifdef G4MYFIT_PARAMETERIZATION
   KM3EventAction *event_action;
 #endif
-#if defined(G4MYEM_PARAMETERIZATION) ||                                        \
-    defined(G4MYHA_PARAMETERIZATION) // newha
+#if defined(G4MYEM_PARAMETERIZATION) || \
+    defined(G4MYHA_PARAMETERIZATION)  // newha
   std::vector<long double> *myPhotonsNumber;
   std::vector<long double> *myPhotonsTime;
   std::vector<long double> *myPhotonsTh2Th3Num;
@@ -71,29 +72,29 @@ public:
 #endif
   KM3PrimaryGeneratorAction *MyGenerator;
 
-private:
+ private:
   void FindDetectorRadius(void);
   void ConstructMaterials(void);
   G4int TotalPMTEntities(const G4VPhysicalVolume *) const;
   void SetUpVariables(void);
 // newgeant  void sxpInitialize(void);
-#if !defined(G4ENABLE_MIE) ||                                                  \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION)) // newmie
-public:
-  Spheres *allSpheres; // keep the spheres used in KM3Cherenkov
-private:
+#if !defined(G4ENABLE_MIE) || \
+    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
+ public:
+  Spheres *allSpheres;  // keep the spheres used in KM3Cherenkov
+ private:
   void initializeSpheres(void);
   void splitSpheresCluster(std::vector<StoreysPositions *> *, Spheres *);
-  G4int howmanySpheres; // this is used in clustering method of splitSpheres
-  G4int ALLSTOREYS[1000000]; // this is used in clustering method of
-                             // splitSpheres
+  G4int howmanySpheres;  // this is used in clustering method of splitSpheres
+  G4int ALLSTOREYS[1000000];  // this is used in clustering method of
+                              // splitSpheres
 #endif
-private:
+ private:
   // newgeant  SAXProcessor sxp;
   // newgeant ProcessingConfigurator config;
   G4VPhysicalVolume *fWorld;
 
-private:
+ private:
   G4double detectorDepth;
   G4int NUMENTRIES;
   G4int NUMENTRIES_ANGLEACC;
@@ -101,7 +102,7 @@ private:
   G4double RINDEX_WATER[100];
   G4double Water_Transparency;
   G4double ABSORPTION_WATER[100];
-#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
+#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) && \
     !defined(G4MYK40_PARAMETERIZATION)
   G4double ABSORPTION_WATER_TRUE[100];
 #endif

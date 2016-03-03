@@ -6,12 +6,12 @@
 KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, G4double QEmax,
                                  G4double TotCathodArea, G4double EneMin,
                                  G4double EneMax) {
-  NPartsDists = 2; // is the number of distributions kept (now it is 2, for 211
-                   // (pi+) and 130 (KaonZeroLong))
+  NPartsDists = 2;  // is the number of distributions kept (now it is 2, for 211
+                    // (pi+) and 130 (KaonZeroLong))
   std::ifstream infile(infileParam, std::ios::in | std::ios::binary);
   keepEnergies = new std::vector<KM3EMDistanceFlux *>;
   keepEnergies->reserve(NPartsDists);
-  EnergyMin = log10(EneMin); // the energy range the distributions apply
+  EnergyMin = log10(EneMin);  // the energy range the distributions apply
   EnergyMax = log10(EneMax);
   for (G4int i = 0; i < NPartsDists; i++) {
     KM3EMDistanceFlux *aDistanceFlux = new KM3EMDistanceFlux(infile);
@@ -70,8 +70,7 @@ KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, G4double QEmax,
 
 KM3HAEnergyFlux::~KM3HAEnergyFlux() {
   if (keepEnergies != NULL) {
-    for (G4int i = 0; i < NPartsDists; i++)
-      delete (*keepEnergies)[i];
+    for (G4int i = 0; i < NPartsDists; i++) delete (*keepEnergies)[i];
     keepEnergies->clear();
     delete keepEnergies;
     keepEnergies = NULL;

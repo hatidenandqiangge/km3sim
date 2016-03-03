@@ -9,7 +9,7 @@
 #include <iomanip>
 
 class HAVertexMuons {
-public:
+ public:
   HAVertexMuons(char *, char *);
   ~HAVertexMuons();
   G4int GetNumberOfMuons(G4double HadronicEnergy);
@@ -18,7 +18,7 @@ public:
   inline G4ThreeVector GetMomentum() { return theMomentum; };
   inline G4double GetTime() { return theTime; };
 
-private:
+ private:
   std::ifstream *MuonsStream;
   G4int numevents;
   std::vector<G4float> *theEnergies;

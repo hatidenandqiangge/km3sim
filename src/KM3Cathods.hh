@@ -18,11 +18,11 @@ struct Cathod {
 };
 
 class KM3Cathods {
-public:
+ public:
   KM3Cathods();
   ~KM3Cathods();
 
-public:
+ public:
   void addCathod(const G4Transform3D &, const G4ThreeVector &,
                  const G4ThreeVector &, const G4double, const G4double,
                  const G4int);
@@ -41,7 +41,7 @@ public:
   inline G4double GetCathodHeight(G4int it);
   inline G4int GetNumberOfCathods();
 
-private:
+ private:
   std::vector<Cathod *> theCathods;
   G4int NumOfCathods;
   G4int iterator;

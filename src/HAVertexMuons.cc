@@ -45,11 +45,9 @@ HAVertexMuons::~HAVertexMuons() {
 G4int HAVertexMuons::GetNumberOfMuons(G4double HadronicEnergy) {
   G4int iev;
   for (iev = 0; iev < numevents; iev++) {
-    if (HadronicEnergy < (*theEnergies)[iev])
-      break;
+    if (HadronicEnergy < (*theEnergies)[iev]) break;
   }
-  if (iev == numevents)
-    iev--;
+  if (iev == numevents) iev--;
   if (iev < numevents - 1 && iev > 0) {
     if (HadronicEnergy - (*theEnergies)[iev - 1] <
         (*theEnergies)[iev] - HadronicEnergy)

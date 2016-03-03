@@ -28,13 +28,12 @@ void KM3SD::Initialize(G4HCofThisEvent *HCE) {
 #ifdef G4MYFIT_PARAMETERIZATION
   G4int TotalNumberOfCathods = myStDetector->allCathods->GetNumberOfCathods();
   if (TotalNumberOfCathods > 20000)
-    G4Exception("KM3SD::Initialize Number of cathods for energy fit is greater "
-                "than 20000. Change the corresponding dimension in KM3SD.hh",
-                "", FatalException, "");
-  for (G4int i = 0; i < TotalNumberOfCathods; i++)
-    ArrayParam[i] = 0;
-  for (G4int i = 0; i < TotalNumberOfCathods; i++)
-    ArrayParamAll[i] = 0;
+    G4Exception(
+        "KM3SD::Initialize Number of cathods for energy fit is greater "
+        "than 20000. Change the corresponding dimension in KM3SD.hh",
+        "", FatalException, "");
+  for (G4int i = 0; i < TotalNumberOfCathods; i++) ArrayParam[i] = 0;
+  for (G4int i = 0; i < TotalNumberOfCathods; i++) ArrayParamAll[i] = 0;
 #endif
 }
 
@@ -43,8 +42,9 @@ void KM3SD::Initialize(G4HCofThisEvent *HCE) {
 G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   //  G4cout<< aStep->GetTrack()->GetDefinition()->GetParticleName()<<G4endl;
   if (aStep->GetTrack()->GetDefinition()->GetParticleName() !=
-      "opticalphoton") // this may have to change (do not kiil every particle on
-                       // the photocathod)
+      "opticalphoton")  // this may have to change (do not kiil every particle
+                        // on
+                        // the photocathod)
   {
     //    aStep->GetTrack()->SetTrackStatus(fStopAndKill);   //kill every
     //    particle except photons that hit the cathod or dead part of OM
@@ -68,7 +68,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   G4double edep = aStep->GetTrack()->GetTotalEnergy();
   if (edep == 0.) {
     aStep->GetTrack()->SetTrackStatus(
-        fStopAndKill); // kill a photon with zero energy (?)
+        fStopAndKill);  // kill a photon with zero energy (?)
     return false;
   }
 
@@ -97,23 +97,20 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   G4double startz = -600.0 * meter;
   G4ThreeVector vertexPARAM(0.0, 0.0, startz);
   G4double TRes = TResidual(time, posPMT, vertexPARAM, dirPARAM);
-  if (fabs(TRes) < 20.0 * ns)
-    ArrayParam[id]++;
-  if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns))
-    ArrayParamAll[id]++;
+  if (fabs(TRes) < 20.0 * ns) ArrayParam[id]++;
+  if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns)) ArrayParamAll[id]++;
 //  G4cout<<"ForFit "<<posPMT[0]/m<<" "<<posPMT[1]/m<<" "<<posPMT[2]/m<<"
 //  "<<time<<" "<<TRes<<G4endl;
 #endif
-#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) &&  \
-    !defined(G4MYK40_PARAMETERIZATION) // newha
+#if (defined(G4MYEM_PARAMETERIZATION) || defined(G4MYHA_PARAMETERIZATION)) && \
+    !defined(G4MYK40_PARAMETERIZATION)  // newha
   G4ThreeVector Dir = aStep->GetTrack()->GetMomentumDirection();
   // newmie don't count photons that are primary particles and have not been
   // scattered
   if (aStep->GetTrack()->GetParentID() == 0) {
     G4ThreeVector DirIni = aStep->GetTrack()->GetVertexMomentumDirection();
     G4double deviation = Dir.dot(DirIni);
-    if (deviation > 0.99999999)
-      return false;
+    if (deviation > 0.99999999) return false;
   }
   // newmie
   G4int Depth = aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
@@ -133,15 +130,16 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   //  //tempotest
   //  G4cout <<"theMyDist "<<aStep->GetTrack()->GetTrackID()<<" "<<id<<"
   //  "<<theDist1<<" "<<theDist2<<G4endl;//tempotest
-  G4ThreeVector FromGeneToOM = PosHit; // - myStDetector->MyGenerator->position;
-                                       // //position is always 0,0,0
+  G4ThreeVector FromGeneToOM =
+      PosHit;  // - myStDetector->MyGenerator->position;
+               // //position is always 0,0,0
   G4double dist = FromGeneToOM.mag();
   //  if(fabs(dist-CathodRadius)>1.0*mm)G4Exception("KM3SD::ProcessHits in Param
   //  distances differ","",FatalException,"");
   G4double thetime = aStep->GetPreStepPoint()->GetGlobalTime();
   G4double cosangle1 =
-      (myStDetector->MyGenerator->direction).dot(FromGeneToOM) / dist; // D.z
-  G4double cosangle2 = (1.0 / dist) * FromGeneToOM.dot(Dir);           // d.z
+      (myStDetector->MyGenerator->direction).dot(FromGeneToOM) / dist;  // D.z
+  G4double cosangle2 = (1.0 / dist) * FromGeneToOM.dot(Dir);            // d.z
   G4double cosangle3;
   if (cosangle1 <= -1.0 || cosangle1 >= 1.0 || cosangle2 <= -1.0 ||
       cosangle2 >= 1.0) {
@@ -181,9 +179,9 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     aMaterial = G4Material::GetMaterial("Water");
     G4MaterialPropertyVector *GroupVel =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
-    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE); // coresponds to the maximum
-                                                   // qe each time. This is the
-                                                   // right one
+    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);  // coresponds to the maximum
+                                                    // qe each time. This is the
+                                                    // right one
     VirtualAbsVector =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("ABSLENGTH");
     TrueAbsVector =
@@ -209,8 +207,9 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   // it must be done again
   // look folder ReBinc2c3 in Work/bin/Linux and below
 
-  G4int distbin = idcathod; // the distances definition are recorded in the gdml
-                            // geometry file
+  G4int distbin =
+      idcathod;  // the distances definition are recorded in the gdml
+                 // geometry file
   // if(dist<6*meter){
   //   distbin=int(dist/meter);} //per 1 m up to 6m.
   // else if(dist<20*meter){ //per 2 meter from 6m to 20m
@@ -235,8 +234,8 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   weight /= fabs(cosangle2);
   //  if(fabs(cosangle2)<1.e-2)G4cout << "ppproblemmm "<<dist/m<<"
   //  "<<cosangle1<<" "<<cosangle2<<" "<<cosangle3/degree<<" "<<thetime<<G4endl;
-  G4int cang1bin; // we estimate the theta1 bin
-                  // theta bin limits are:
+  G4int cang1bin;  // we estimate the theta1 bin
+                   // theta bin limits are:
   //-1 -0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 //15
   // bins
   // 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 //8 bins
@@ -466,8 +465,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
       cosmin = cosmin * cosmin;
       G4double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
       G4double dphi = acos(cosdphi) / degree;
-      if (dphi < 9.0)
-        dphi = 9.0;
+      if (dphi < 9.0) dphi = 9.0;
       NumberOfPhis[ith] = int(ceil(180.0 / dphi));
       dphi = 180.0 / NumberOfPhis[ith];
       for (G4int iph = 0; iph < NumberOfPhis[ith]; iph++) {
@@ -498,8 +496,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
       cosmin = cosmin * cosmin;
       G4double cosdphi = (cosdtheta - cosmin) / (1 - cosmin);
       G4double dphi = acos(cosdphi) / degree;
-      if (dphi < 9.0)
-        dphi = 9.0;
+      if (dphi < 9.0) dphi = 9.0;
       NumberOfPhis[ith] = int(ceil(180.0 / dphi));
       dphi = 180.0 / NumberOfPhis[ith];
       for (G4int iph = 0; iph < NumberOfPhis[ith]; iph++) {
@@ -534,17 +531,17 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
               "photon numbers------"
            << G4endl;
     if (ibinNum_Tot != OMSolidAngleBins)
-      G4Exception("KM3SD::ProcessHits Number of calculated bins is not equal "
-                  "to OMSolidAngleBins",
-                  "", FatalException, "");
+      G4Exception(
+          "KM3SD::ProcessHits Number of calculated bins is not equal "
+          "to OMSolidAngleBins",
+          "", FatalException, "");
   }
 
   G4int ibinNum23 = 0;
   G4int ith;
   for (ith = 0; ith < NumberOfThetas - 1; ith++) {
     if (cosangle2 >= theta_High[ith]) {
-      for (G4int iph = 0; iph < NumberOfPhis[ith]; iph++)
-        ibinNum23++;
+      for (G4int iph = 0; iph < NumberOfPhis[ith]; iph++) ibinNum23++;
     } else
       break;
   }
@@ -554,14 +551,12 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     } else
       break;
   }
-  if (cosangle3 >= 180.0)
-    ibinNum23--;
+  if (cosangle3 >= 180.0) ibinNum23--;
 
   G4int ibint;
   if (thetime < 10) {
     ibint = int((thetime + 10.0) / 0.5);
-    if (ibint < 0)
-      ibint = 0;
+    if (ibint < 0) ibint = 0;
   } else if (thetime < 30) {
     ibint = int(thetime - 10.0) + 40;
   } else if (thetime < 90) {
@@ -582,16 +577,16 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   (*myPhotonsTime)[ibin_d123t] += (long double)weight;
   G4int ibin_d123num =
       ibinNum23 +
-      OMSolidAngleBins * ibin_d1; // OMSolidAngleBins is ibinNum_Tot above
+      OMSolidAngleBins * ibin_d1;  // OMSolidAngleBins is ibinNum_Tot above
   (*myPhotonsTh2Th3Num)[ibin_d123num] += (long double)weight;
   (*myPhotonsTh2)[ibin_d123num] += (long double)(weight * cosangle2);
   (*myPhotonsTh3)[ibin_d123num] += (long double)(weight * cosangle3);
 
 #endif
 #ifndef G4MYFIT_PARAMETERIZATION
-#if (!defined(G4MYEM_PARAMETERIZATION) &&                                      \
-     !defined(G4MYHA_PARAMETERIZATION)) ||                                     \
-    defined(G4MYK40_PARAMETERIZATION) // newha
+#if (!defined(G4MYEM_PARAMETERIZATION) &&  \
+     !defined(G4MYHA_PARAMETERIZATION)) || \
+    defined(G4MYK40_PARAMETERIZATION)  // newha
   if (MyCollection->entries() < 10000000) {
     G4ThreeVector photonDirection = aStep->GetTrack()->GetMomentumDirection();
 
@@ -731,14 +726,14 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
 #endif
 #endif
 
-#if (!defined(G4MYEM_PARAMETERIZATION) &&                                      \
-     !defined(G4MYHA_PARAMETERIZATION)) ||                                     \
-    defined(G4MYK40_PARAMETERIZATION) // newha
+#if (!defined(G4MYEM_PARAMETERIZATION) &&  \
+     !defined(G4MYHA_PARAMETERIZATION)) || \
+    defined(G4MYK40_PARAMETERIZATION)  // newha
 #ifndef G4MYFIT_PARAMETERIZATION
   // killing must not been done, when we have EM or HA or FIT parametrizations
   // but it must be done for normal run, especially K40, SN and laser since
   // coincidences play big role there
-  aStep->GetTrack()->SetTrackStatus(fStopAndKill); // kill the detected photon
+  aStep->GetTrack()->SetTrackStatus(fStopAndKill);  // kill the detected photon
 #endif
 #endif
 
@@ -770,9 +765,9 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     aMaterial = G4Material::GetMaterial("Water");
     G4MaterialPropertyVector *GroupVel =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
-    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE); // coresponds to the maximum
-                                                   // qe each time. This is the
-                                                   // right one
+    thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);  // coresponds to the maximum
+                                                    // qe each time. This is the
+                                                    // right one
   }
 //////////////////////////////////////////////////////////////
 #ifndef G4MYFIT_PARAMETERIZATION
@@ -781,9 +776,9 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     //    G4cout << "OutFromParam "<<id<<"
     //    "<<photonDirection.dot(PMTDirection)<<G4endl;
     if (!AcceptAngle(photonDirection.dot(PMTDirection), 1.0, 1.0,
-                     true)) { // the two 1.0 are the cathod radius and height
-                              // that do not play any role in parametrization
-      return;                 // it is not accepted
+                     true)) {  // the two 1.0 are the cathod radius and height
+                               // that do not play any role in parametrization
+      return;                  // it is not accepted
     }
     // correct the time to correspond to the cathod positions and not the OM
     // position
@@ -805,19 +800,17 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
   G4ThreeVector vertexPARAM(0.0, 0.0, startz);
   G4ThreeVector posPMT = myStDetector->allCathods->GetPosition(id);
   G4double TRes = TResidual(time, posPMT, vertexPARAM, dirPARAM);
-  if (fabs(TRes) < 20.0 * ns)
-    ArrayParam[id]++;
-  if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns))
-    ArrayParamAll[id]++;
+  if (fabs(TRes) < 20.0 * ns) ArrayParam[id]++;
+  if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns)) ArrayParamAll[id]++;
 //  G4cout<<"ForFit "<<posPMT[0]/m<<" "<<posPMT[1]/m<<" "<<posPMT[2]/m<<"
 //  "<<time<<" "<<TRes<<G4endl;
 #endif
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-#if (!defined(G4MYEM_PARAMETERIZATION) &&                                      \
-     !defined(G4MYHA_PARAMETERIZATION)) ||                                     \
-    defined(G4MYK40_PARAMETERIZATION) // newha
+#if (!defined(G4MYEM_PARAMETERIZATION) &&  \
+     !defined(G4MYHA_PARAMETERIZATION)) || \
+    defined(G4MYK40_PARAMETERIZATION)  // newha
 void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
 #ifdef G4MYK40_PARAMETERIZATION
   // here get access to the primary generation action generation parameters
@@ -846,10 +839,10 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
 #else
     outfile = myStDetector->outfile;
     G4int NbHits = MyCollection->entries();
-    static G4int ooo = 0;                              // count total
-    ooo += NbHits;                                     // count total
-    G4cout << "Total Hits: " << ooo << G4endl;         // count total
-    G4cout << "This Event Hits: " << NbHits << G4endl; // count for this event
+    static G4int ooo = 0;                               // count total
+    ooo += NbHits;                                      // count total
+    G4cout << "Total Hits: " << ooo << G4endl;          // count total
+    G4cout << "This Event Hits: " << NbHits << G4endl;  // count for this event
     int i;
 
     // here we sort MyCollection according to ascending pmt number
@@ -895,8 +888,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     // find the number of hit entries to write
     G4int NbHitsWrite = 0;
     for (i = 0; i < NbHits; i++)
-      if ((*MyCollection)[i]->GetMany() > 0)
-        NbHitsWrite++;
+      if ((*MyCollection)[i]->GetMany() > 0) NbHitsWrite++;
 
     // find earliest hit time
     G4double timefirst = 1E20;
@@ -910,8 +902,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     int allhit = 0;
     int prevcathod = -1;
     for (i = 0; i < NbHits; i++) {
-      if (prevcathod != (*MyCollection)[i]->GetCathodId())
-        allhit++;
+      if (prevcathod != (*MyCollection)[i]->GetCathodId()) allhit++;
       prevcathod = (*MyCollection)[i]->GetCathodId();
     }
 #ifdef G4MYK40_PARAMETERIZATION
@@ -952,8 +943,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     int numphotons = 0;
     G4double firstphoton = 1.E50;
     int numpes = 0;
-    if (NbHits > 0)
-      prevcathod = (*MyCollection)[0]->GetCathodId();
+    if (NbHits > 0) prevcathod = (*MyCollection)[0]->GetCathodId();
     int prevstart = 0;
     int numhit = 0;
     for (i = 0; i < NbHits; i++) {
@@ -964,7 +954,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           if ((*MyCollection)[i]->GetTime() - timefirst < firstphoton)
             firstphoton = (*MyCollection)[i]->GetTime() - timefirst;
         } else {
-          if (myStDetector->vrmlhits) { // draw hits
+          if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition =
                 myStDetector->allCathods->GetPosition(prevcathod);
             DrawCathodHit(numpes, Cposition);
@@ -1011,7 +1001,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
         //	if(i == (NbHits-1) ){
         //	if(numhit == (NbHitsWrite-1) ){
         if (numhit == (NbHitsWrite - LastPmtNumHits) && i == LastHitNumber) {
-          if (myStDetector->vrmlhits) { // draw hits
+          if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition = myStDetector->allCathods->GetPosition(
                 (*MyCollection)[i]->GetCathodId());
             DrawCathodHit(numpes, Cposition);
@@ -1102,8 +1092,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) { delete MyCollection; }
 #endif
 
 void KM3SD::MergeHits(G4int nfirst, G4int nlast, G4double MergeWindow) {
-  if (nlast - nfirst < 2)
-    return;
+  if (nlast - nfirst < 2) return;
   G4int iuu, imany;
   G4int istart = nfirst;
   G4int istop = nfirst;
@@ -1118,8 +1107,7 @@ go77:
   }
   istop = iuu - 1;
 go78:
-  if (istart > nlast)
-    return;
+  if (istart > nlast) return;
   imany = istop - istart + 1;
   if (imany > 1) {
     G4double MeanTime = 0.0;
@@ -1147,8 +1135,7 @@ void KM3SD::DrawCathodHit(G4int NumberOfPhotons, G4ThreeVector pos) {
     circle.SetWorldRadius(220.0);
     circle.SetFillStyle(G4Circle::filled);
     G4double nphotons = G4double(NumberOfPhotons);
-    if (nphotons > 100.0)
-      nphotons = 100.0;
+    if (nphotons > 100.0) nphotons = 100.0;
     G4double redcol = log10(G4double(nphotons)) / 2.0;
     G4Colour colour(redcol, 0., 1.0 - redcol);
     G4VisAttributes attribs(colour);
@@ -1166,7 +1153,7 @@ void KM3SD::PrintAll() {}
 G4double KM3SD::TResidual(G4double time, const G4ThreeVector &position,
                           const G4ThreeVector &vertex,
                           const G4ThreeVector &dir) {
-  G4double tnthc = 0.961; // this value depends on qe and water properties
+  G4double tnthc = 0.961;  // this value depends on qe and water properties
   G4double ag, bg;
   G4ThreeVector Hit = position - vertex;
   ag = dir.dot(Hit);
@@ -1189,9 +1176,9 @@ void KM3SD::QuickSort(G4int shorttype,
     else
       middle = partition_Time(theCollectionVector, top, bottom);
     QuickSort(shorttype, theCollectionVector, top,
-              middle); // sort first section
+              middle);  // sort first section
     QuickSort(shorttype, theCollectionVector, middle + 1,
-              bottom); // sort second section
+              bottom);  // sort second section
   }
   return;
 }
@@ -1219,7 +1206,7 @@ G4int KM3SD::partition_CathodId(std::vector<KM3Hit *> *theCollectionVector,
       (*theCollectionVector)[j] = temp;
     }
   } while (i < j);
-  return j; // returns middle subscript
+  return j;  // returns middle subscript
 }
 
 // Function to determine the partitions
@@ -1245,7 +1232,7 @@ G4int KM3SD::partition_Time(std::vector<KM3Hit *> *theCollectionVector,
       (*theCollectionVector)[j] = temp;
     }
   } while (i < j);
-  return j; // returns middle subscript
+  return j;  // returns middle subscript
 }
 
 // the angular acceptance is according to the MultiPMT OM (WPD Document January
@@ -1268,10 +1255,8 @@ G4bool KM3SD::AcceptAngle(G4double cosangle, G4double CathodRadius,
     MaxCos_Acc = Ang_Acc->GetMaxLowEdgeEnergy();
   }
 
-  if (cosangle > MaxCos_Acc)
-    return false;
-  if (cosangle < MinCos_Acc)
-    return true;
+  if (cosangle > MaxCos_Acc) return false;
+  if (cosangle < MinCos_Acc) return true;
   G4double AngAcc = Ang_Acc->Value(cosangle);
 
   // the following is the simulated angular acceptance (from the shape of the
@@ -1287,8 +1272,7 @@ G4bool KM3SD::AcceptAngle(G4double cosangle, G4double CathodRadius,
     AngAcc /= AngularAccSim;
   }
 
-  if (G4UniformRand() <= AngAcc)
-    return true;
+  if (G4UniformRand() <= AngAcc) return true;
   return false;
 }
 

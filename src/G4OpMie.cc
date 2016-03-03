@@ -50,9 +50,9 @@
 #include "G4ExceptionHandler.hh"
 #include <stdio.h>
 #include "G4OpMie.hh"
-#if (defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)) ||   \
-    (!defined(G4DISABLE_PARAMETRIZATION) &&                                    \
-     defined(G4TRACK_INFORMATION)) // newmie
+#if (defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)) || \
+    (!defined(G4DISABLE_PARAMETRIZATION) &&                                  \
+     defined(G4TRACK_INFORMATION))  // newmie
 #include "KM3TrackInformation.hh"
 #endif
 
@@ -74,7 +74,6 @@
 
 G4OpMie::G4OpMie(const G4String &processName, G4ProcessType type)
     : G4VDiscreteProcess(processName, type) {
-
   if (verboseLevel > 0) {
     G4cout << GetProcessName() << " is created " << G4endl;
   }
@@ -120,9 +119,10 @@ G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
   }
 #else
-  G4Exception("G4OpMie::PostStepDoIt: Parametrization application needs track "
-              "information",
-              "", FatalException, "");
+  G4Exception(
+      "G4OpMie::PostStepDoIt: Parametrization application needs track "
+      "information",
+      "", FatalException, "");
 #endif
 #endif
   // newmie
@@ -158,8 +158,7 @@ G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
   G4ThreeVector NewPolarization =
       OldPolarization -
       OldPolarization.dot(NewMomentumDirection) * NewMomentumDirection;
-  if (G4UniformRand() < 0.5)
-    NewPolarization = -NewPolarization;
+  if (G4UniformRand() < 0.5) NewPolarization = -NewPolarization;
   NewPolarization = NewPolarization.unit();
 
   aParticleChange.ProposePolarization(NewPolarization);
@@ -167,13 +166,14 @@ G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
   aParticleChange.ProposeMomentumDirection(NewMomentumDirection);
 
   if (verboseLevel > 0) {
-    printf("OldNew All %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le "
-           "%13.6le %13.6le %13.6le %13.6le %13.6le\n",
-           OldMomentumDirection.x(), OldMomentumDirection.y(),
-           OldMomentumDirection.z(), NewMomentumDirection.x(),
-           NewMomentumDirection.y(), NewMomentumDirection.z(),
-           OldPolarization.x(), OldPolarization.y(), OldPolarization.z(),
-           NewPolarization.x(), NewPolarization.y(), NewPolarization.z());
+    printf(
+        "OldNew All %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le "
+        "%13.6le %13.6le %13.6le %13.6le %13.6le\n",
+        OldMomentumDirection.x(), OldMomentumDirection.y(),
+        OldMomentumDirection.z(), NewMomentumDirection.x(),
+        NewMomentumDirection.y(), NewMomentumDirection.z(), OldPolarization.x(),
+        OldPolarization.y(), OldPolarization.z(), NewPolarization.x(),
+        NewPolarization.y(), NewPolarization.z());
   }
 #if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
   KM3TrackInformation *info =
@@ -197,8 +197,8 @@ void G4OpMie::BuildThePhysicsTable() {
       G4Exception("Error open input Mie Phase Factors file\n", "",
                   FatalException, "");
     } else {
-      for (G4int i = 0; i < 56; i++) { // read the phase functions from
-                                       // measurements in shallow waters
+      for (G4int i = 0; i < 56; i++) {  // read the phase functions from
+                                        // measurements in shallow waters
         fscanf(infilePF, "%lf %lf %lf %lf %lf %lf %lf\n", &c0, &c1, &c2, &c3,
                &c4, &c5, &c6);
         PhaseFactors *aPhaseFactors =
@@ -295,12 +295,12 @@ G4double G4OpMie::PhaseFunction(G4double angle) {
     c6 = (*(thePhaseFactors))[IndexPhaseFunction]->c6;
     val = c0 * std::sin(angle) *
           exp(x * (c1 + x * (c2 + x * (c3 + x * (c4 + x * (c5 + x * c6))))));
-  } else if (IndexPhaseFunction == 56) { // f4 model
+  } else if (IndexPhaseFunction == 56) {  // f4 model
     c0 = (*(thePhaseFactors))[IndexPhaseFunction]->c0;
     c1 = (*(thePhaseFactors))[IndexPhaseFunction]->c1;
     val = c0 * std::sin(angle) /
           std::pow(1 + c1 * c1 - 2 * c1 * std::cos(angle), 1.5);
-  } else if (IndexPhaseFunction == 57) { // p0.0075 model
+  } else if (IndexPhaseFunction == 57) {  // p0.0075 model
     c0 = (*(thePhaseFactors))[IndexPhaseFunction]->c0;
     c1 = (*(thePhaseFactors))[IndexPhaseFunction]->c1;
     c2 = (*(thePhaseFactors))[IndexPhaseFunction]->c2;

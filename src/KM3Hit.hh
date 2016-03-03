@@ -12,7 +12,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class KM3Hit : public G4VHit {
-public:
+ public:
   KM3Hit();
   ~KM3Hit();
   KM3Hit(const KM3Hit &);
@@ -22,7 +22,7 @@ public:
   inline void *operator new(size_t);
   inline void operator delete(void *);
 
-public:
+ public:
   void SetCathodId(G4int id) { CathodId = id; };
   void SetTime(G4double tt) { time = tt; };
   void SetoriginalInfo(G4int inf) { originalInfo = inf; };
@@ -51,7 +51,7 @@ public:
   // short  G4int    GetangleDirection() {return angleDirection;};
   // short  G4int    GetangleIncident() {return angleIncident;};
 
-private:
+ private:
   G4int CathodId;
   G4double time;
   G4int originalInfo;

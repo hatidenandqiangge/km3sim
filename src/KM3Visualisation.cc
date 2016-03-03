@@ -58,7 +58,6 @@ KM3Visualisation::KM3Visualisation() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 void KM3Visualisation::RegisterGraphicsSystems() {
-
 #ifdef G4VIS_USE_DAWN
   RegisterGraphicsSystem(new G4FukuiRenderer);
 #endif

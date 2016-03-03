@@ -82,18 +82,17 @@ struct PhaseFactors {
 };
 
 class G4OpMie : public G4VDiscreteProcess {
-
-private:
+ private:
   //////////////
   // Operators
   //////////////
 
   // G4OpMie& operator=(const G4OpMie &right);
 
-public: // Without description
-        ////////////////////////////////
-        // Constructors and Destructor
-        ////////////////////////////////
+ public:  // Without description
+          ////////////////////////////////
+          // Constructors and Destructor
+          ////////////////////////////////
 
   G4OpMie(const G4String &processName = "OpMie", G4ProcessType type = fOptical);
 
@@ -105,7 +104,7 @@ public: // Without description
   // Methods
   ////////////
 
-public: // With description
+ public:  // With description
   G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
   // Returns true -> 'is applicable' only for an optical photon.
 
@@ -116,7 +115,7 @@ public: // With description
   G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
   // This is the method implementing Mie scattering.
 
-private:
+ private:
   /////////////////////
   // Helper Functions
   /////////////////////
@@ -127,7 +126,7 @@ private:
   // Class Data Members
   ///////////////////////
 
-private:
+ private:
   G4int IndexPhaseFunction;
   std::vector<PhaseFactors *> *thePhaseFactors;
   CLHEP::RandGeneral *PhaseRand;

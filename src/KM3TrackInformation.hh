@@ -7,12 +7,12 @@
 #include "G4VUserTrackInformation.hh"
 
 class KM3TrackInformation : public G4VUserTrackInformation {
-public:
+ public:
   KM3TrackInformation();
   KM3TrackInformation(const G4Track *aTrack);
   KM3TrackInformation(const KM3TrackInformation *aTrackInfo);
-  void SetMoreInformation(const G4Track *aTrack);                 // newmie
-  void SetMoreInformation(const KM3TrackInformation *aTrackInfo); // newmie
+  void SetMoreInformation(const G4Track *aTrack);                  // newmie
+  void SetMoreInformation(const KM3TrackInformation *aTrackInfo);  // newmie
   ~KM3TrackInformation();
 
   inline void *operator new(size_t);
@@ -23,18 +23,18 @@ public:
 
   void Print() const;
 
-private:
+ private:
   G4String originalTrackCreatorProcess;
   G4String originalparticleName;
   G4double originalEnergy;
   G4int originalParentID;
-  G4bool EmittedAsScattered; // newmie
+  G4bool EmittedAsScattered;  // newmie
 #ifdef G4MYLASER_PARAMETERIZATION
   std::vector<G4ThreeVector> *ScatteringPositions;
   std::vector<double> *ScatteringAngles;
 #endif
 
-public:
+ public:
   inline G4String GetOriginalTrackCreatorProcess() const {
     return originalTrackCreatorProcess;
   }
@@ -45,7 +45,7 @@ public:
   inline G4int GetOriginalParentID() const { return originalParentID; }
   inline G4bool GetEmittedAsScattered() const {
     return EmittedAsScattered;
-  } // newmie
+  }  // newmie
 #ifdef G4MYLASER_PARAMETERIZATION
   inline void KeepScatteringPosition(const G4ThreeVector &ScatteringPosition,
                                      double ScatteringAngle) {

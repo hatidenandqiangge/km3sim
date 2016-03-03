@@ -22,17 +22,17 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 class KM3Physics : public G4VUserPhysicsList {
-public:
+ public:
   KM3Physics();
   ~KM3Physics();
 
-protected:
+ protected:
   // Construct particle and physics
   void ConstructParticle();
   void ConstructProcess();
   void SetCuts();
 
-protected:
+ protected:
   // these methods Construct physics processes and register them
   void AddParameterisation();
   void ConstructGeneral();
@@ -40,15 +40,15 @@ protected:
   void ConstructOP();
 
 #ifdef G4HADRONIC_COMPILE
-protected:
+ protected:
   void ConstructHA();
 #endif
 
-public:
+ public:
   KM3Detector *aDetector;
   KM3Cherenkov *theCerenkovProcess;
 
-protected:
+ protected:
   G4double defaultCutEnergyValueForGamma;
   G4double defaultCutEnergyValueForElectron;
   G4double defaultCutEnergyValueForMuon;

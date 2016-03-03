@@ -202,7 +202,6 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
     OpticalSurface = (G4OpticalSurface *)Surface->GetSurfaceProperty();
 
   if (OpticalSurface) {
-
     type = OpticalSurface->GetType();
     theModel = OpticalSurface->GetModel();
     theFinish = OpticalSurface->GetFinish();
@@ -210,7 +209,6 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
     aMaterialPropertiesTable = OpticalSurface->GetMaterialPropertiesTable();
 
     if (aMaterialPropertiesTable) {
-
       if (theFinish == polishedbackpainted || theFinish == groundbackpainted) {
         Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
         if (Rindex) {
@@ -272,7 +270,6 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
 
   if (type == dielectric_dielectric) {
     if (theFinish == polished || theFinish == ground) {
-
       if (Material1 == Material2) {
         theStatus = SameMaterial;
         return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
@@ -305,7 +302,7 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
   G4ThreeVector theLocalPoint =
       theNavigator->GetGlobalToLocalTransform().TransformPoint(theGlobalPoint);
 
-  G4ThreeVector theLocalNormal; // Normal points back into volume
+  G4ThreeVector theLocalNormal;  // Normal points back into volume
 
   G4bool valid;
   theLocalNormal = theNavigator->GetLocalExitNormal(&valid);
@@ -328,24 +325,20 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
     theGlobalNormal = -theGlobalNormal;
   }
   if (type == dielectric_metal) {
-
     DielectricMetal();
 
   } else if (type == dielectric_dielectric) {
-
     if (theFinish == polishedfrontpainted || theFinish == groundfrontpainted) {
       if (!G4BooleanRand(theReflectivity)) {
         DoAbsorption();
       } else {
-        if (theFinish == groundfrontpainted)
-          theStatus = LambertianReflection;
+        if (theFinish == groundfrontpainted) theStatus = LambertianReflection;
         DoReflection();
       }
     } else {
       DielectricDielectric();
     }
   } else {
-
     G4cerr << " Error: G4BoundaryProcess: illegal boundary type " << G4endl;
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
   }
@@ -356,8 +349,7 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
   if (verboseLevel > 0) {
     G4cout << " New Momentum Direction: " << NewMomentum << G4endl;
     G4cout << " New Polarization:       " << NewPolarization << G4endl;
-    if (theStatus == Undefined)
-      G4cout << " *** Undefined *** " << G4endl;
+    if (theStatus == Undefined) G4cout << " *** Undefined *** " << G4endl;
     if (theStatus == FresnelRefraction)
       G4cout << " *** FresnelRefraction *** " << G4endl;
     if (theStatus == FresnelReflection)
@@ -372,18 +364,13 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
       G4cout << " *** SpikeReflection *** " << G4endl;
     if (theStatus == BackScattering)
       G4cout << " *** BackScattering *** " << G4endl;
-    if (theStatus == Absorption)
-      G4cout << " *** Absorption *** " << G4endl;
-    if (theStatus == Detection)
-      G4cout << " *** Detection *** " << G4endl;
+    if (theStatus == Absorption) G4cout << " *** Absorption *** " << G4endl;
+    if (theStatus == Detection) G4cout << " *** Detection *** " << G4endl;
     if (theStatus == NotAtBoundary)
       G4cout << " *** NotAtBoundary *** " << G4endl;
-    if (theStatus == SameMaterial)
-      G4cout << " *** SameMaterial *** " << G4endl;
-    if (theStatus == StepTooSmall)
-      G4cout << " *** StepTooSmall *** " << G4endl;
-    if (theStatus == NoRINDEX)
-      G4cout << " *** NoRINDEX *** " << G4endl;
+    if (theStatus == SameMaterial) G4cout << " *** SameMaterial *** " << G4endl;
+    if (theStatus == StepTooSmall) G4cout << " *** StepTooSmall *** " << G4endl;
+    if (theStatus == NoRINDEX) G4cout << " *** NoRINDEX *** " << G4endl;
   }
 
   aParticleChange.ProposeMomentumDirection(NewMomentum);
@@ -392,13 +379,11 @@ G4VParticleChange *G4OpBoundaryProcess::PostStepDoIt(const G4Track &aTrack,
   return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }
 
-G4ThreeVector
-G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector &Momentum,
-                                    const G4ThreeVector &Normal) const {
+G4ThreeVector G4OpBoundaryProcess::GetFacetNormal(
+    const G4ThreeVector &Momentum, const G4ThreeVector &Normal) const {
   G4ThreeVector FacetNormal;
 
   if (theModel == unified) {
-
     /* This function code alpha to a random value taken from the
        distribution p(alpha) = g(alpha; 0, sigma_alpha)*std::sin(alpha),
        for alpha > 0 and alpha < 90, where g(alpha; 0, sigma_alpha)
@@ -408,8 +393,7 @@ G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector &Momentum,
     G4double alpha;
 
     G4double sigma_alpha = 0.0;
-    if (OpticalSurface)
-      sigma_alpha = OpticalSurface->GetSigmaAlpha();
+    if (OpticalSurface) sigma_alpha = OpticalSurface->GetSigmaAlpha();
 
     G4double f_max = std::min(1.0, 4. * sigma_alpha);
 
@@ -438,10 +422,8 @@ G4OpBoundaryProcess::GetFacetNormal(const G4ThreeVector &Momentum,
       FacetNormal.rotateUz(tmpNormal);
     } while (Momentum * FacetNormal >= 0.0);
   } else {
-
     G4double polish = 1.0;
-    if (OpticalSurface)
-      polish = OpticalSurface->GetPolish();
+    if (OpticalSurface) polish = OpticalSurface->GetPolish();
 
     if (polish < 1.0) {
       do {
@@ -466,24 +448,18 @@ void G4OpBoundaryProcess::DielectricMetal() {
   G4int n = 0;
 
   do {
-
     n++;
 
     if (!G4BooleanRand(theReflectivity) && n == 1) {
-
       DoAbsorption();
       break;
 
     } else {
-
       if (theModel == glisur || theFinish == polished) {
-
         DoReflection();
 
       } else {
-
-        if (n == 1)
-          ChooseReflection();
+        if (n == 1) ChooseReflection();
 
         if (theStatus == LambertianReflection) {
           DoReflection();
@@ -491,7 +467,6 @@ void G4OpBoundaryProcess::DielectricMetal() {
           NewMomentum = -OldMomentum;
           NewPolarization = -OldPolarization;
         } else {
-
           if (theStatus == LobeReflection)
             theFacetNormal = GetFacetNormal(OldMomentum, theGlobalNormal);
 
@@ -521,7 +496,6 @@ leap:
   G4bool Done = false;
 
   do {
-
     irepeat++;
 
     if (Through) {
@@ -544,23 +518,20 @@ leap:
     cost1 = -PdotN;
     if (std::abs(cost1) < 1.0 - kCarTolerance) {
       sint1 = std::sqrt(1. - cost1 * cost1);
-      sint2 = sint1 * Rindex1 / Rindex2; // *** Snell's Law ***
+      sint2 = sint1 * Rindex1 / Rindex2;  // *** Snell's Law ***
     } else {
       sint1 = 0.0;
       sint2 = 0.0;
     }
 
     if (sint2 >= 1.0) {
-
       // Simulate total internal reflection
 
-      if (Swap)
-        Swap = !Swap;
+      if (Swap) Swap = !Swap;
 
       theStatus = TotalInternalReflection;
 
-      if (theModel == unified && theFinish != polished)
-        ChooseReflection();
+      if (theModel == unified && theFinish != polished) ChooseReflection();
 
       if (theStatus == LambertianReflection) {
         DoReflection();
@@ -568,14 +539,12 @@ leap:
         NewMomentum = -OldMomentum;
         NewPolarization = -OldPolarization;
       } else {
-
         PdotN = OldMomentum * theFacetNormal;
         NewMomentum = OldMomentum - (2. * PdotN) * theFacetNormal;
         EdotN = OldPolarization * theFacetNormal;
         NewPolarization = -OldPolarization + (2. * EdotN) * theFacetNormal;
       }
     } else if (sint2 < 1.0) {
-
       // Calculate amplitude for transmission (Q = P x N)
 
       if (cost1 > 0.0) {
@@ -622,16 +591,13 @@ leap:
       G4double E2_abs, C_parl, C_perp;
 
       if (!G4BooleanRand(TransCoeff)) {
-
         // Simulate reflection
 
-        if (Swap)
-          Swap = !Swap;
+        if (Swap) Swap = !Swap;
 
         theStatus = FresnelReflection;
 
-        if (theModel == unified && theFinish != polished)
-          ChooseReflection();
+        if (theModel == unified && theFinish != polished) ChooseReflection();
 
         if (theStatus == LambertianReflection) {
           DoReflection();
@@ -639,11 +605,10 @@ leap:
           NewMomentum = -OldMomentum;
           NewPolarization = -OldPolarization;
         } else {
-
           PdotN = OldMomentum * theFacetNormal;
           NewMomentum = OldMomentum - (2. * PdotN) * theFacetNormal;
 
-          if (sint1 > 0.0) { // incident ray oblique
+          if (sint1 > 0.0) {  // incident ray oblique
 
             E2_parl = Rindex2 * E2_parl / Rindex1 - E1_parl;
             E2_perp = E2_perp - E1_perp;
@@ -658,7 +623,7 @@ leap:
 
           }
 
-          else { // incident ray perpendicular
+          else {  // incident ray perpendicular
 
             if (Rindex2 > Rindex1) {
               NewPolarization = -OldPolarization;
@@ -667,7 +632,7 @@ leap:
             }
           }
         }
-      } else { // photon gets transmitted
+      } else {  // photon gets transmitted
 
         // Simulate transmission/refraction
 
@@ -675,7 +640,7 @@ leap:
         Through = true;
         theStatus = FresnelRefraction;
 
-        if (sint1 > 0.0) { // incident ray oblique
+        if (sint1 > 0.0) {  // incident ray oblique
 
           G4double alpha = cost1 - cost2 * (Rindex2 / Rindex1);
           NewMomentum = OldMomentum + alpha * theFacetNormal;
@@ -689,7 +654,7 @@ leap:
 
           NewPolarization = C_parl * A_paral + C_perp * A_trans;
 
-        } else { // incident ray perpendicular
+        } else {  // incident ray perpendicular
 
           NewMomentum = OldMomentum;
           NewPolarization = OldPolarization;
@@ -705,8 +670,7 @@ leap:
     } else {
       Done = (NewMomentum * theGlobalNormal >= 0.0);
     }
-    if (irepeat > 10)
-      Done = true;
+    if (irepeat > 10) Done = true;
 
   } while (!Done);
 
@@ -722,8 +686,7 @@ leap:
           G4Swap(Material1, Material2);
           G4Swap(&Rindex1, &Rindex2);
         }
-        if (theFinish == groundbackpainted)
-          theStatus = LambertianReflection;
+        if (theFinish == groundbackpainted) theStatus = LambertianReflection;
 
         DoReflection();
 

@@ -5,10 +5,10 @@ KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, G4double TotCathodArea) {
   VertexDistanceBins = 40;
   std::ifstream infile(infileParam, std::ios::in | std::ios::binary);
   // keep2013  infile.seekg(std::streampos(439203908));
-  infile.seekg(std::streampos(540323872)); // it is 67540484*8 where the first
-                                           // number is size/energy and the
-                                           // second the number of energies for
-                                           // e-/e+/gamma parametrization
+  infile.seekg(std::streampos(540323872));  // it is 67540484*8 where the first
+                                            // number is size/energy and the
+                                            // second the number of energies for
+                                            // e-/e+/gamma parametrization
   keepDistances = new std::vector<KM3EMAngularFlux *>;
   keepDistances->reserve(VertexDistanceBins);
   char valC[4];
@@ -17,7 +17,7 @@ KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, G4double TotCathodArea) {
   for (G4int i = 0; i < VertexDistanceBins; i++) {
     bool oka;
     KM3EMAngularFlux *aAngularFlux =
-        new KM3EMAngularFlux(infile, oka, true); // true is for fine binning
+        new KM3EMAngularFlux(infile, oka, true);  // true is for fine binning
     keepDistances->push_back(aAngularFlux);
     if (!oka)
       G4cout << "Null for Energy " << Energy << " and distance "
@@ -28,8 +28,7 @@ KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, G4double TotCathodArea) {
 }
 KM3EMDirectFlux::~KM3EMDirectFlux() {
   if (keepDistances != NULL) {
-    for (G4int i = 0; i < VertexDistanceBins; i++)
-      delete (*keepDistances)[i];
+    for (G4int i = 0; i < VertexDistanceBins; i++) delete (*keepDistances)[i];
     keepDistances->clear();
     delete keepDistances;
     keepDistances = NULL;
@@ -40,36 +39,31 @@ void KM3EMDirectFlux::FindBins(G4double MeanNumPhotons, G4double distancein,
   G4int i;
   for (i = 0; i < VertexDistanceBins; i++) {
     if ((*keepDistances)[i]->IsValid()) {
-      if (distancein < (*keepDistances)[i]->GiveDistance())
-        break;
+      if (distancein < (*keepDistances)[i]->GiveDistance()) break;
     }
   }
   ibin2 = i;
   if (ibin2 == VertexDistanceBins) {
     for (i = VertexDistanceBins - 1; i >= 0; i--) {
-      if ((*keepDistances)[i]->IsValid())
-        break;
+      if ((*keepDistances)[i]->IsValid()) break;
     }
     ibin2 = i;
   }
   for (i = ibin2 - 1; i >= 0; i--) {
-    if ((*keepDistances)[i]->IsValid())
-      break;
+    if ((*keepDistances)[i]->IsValid()) break;
   }
   ibin1 = i;
   if (ibin1 == -1) {
     ibin1 = ibin2;
     for (i = ibin1 + 1; i < VertexDistanceBins; i++) {
-      if ((*keepDistances)[i]->IsValid())
-        break;
+      if ((*keepDistances)[i]->IsValid()) break;
     }
     ibin2 = i;
   }
   if (ibin2 == 0) {
     ibin1 = ibin2;
     for (i = ibin1 + 1; i < VertexDistanceBins; i++) {
-      if ((*keepDistances)[i]->IsValid())
-        break;
+      if ((*keepDistances)[i]->IsValid()) break;
     }
     ibin2 = i;
   }

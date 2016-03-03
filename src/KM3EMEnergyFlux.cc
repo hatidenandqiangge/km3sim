@@ -26,8 +26,7 @@ KM3EMEnergyFlux::KM3EMEnergyFlux(char *infileParam, G4double QEmax,
 }
 KM3EMEnergyFlux::~KM3EMEnergyFlux() {
   if (keepEnergies != NULL) {
-    for (G4int i = 0; i < NEnergies; i++)
-      delete (*keepEnergies)[i];
+    for (G4int i = 0; i < NEnergies; i++) delete (*keepEnergies)[i];
     keepEnergies->clear();
     delete keepEnergies;
     keepEnergies = NULL;
@@ -36,8 +35,8 @@ KM3EMEnergyFlux::~KM3EMEnergyFlux() {
 
 G4bool KM3EMEnergyFlux::ModelTrigger(G4double TheE) {
   if (log10(TheE) < EnergyMin || log10(TheE / MaxBoostRatio) > EnergyMax)
-    return false; // linear extrapolation is used for up to MaxBoostRatio times
-                  // the maximum energy
+    return false;  // linear extrapolation is used for up to MaxBoostRatio times
+                   // the maximum energy
   else
     return true;
 }
@@ -53,8 +52,7 @@ void KM3EMEnergyFlux::FindBins(G4double energyin, G4double distancein,
   G4double BoostRatio;
   if (TheE < EnergyMax) {
     for (i = 1; i < NEnergies; i++) {
-      if (TheE < (*keepEnergies)[i]->GiveEnergy())
-        break;
+      if (TheE < (*keepEnergies)[i]->GiveEnergy()) break;
     }
     ibin2 = i;
     BoostRatio = 1.0;
