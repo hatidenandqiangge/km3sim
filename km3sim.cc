@@ -70,7 +70,7 @@
  */
 
 static const char USAGE[] =
-    R"(km3sim.
+R"(km3sim.
 
   Usage:
     km3sim [--seed=<sd>] (-i PARAMS) (-d DETECTOR) (-o OUTFILE)
@@ -89,7 +89,7 @@ static const char USAGE[] =
 
 int main(int argc, char *argv[]) {
   str::map<std::string, doctopt::value> args =
-      doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
+    doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
   for (auto const &arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
   }
