@@ -56,6 +56,19 @@
  * define 1 mandatory UserAction
  */
 
+/* Compilation settings:
+ *
+ * HADRONIC_COMPILE = True
+ * TRACK_INFORMATION = True
+ * MYFIT_PARAM = False
+ * DISABLE_PARAM = True
+ * ENABLE_MIE = True
+ * EM_PARAM = False
+ * MUON_PARAM = False
+ * HA_PARAM = False
+ * HAMUON_PARAM = False
+ */
+
 static const char USAGE[] =
     R"(km3sim.
 
