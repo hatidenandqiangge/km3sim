@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <stdio.h>
 
 #include "docopt.h"
+
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
@@ -19,7 +21,7 @@
 #include "KM3Detector.hh"
 
 static const char USAGE[] =
-    R"(km3sim.
+R"(km3sim.
 
   Usage:
     km3sim [--seed=<sd>] (-i PARAMS) (-d DETECTOR) (-o OUTFILE)
@@ -38,11 +40,10 @@ static const char USAGE[] =
 
 int main(int argc, char *argv[]) {
   str::map<std::string, doctopt::value> args =
-      doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
+    doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
   for (auto const &arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
   }
-
   G4long myseed = atol(argv[2]);
   CLHEP::HepRandom::setTheSeed(myseed);
 
