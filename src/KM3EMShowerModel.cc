@@ -24,37 +24,30 @@
 // $Id: ExN05EMShowerModel.cc,v 1.9 2004/11/25 23:35:16 mverderi Exp $
 // GEANT4 tag $Name: geant4-07-00-patch-01 $
 //
-#include "KM3HAShowerModel.hh"
+#include "KM3EMShowerModel.hh"
 
 #include "Randomize.hh"
 
-#include "G4PionPlus.hh"
-#include "G4PionMinus.hh"
-#include "G4KaonPlus.hh"
-#include "G4KaonMinus.hh"
-#include "G4KaonZeroLong.hh"
-#include "G4Proton.hh"
-#include "G4AntiProton.hh"
-#include "G4Neutron.hh"
-#include "G4AntiNeutron.hh"
-
+#include "G4Electron.hh"
+#include "G4Positron.hh"
+#include "G4Gamma.hh"
 #include "G4VProcess.hh"
 #include "G4TransportationManager.hh"
 #include "KM3TrackInformation.hh"
 
-KM3HAShowerModel::KM3HAShowerModel(G4String modelName, G4Region *envelope)
+KM3EMShowerModel::KM3EMShowerModel(G4String modelName, G4Region *envelope)
     : G4VFastSimulationModel(modelName, envelope) {
-  EnergyMin = 10.0 * GeV;
-  EnergyMax = 100.0 * TeV;
+  EnergyThreshold =
+      31.6 * MeV;  // this just for speed. Param. slows sim below that threshold
 }
 
-KM3HAShowerModel::KM3HAShowerModel(G4String modelName)
+KM3EMShowerModel::KM3EMShowerModel(G4String modelName)
     : G4VFastSimulationModel(modelName) {
-  EnergyMin = 10.0 * GeV;
-  EnergyMax = 100.0 * TeV;
+  EnergyThreshold =
+      31.6 * MeV;  // this just for speed. Param. slows sim below that threshold
 }
 
-KM3HAShowerModel::~KM3HAShowerModel() {
+KM3EMShowerModel::~KM3EMShowerModel() {
 #ifndef G4DISABLE_PARAMETRIZATION
   delete myFlux;
 #else
@@ -62,30 +55,29 @@ KM3HAShowerModel::~KM3HAShowerModel() {
 #endif
 }
 
-void KM3HAShowerModel::InitializeFlux(char *infileParam,
+void KM3EMShowerModel::InitializeFlux(char *infileParam,
                                       G4double Quantum_Efficiency,
                                       G4double TotCathodArea) {
 #ifndef G4DISABLE_PARAMETRIZATION
-  myFlux = new KM3HAEnergyFlux(infileParam, Quantum_Efficiency, TotCathodArea,
-                               EnergyMin, EnergyMax);
+  myFlux = new KM3EMEnergyFlux(infileParam, Quantum_Efficiency, TotCathodArea,
+                               8, 100.0);
 #else
   ;
 #endif
 }
 
-// the following is for ha cascades only for pion plus and pion minus generated
-// it is applied also too all other frequently generated hadronic particles
-G4bool KM3HAShowerModel::IsApplicable(
+// the following is for em cascades only.
+// do not need hadronic- they are pretty rare and they produce muons that are
+// not descibed by the parametrization
+// due to the long range.
+G4bool KM3EMShowerModel::IsApplicable(
     const G4ParticleDefinition &particleType) {
-  if (&particleType == G4PionPlus::PionPlusDefinition() ||
-      &particleType == G4PionMinus::PionMinusDefinition() ||
-      &particleType == G4KaonPlus::KaonPlusDefinition() ||
-      &particleType == G4KaonMinus::KaonMinusDefinition() ||
-      &particleType == G4KaonZeroLong::KaonZeroLongDefinition() ||
-      &particleType == G4Proton::ProtonDefinition() ||
-      &particleType == G4AntiProton::AntiProtonDefinition() ||
-      &particleType == G4Neutron::NeutronDefinition() ||
-      &particleType == G4AntiNeutron::AntiNeutronDefinition()) {
+  if (&particleType == G4Electron::ElectronDefinition() ||
+      &particleType == G4Positron::PositronDefinition() ||
+      &particleType == G4Gamma::GammaDefinition()  // do not to need the pi0 it
+                                                   // is discribed by gamma
+                                                   // (through decay)
+      ) {
     return true;
   }
 
@@ -94,25 +86,18 @@ G4bool KM3HAShowerModel::IsApplicable(
   }
 }
 
-G4bool KM3HAShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
+G4bool KM3EMShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
   // Applies the parameterisation only if the particle is in Water and the
   // energy is supported by the flux (interpolation model)
   G4String materialName;
-  G4double Energy;
+  G4double kineticEnergy;
   materialName = fastTrack.GetPrimaryTrack()->GetMaterial()->GetName();
-  //  if(fastTrack.GetPrimaryTrack()->GetDefinition()->GetBaryonNumber() != 0)
-  //  //if it is a baryon use kinetic energy
-  //    Energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-  //  else Energy = fastTrack.GetPrimaryTrack()->GetTotalEnergy(); //if it is a
-  //  meson use total energy
-  Energy = (fastTrack.GetPrimaryTrack()->GetMomentum())
-               .mag();  // in fact the parametrization creation is according to
-                        // momentum
-  return ((Energy >= EnergyMin) && (Energy <= EnergyMax) &&
-          (materialName == "Water"));
+  kineticEnergy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  return ((kineticEnergy > EnergyThreshold) &&
+          myFlux->ModelTrigger(kineticEnergy) && (materialName == "Water"));
 }
 
-void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
+void KM3EMShowerModel::DoIt(const G4FastTrack &fastTrack,
                             G4FastStep &fastStep) {
 #if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
   static G4int ooo = 0;
@@ -123,6 +108,7 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
     G4double PhEneAtMaxQE;
     G4MaterialPropertyVector *aPropertyVector =
         aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
+
     for (size_t i = 0; i < aPropertyVector->GetVectorLength(); i++) {
       G4double ThisQE = (*aPropertyVector)[i];
       G4double ThisPhEne = aPropertyVector->Energy(i);
@@ -155,34 +141,51 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
   //-----------------------------------------------------------------------
 
   //--kinetic energy of the particle initiating the shower in MeV-----
-  G4double primaryShowerEnergy;
-  //  if(fastTrack.GetPrimaryTrack()->GetDefinition()->GetBaryonNumber() != 0)
-  //  //if it is a baryon use kinetic energy
-  //    primaryShowerEnergy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-  //  else primaryShowerEnergy = fastTrack.GetPrimaryTrack()->GetTotalEnergy();
-  //  //if it is a meson use total energy
-  primaryShowerEnergy = (fastTrack.GetPrimaryTrack()->GetMomentum())
-                            .mag();  // in fact the parametrization creation is
-                                     // according to momentum
+  G4double primaryShowerEnergy =
+      fastTrack.GetPrimaryTrack()->GetKineticEnergy();
   // axis of the shower, in global reference frame (normalized to unity):
   G4ThreeVector primaryShowerAxis =
       fastTrack.GetPrimaryTrack()->GetMomentumDirection();
   // starting point of the shower:
   G4ThreeVector primaryShowerPosition =
       fastTrack.GetPrimaryTrack()->GetPosition();
+  G4int idbeam =
+      fastTrack.GetPrimaryTrack()->GetParticleDefinition()->GetPDGEncoding();
+  // the time of the primary track
+  G4double primaryShowerTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
   // next we transfer forwards the position a little in order to account for the
   // distance from the particle creation
   // to the maximum of the photon emission (see also generation action in the EM
-  // and HA parametrization section)
-  // the shift is fixed for 100GeV pion and kaon zero long
-  G4double zpos = 3.46;
-  primaryShowerPosition += zpos * m * primaryShowerAxis;
-  // the time of the primary track
-  G4double primaryShowerTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
-  // the type of particle
-  G4int idbeam =
-      fastTrack.GetPrimaryTrack()->GetParticleDefinition()->GetPDGEncoding();
-  // clear stacks
+  // parametrization section)
+  /////////////////////////////////////////////////////////////////////////////////////
+  // in the next temporary code, we add the Dgamma/c and substract the
+  // Delectron/c when we have gamma, since
+  // in the parametrization generation we have not shifted the vertex time to
+  // -Delectron/c,
+  // so the timing information from the tables corresponds to Delectron/c time,
+  // if we suppose that
+  // all photons are emitted from the shower maximum
+  // Normally we should shift the time in parametrization generation by
+  // -Delectron/c and here
+  // add just Dgamma/c for gamma and Delectron/c for electron,positron.
+  G4double enepos = log10(primaryShowerEnergy / GeV);
+  G4double zpos, zpos11, zpos22;
+  if (enepos < 0) {
+    zpos11 = 0.90653 + enepos * (0.96676 + enepos * 0.26983);
+    zpos22 = 1.22450 + enepos * (0.82081 + enepos * 0.20987);
+  } else {
+    zpos11 = 0.90132 + enepos * 0.81286;
+    zpos22 = 1.20880 + enepos * 0.78600;
+  }
+  zpos11 *= m;
+  zpos22 *= m;
+  if (idbeam == 11 || idbeam == -11) {
+    zpos = zpos11;
+  } else if (idbeam == 22) {
+    zpos = zpos22;
+    primaryShowerTime += (zpos22 - zpos11) / c_light;
+  }
+  primaryShowerPosition += zpos * primaryShowerAxis;
 
   const G4VProcess *theProcess =
       fastTrack.GetPrimaryTrack()->GetCreatorProcess();
@@ -213,7 +216,7 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
       originalTrackCreatorProcess = 5;
   } else {
     originalParentID = fastTrack.GetPrimaryTrack()->GetTrackID();
-    originalTrackCreatorProcess = 7;
+    originalTrackCreatorProcess = 6;
   }
 #else
   originalParentID = 1;
@@ -224,13 +227,13 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
 
   /*
   if(theProcess != NULL){
-    G4cout << "KM3HAShowerModel::DoIt particle " <<
+    G4cout << "KM3EMShowerModel::DoIt particle " <<
   fastTrack.GetPrimaryTrack()->GetDefinition()->GetParticleName()
            << " and Energy " <<primaryShowerEnergy<<" MeV "
            <<" created by "<< theProcess->GetProcessName() << G4endl;
   }
   else{
-    G4cout << "KM3HAShowerModel::DoIt particle " <<
+    G4cout << "KM3EMShowerModel::DoIt particle " <<
   fastTrack.GetPrimaryTrack()->GetDefinition()->GetParticleName()
            << " and Energy " <<primaryShowerEnergy<<" MeV "
            <<" which is one of the primary particles"<< G4endl;
@@ -239,7 +242,7 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
   // initialize flux generator for this shower
   static G4double MaxAbsDist2 =
       myStDetector->MaxAbsDist * myStDetector->MaxAbsDist;
-  G4int PhotonsSurviving = 0;
+  //  G4int   PhotonsSurviving=0;
   static G4int TotalNumberOfTowers = myStDetector->allTowers->size();
   for (int it = 0; it < TotalNumberOfTowers; it++) {
     G4double dx = (*(myStDetector->allTowers))[it]->position[0] -
@@ -259,7 +262,7 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
           distancein = sqrt(distancein);
           FromGeneToOM /= distancein;
           G4double anglein = primaryShowerAxis.dot(FromGeneToOM);
-          myFlux->FindBins(idbeam, primaryShowerEnergy, distancein, anglein);
+          myFlux->FindBins(primaryShowerEnergy, distancein, anglein);
           G4int NumberOfSamples = myFlux->GetNumberOfSamples();
           G4int icstart, icstop;
           G4double theFastTime;
@@ -276,8 +279,8 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
           }
           for (G4int isa = 0; isa < NumberOfSamples; isa++) {
             onePE aPE = myFlux->GetSamplePoint();
-            //	G4cout << "OutFromParam "<<distancein<<" "<<anglein<<"
-            //"<<aPE.costh<<" "<<aPE.phi<<" "<<aPE.time<<G4endl;  //tempo
+            //	    G4cout << "OutFromParam "<<distancein/m<<" "<<anglein<<"
+            //"<<aPE.costh<<" "<<aPE.phi<<G4endl;  //tempo
             G4double costh = aPE.costh;
             G4double sinth = sqrt(1.0 - costh * costh);
             G4double cosphi = cos(aPE.phi);
@@ -298,11 +301,11 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
             // nearbyint(anglePhiDirection));
             G4int ic = G4int(icstart + (icstop - icstart) * G4UniformRand());
             // short
-            // aMySD->InsertExternalHit(ic,theFastTime+aPE.time,originalInfo,angleDirection,-900);
+            // aMySD->InsertExternalHit(ic,theFastTime+aPE.time,originalInfo,angleDirection,-999);
             aMySD->InsertExternalHit(ic, (*myStDetector->allOMs)[io]->position,
                                      theFastTime + aPE.time, originalInfo,
                                      photonDirection);
-            PhotonsSurviving++;
+            //	    PhotonsSurviving++;
           }  // for(G4int isa=0 ; isa<NumberOfSamples ; isa++)
         }    // if(distancein<MaxAbsDist2)
       }      // for(int io=0;io<TotalNumberOfOMs;io++)
