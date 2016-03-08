@@ -107,191 +107,108 @@ int main(int argc, char *argv[]) {
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
-  if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
-      (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
-      (argv[8][6] == 'A') && (argv[8][7] == '\0')) {
+  if ((argv[8][0] == 'A') && (argv[8][1] == 'N') && (argv[8][2] == 'T') &&
+      (argv[8][3] == 'A') && (argv[8][4] == 'R') && (argv[8][5] == 'E') &&
+      (argv[8][6] == 'S') && (argv[8][7] == '_') && (argv[8][8] == 'E') &&
+      (argv[8][9] == 'V') && (argv[8][10] == 'T') && (argv[8][11] == '_') &&
+      (argv[8][12] == 'F') && (argv[8][13] == 'O') && (argv[8][14] == 'R') &&
+      (argv[8][15] == 'M') && (argv[8][16] == 'A') && (argv[8][17] == 'T') &&
+      (argv[8][18] == '\0')) {
+    useHEPEvt = true;
+    useANTARESformat = true;
+    fileParticles = argv[9];
+  }
+  else {
     useHEPEvt = false;
     useANTARESformat = false;
-    if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-      printf("Error open output Param file\n");
+    fileParticles = argv[8];
+  }
+
+  FILE *savefile;
+  HOURSevtWRITE *TheEVTtoWrite;
+  if (!useANTARESformat) {
+    if ((savefile = fopen(argv[3], "w")) == NULL) {
+      printf("Error open file\n");
       return 1;
     }
-  }
-  ParamEnergy = GeV * atof(argv[10]);
-  ParamNumber = atoi(argv[11]);
-  ParamParticle = atoi(argv[12]);
-}
-else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
-         (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
-         (argv[8][6] == 'A') && (argv[8][7] == 'M') && (argv[8][8] == 'u') &&
-         (argv[8][9] == 'o') && (argv[8][10] == 'n') && (argv[8][11] == 's') &&
-         (argv[8][12] == '\0')) {
-  useHEPEvt = true;
-  useANTARESformat = false;
-  fileParticles = argv[9];
-  filePythiaParticles = argv[10];
-  fileParamHAmuons = argv[11];  // this is fed to stacking and generator
-  if ((outfilePar = fopen(argv[12], "w")) ==
-      NULL) {  // this works the same way as in ParamEM
-    printf(
-        "Error open output Param photon file for Hadronic "
-        "parameterization\n");
-    return 1;
-  }
-}
-else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
-         (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'F') &&
-         (argv[8][6] == 'i') && (argv[8][7] == 't') && (argv[8][8] == '\0')) {
-  useHEPEvt = false;
-  useANTARESformat = false;
-  if (argv[9] == NULL) {
-    G4cout << "You must give an output param file" << G4endl;
-    return 1;
   } else {
-    if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-      printf("Error open output Param file\n");
-      return 1;
-    }
+    TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
   }
-  ParamEnergy = GeV * atof(argv[10]);
-  ParamNumber = atoi(argv[11]);
-}
-else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
-         (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'E') &&
-         (argv[8][6] == 'M') && (argv[8][7] == '\0')) {
-  useHEPEvt = false;
-  useANTARESformat = false;
-  if ((outfilePar = fopen(argv[9], "w")) == NULL) {
-    printf("Error open output Param file\n");
-    return 1;
-  }
-  ParamEnergy = GeV * atof(argv[10]);
-  ParamNumber = atoi(argv[11]);
-  ParamParticle = atoi(argv[12]);
-}
-else if ((argv[8][0] == 'A') && (argv[8][1] == 'N') && (argv[8][2] == 'T') &&
-         (argv[8][3] == 'A') && (argv[8][4] == 'R') && (argv[8][5] == 'E') &&
-         (argv[8][6] == 'S') && (argv[8][7] == '_') && (argv[8][8] == 'E') &&
-         (argv[8][9] == 'V') && (argv[8][10] == 'T') && (argv[8][11] == '_') &&
-         (argv[8][12] == 'F') && (argv[8][13] == 'O') && (argv[8][14] == 'R') &&
-         (argv[8][15] == 'M') && (argv[8][16] == 'A') && (argv[8][17] == 'T') &&
-         (argv[8][18] == '\0')) {
-  useHEPEvt = true;
-  useANTARESformat = true;
-  fileParticles = argv[9];
-}
-else {
-  useHEPEvt = false;
-  useANTARESformat = false;
-  fileParticles = argv[8];
-}
 
-FILE *savefile;
-HOURSevtWRITE *TheEVTtoWrite;
-if (!useANTARESformat) {
-  if ((savefile = fopen(argv[3], "w")) == NULL) {
-    printf("Error open file\n");
-    return 1;
-  }
-} else {
-  TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
-}
+  G4RunManager *runManager = new G4RunManager;
 
-G4RunManager *runManager = new G4RunManager;
+  KM3Detector *Mydet = new KM3Detector;
+  runManager->SetUserInitialization(Mydet);
+  KM3Physics *MyPhys = new KM3Physics;
+  runManager->SetUserInitialization(MyPhys);
+  MyPhys->aDetector = Mydet;
+  Mydet->Geometry_File = Geometry_File;
+  Mydet->Parameter_File = Parameter_File;
+  Mydet->outfilePar = outfilePar;
 
-KM3Detector *Mydet = new KM3Detector;
-runManager->SetUserInitialization(Mydet);
-KM3Physics *MyPhys = new KM3Physics;
-runManager->SetUserInitialization(MyPhys);
-MyPhys->aDetector = Mydet;
-Mydet->Geometry_File = Geometry_File;
-Mydet->Parameter_File = Parameter_File;
-Mydet->outfilePar = outfilePar;
+  // set mandatory user action class
+  runManager->SetNumberOfEventsToBeStored(0);
+  // myGeneratorAction and MyTrackingAction
+  KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
+  myGeneratorAction->outfile = savefile;
+  myGeneratorAction->useHEPEvt = useHEPEvt;
+  myGeneratorAction->useANTARESformat = useANTARESformat;
+  myGeneratorAction->fileParticles = fileParticles;
+  myGeneratorAction->filePythiaParticles = filePythiaParticles;
+  myGeneratorAction->ParamEnergy = ParamEnergy;
+  myGeneratorAction->idbeam = ParamParticle;
+  Mydet->MyGenerator = myGeneratorAction;
 
-// set mandatory user action class
-runManager->SetNumberOfEventsToBeStored(0);
-// myGeneratorAction and MyTrackingAction
-KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
-myGeneratorAction->outfile = savefile;
-myGeneratorAction->useHEPEvt = useHEPEvt;
-myGeneratorAction->useANTARESformat = useANTARESformat;
-myGeneratorAction->fileParticles = fileParticles;
-myGeneratorAction->filePythiaParticles = filePythiaParticles;
-myGeneratorAction->ParamEnergy = ParamEnergy;
-myGeneratorAction->idbeam = ParamParticle;
-Mydet->MyGenerator = myGeneratorAction;
+  KM3TrackingAction *myTracking = new KM3TrackingAction;
+  myTracking->TheEVTtoWrite = TheEVTtoWrite;
+  myTracking->useANTARESformat = useANTARESformat;
+  // link between generator and tracking (to provide number of
+  // initial particles to trackingAction
+  myGeneratorAction->myTracking = myTracking;
+  myGeneratorAction->Initialize();
+  runManager->SetUserAction(myGeneratorAction);
 
-KM3TrackingAction *myTracking = new KM3TrackingAction;
-myTracking->TheEVTtoWrite = TheEVTtoWrite;
-myTracking->useANTARESformat = useANTARESformat;
-// link between generator and tracking (to provide number of
-// initial particles to trackingAction
-myGeneratorAction->myTracking = myTracking;
-myGeneratorAction->Initialize();
-runManager->SetUserAction(myGeneratorAction);
+  KM3EventAction *event_action = new KM3EventAction;
+  runManager->SetUserAction(event_action);
+  event_action->outfile = savefile;
+  event_action->TheEVTtoWrite = TheEVTtoWrite;
+  event_action->useANTARESformat = useANTARESformat;
+  // generator knows event to set the number of initial particles
+  myGeneratorAction->event_action = event_action;
 
-KM3EventAction *event_action = new KM3EventAction;
-runManager->SetUserAction(event_action);
-event_action->outfile = savefile;
-event_action->TheEVTtoWrite = TheEVTtoWrite;
-event_action->useANTARESformat = useANTARESformat;
-// generator knows event to set the number of initial particles
-myGeneratorAction->event_action = event_action;
+  Mydet->outfile = savefile;
+  Mydet->TheEVTtoWrite = TheEVTtoWrite;
+  Mydet->useANTARESformat = useANTARESformat;
 
-Mydet->outfile = savefile;
-Mydet->TheEVTtoWrite = TheEVTtoWrite;
-Mydet->useANTARESformat = useANTARESformat;
+  KM3StackingAction *myStacking = new KM3StackingAction;
+  KM3SteppingAction *myStepping = new KM3SteppingAction;
+  myStacking->SetDetector(Mydet);
+  myStepping->myStDetector = Mydet;
+  myStepping->event_action = event_action;
+  runManager->SetUserAction(myStacking);
+  runManager->SetUserAction(myTracking);
+  runManager->SetUserAction(myStepping);
+  // Initialize G4 kernel
+  runManager->Initialize();
 
-KM3StackingAction *myStacking = new KM3StackingAction;
-KM3SteppingAction *myStepping = new KM3SteppingAction;
-myStacking->SetDetector(Mydet);
-myStepping->myStDetector = Mydet;
-myStepping->event_action = event_action;
-runManager->SetUserAction(myStacking);
-runManager->SetUserAction(myTracking);
-runManager->SetUserAction(myStepping);
-// Initialize G4 kernel
-runManager->Initialize();
-//   for (G4int iom=0 ; iom < Mydet->allOMs->size() ; iom++){
-//     G4cout << G4BestUnit((*(Mydet->allOMs))[iom]->position(0),"Length")
-//     << G4BestUnit((*(Mydet->allOMs))[iom]->position(1),"Length")
-//     << G4BestUnit((*(Mydet->allOMs))[iom]->position(2),"Length")
-//     << G4BestUnit((*(Mydet->allOMs))[iom]->radius,"Length") <<"   "<< iom
-// <<"\n";
-//   }
+  // get the pointer to the UI manager and set verbosities
+  G4UImanager *UI = G4UImanager::GetUIpointer();
+  G4UIsession *session = 0;
+  session = new G4UIterminal();
 
-// get the pointer to the UI manager and set verbosities
-G4UImanager *UI = G4UImanager::GetUIpointer();
-G4UIsession *session = 0;
-session = new G4UIterminal();
+  // inactivate the parametrization
+  UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
 
-// UI->ApplyCommand("/control/execute myrun.mac");
+  // start a run
+  runManager->SetVerboseLevel(1);
+  runManager->BeamOn(myGeneratorAction->nevents);
 
-//  UI->ApplyCommand("/event/verbose 0");
-//  UI->ApplyCommand("/control/verbose 0");
-//    UI->ApplyCommand("/tracking/verbose 1");
-//    UI->ApplyCommand("/process/verbose 1");
-// UI->ApplyCommand("/hits/verbose 1");
+  // job termination
+  if (!useANTARESformat)
+    fclose(savefile);
+  else
+    delete TheEVTtoWrite;
 
-// inactivate the parametrization
-UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
-
-//  UI->ApplyCommand("/geometry/test/grid_test true");
-
-// start a run
-// UI->ApplyCommand("/control/suppressAbortion 2");
-runManager->SetVerboseLevel(1);
-runManager->BeamOn(myGeneratorAction->nevents);
-
-//   session->SessionStart();
-// delete session;
-
-// job termination
-if (!useANTARESformat)
-  fclose(savefile);
-else
-  delete TheEVTtoWrite;
-
-delete runManager;
-return 0;
+  delete runManager;
+  return 0;
 }
