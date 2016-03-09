@@ -66,11 +66,7 @@
 
 
 KM3Physics::KM3Physics() : G4VUserPhysicsList() {
-#ifdef G4MYK40_PARAMETERIZATION
-  defaultCutValue = 0.001 * mm;
-#else
   defaultCutValue = 0.5 * mm;
-#endif
   SetVerboseLevel(2);
 }
 

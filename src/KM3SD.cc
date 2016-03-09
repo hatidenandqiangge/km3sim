@@ -74,10 +74,6 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   // cathods this increases the hit count by 0.2% when we have 60m scaterin
   // length and 0.6% when we have 20m scattering length. This is negligible and I
   // dont take this into account.
-#ifndef G4MYFIT_PARAMETERIZATION
-#if (!defined(G4MYEM_PARAMETERIZATION) &&  \
-    !defined(G4MYHA_PARAMETERIZATION)) || \
-  defined(G4MYK40_PARAMETERIZATION)  // newha
   if (MyCollection->entries() < 10000000) {
     G4ThreeVector photonDirection = aStep->GetTrack()->GetMomentumDirection();
 
@@ -193,19 +189,11 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
 
     MyCollection->insert(newHit);
   }
-#endif
-#endif
 
-#if (!defined(G4MYEM_PARAMETERIZATION) &&  \
-    !defined(G4MYHA_PARAMETERIZATION)) || \
-  defined(G4MYK40_PARAMETERIZATION)  // newha
-#ifndef G4MYFIT_PARAMETERIZATION
   // killing must not been done, when we have EM or HA or FIT parametrizations
   // but it must be done for normal run, especially K40, SN and laser since
   // coincidences play big role there
   aStep->GetTrack()->SetTrackStatus(fStopAndKill);  // kill the detected photon
-#endif
-#endif
 
   return true;
 }
@@ -277,36 +265,9 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
 #endif
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-#if (!defined(G4MYEM_PARAMETERIZATION) &&  \
-    !defined(G4MYHA_PARAMETERIZATION)) || \
-defined(G4MYK40_PARAMETERIZATION)  // newha
 void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
-#ifdef G4MYK40_PARAMETERIZATION
-  // here get access to the primary generation action generation parameters
-  // idbeam,ParamEnergy,random_R
-  G4int idbeam = myStDetector->MyGenerator->idbeam;
-  G4double ParamEnergy = myStDetector->MyGenerator->ParamEnergy / keV;
-  G4double random_R = myStDetector->MyGenerator->random_R / meter;
-#ifdef G4MYLASER_PARAMETERIZATION
-  idbeam = G4int(idbeam / myStDetector->Quantum_Efficiency);
-#endif
-#endif
-
   if (verboseLevel > 0) {
     G4int TotalNumberOfCathods = myStDetector->allCathods->GetNumberOfCathods();
-#ifdef G4MYFIT_PARAMETERIZATION
-    outfile = myStDetector->outfilePar;
-    G4double ParamMomentum =
-      myStDetector->event_action->centerMomentum[0] / GeV;
-    for (int ica = 0; ica < TotalNumberOfCathods; ica++) {
-      G4ThreeVector PosPMT = myStDetector->allCathods->GetPosition(ica);
-      G4double ParamDistance =
-        sqrt(PosPMT[0] * PosPMT[0] + PosPMT[1] * PosPMT[1]) / meter;
-      fprintf(outfile, "%.4e %.4e %d %d\n", ParamMomentum, ParamDistance,
-          ArrayParam[ica], ArrayParamAll[ica]);
-    }
-#else
     outfile = myStDetector->outfile;
     G4int NbHits = MyCollection->entries();
     static G4int ooo = 0;                               // count total
@@ -330,10 +291,8 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
         if (currentCathod != prevCathod) {
           istop = i - 1;
           QuickSort(1, theCollectionVector, istart, istop);
-#ifndef G4MYK40_PARAMETERIZATION
           G4double MergeWindow = 0.5 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
-#endif
 #ifdef G4MYLASER_PARAMETERIZATION
           G4double MergeWindow = 0.1 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
@@ -343,10 +302,8 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
         } else if ((currentCathod == prevCathod) && (i == NbHits - 1)) {
           istop = i;
           QuickSort(1, theCollectionVector, istart, istop);
-#ifndef G4MYK40_PARAMETERIZATION
           G4double MergeWindow = 0.5 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
-#endif
 #ifdef G4MYLASER_PARAMETERIZATION
           G4double MergeWindow = 0.1 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
@@ -375,21 +332,10 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
       if (prevcathod != (*MyCollection)[i]->GetCathodId()) allhit++;
       prevcathod = (*MyCollection)[i]->GetCathodId();
     }
-#ifdef G4MYK40_PARAMETERIZATION
-    if (NbHits > 0) {
-#ifdef G4MYLASER_PARAMETERIZATION
-      fprintf(outfile, "%d\n", idbeam);
-#else
-      fprintf(outfile, "%d %.6e %.6e\n", idbeam, ParamEnergy, random_R);
-#endif
-      fprintf(outfile, "%.7e %d\n", timefirst * 1E-9, allhit);
-    }
-#else
     if (!myStDetector->useANTARESformat)
       fprintf(outfile, "%.7e %d\n", timefirst * 1E-9, allhit);
     else
       myStDetector->TheEVTtoWrite->AddNumberOfHits(NbHitsWrite);
-#endif
 
     // find the last pmt how many hits has
     G4int LastPmtNumber;

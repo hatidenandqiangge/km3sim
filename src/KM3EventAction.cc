@@ -73,9 +73,7 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
   G4ThreeVector Momentum;
   G4ThreeVector vzero(0.0, 0.0, 0.0);
   G4double izero = 0.0;
-#ifndef G4MYK40_PARAMETERIZATION
   if (!useANTARESformat) fprintf(outfile, "%d\n", numofMuons);
-#endif
   for (G4int ip = 0; ip < numofMuons; ip++) {
     // record entering position//////
     if ((enterPre[ip] != vzero) && (enterPost[ip] != vzero)) {

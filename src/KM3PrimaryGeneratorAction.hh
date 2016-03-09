@@ -51,10 +51,6 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
   HAVertexMuons *aHAVertexMuons;
 
-#ifdef G4MYK40_PARAMETERIZATION
-  G4double beta(G4double x);
-  G4double K40Radius;
-#endif
 
 #ifdef G4MYSN_PARAMETERIZATION
   G4double SNRadius;
