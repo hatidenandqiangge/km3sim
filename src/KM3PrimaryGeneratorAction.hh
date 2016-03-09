@@ -51,12 +51,6 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
   HAVertexMuons *aHAVertexMuons;
 
-
-#ifdef G4MYSN_PARAMETERIZATION
-  G4double SNRadius;
-  G4double NeutrinoTheta, NeutrinoPhi;  // momentum vector
-#endif
-
  public:
   void PutFromDetector(G4ThreeVector dC, G4double dMR, G4double dMz,
                        G4double bP) {

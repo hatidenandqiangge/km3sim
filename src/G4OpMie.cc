@@ -1,51 +1,3 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-// $Id: G4OpMie.cc,v 1.14 2008/07/21 21:08:54 gunter Exp $
-// GEANT4 tag $Name: geant4-09-01-patch-01 $
-//
-//
-////////////////////////////////////////////////////////////////////////
-// Optical Photon Mie Scattering Class Implementation
-////////////////////////////////////////////////////////////////////////
-//
-// File:        G4OpMie.cc
-// Description: Discrete Process -- Mie scattering of optical
-//    photons
-//              Phase Functions taken from Vladimir I. Haltrin,
-//              http://dx.doi.org/10.1117/12.558313
-// Version:     1.0
-// Created:     2008-07-21
-// Author:      Apostolos Tsirigotis
-// Updated:
-//
-// mail:        tsirigotis@eap.gr
-//
-////////////////////////////////////////////////////////////////////////
-
 #include "G4ios.hh"
 #include "G4ExceptionHandler.hh"
 #include <stdio.h>
@@ -56,22 +8,6 @@
 #include "KM3TrackInformation.hh"
 #endif
 
-/////////////////////////
-// Class Implementation
-/////////////////////////
-
-//////////////
-// Operators
-//////////////
-
-// G4OpMie::operator=(const G4OpMie &right)
-// {
-// }
-
-/////////////////
-// Constructors
-/////////////////
-
 G4OpMie::G4OpMie(const G4String &processName, G4ProcessType type)
     : G4VDiscreteProcess(processName, type) {
   if (verboseLevel > 0) {
@@ -80,14 +16,6 @@ G4OpMie::G4OpMie(const G4String &processName, G4ProcessType type)
   thePhaseFactors = NULL;
   BuildThePhysicsTable();
 }
-
-// G4OpMie::G4OpMie(const G4OpMie &right)
-// {
-// }
-
-////////////////
-// Destructors
-////////////////
 
 G4OpMie::~G4OpMie() {
   for (size_t i = 0; i < thePhaseFactors->size(); i++) {
@@ -98,34 +26,9 @@ G4OpMie::~G4OpMie() {
   delete PhaseRand;
 }
 
-////////////
-// Methods
-////////////
-
-// PostStepDoIt
-// -------------
-//
 G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
                                          const G4Step &aStep) {
   aParticleChange.Initialize(aTrack);
-
-// newmie if it has been emmitted as scattered by parametrization kill it
-#ifndef G4DISABLE_PARAMETRIZATION
-#ifdef G4TRACK_INFORMATION
-  KM3TrackInformation *info =
-      (KM3TrackInformation *)(aTrack.GetUserInformation());
-  if (info->GetEmittedAsScattered()) {
-    aParticleChange.ProposeTrackStatus(fStopAndKill);
-    return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
-  }
-#else
-  G4Exception(
-      "G4OpMie::PostStepDoIt: Parametrization application needs track "
-      "information",
-      "", FatalException, "");
-#endif
-#endif
-  // newmie
 
   const G4DynamicParticle *aParticle = aTrack.GetDynamicParticle();
 
@@ -185,8 +88,6 @@ G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
 
 // BuildThePhysicsTable for the Mie Scattering process (reads only the phase
 // function model)
-// --------------------------------------------------------
-//
 void G4OpMie::BuildThePhysicsTable() {
   // first load Phase factors
   G4double c0, c1, c2, c3, c4, c5, c6;
@@ -314,9 +215,6 @@ G4double G4OpMie::PhaseFunction(G4double angle) {
   return val;
 }
 
-// GetMeanFreePath()
-// -----------------
-//
 G4double G4OpMie::GetMeanFreePath(const G4Track &aTrack, G4double,
                                   G4ForceCondition *) {
   const G4DynamicParticle *aParticle = aTrack.GetDynamicParticle();
