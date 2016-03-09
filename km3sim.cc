@@ -138,25 +138,24 @@ int main(int argc, char *argv[]) {
   G4RunManager *runManager = new G4RunManager;
 
   KM3Detector *Mydet = new KM3Detector;
-  runManager->SetUserInitialization(Mydet);
-  KM3Physics *MyPhys = new KM3Physics;
-  runManager->SetUserInitialization(MyPhys);
-  MyPhys->aDetector = Mydet;
   Mydet->Geometry_File = Geometry_File;
   Mydet->Parameter_File = Parameter_File;
   Mydet->outfilePar = outfilePar;
+  runManager->SetUserInitialization(Mydet);
 
-  // set mandatory user action class
+  KM3Physics *MyPhys = new KM3Physics;
+  MyPhys->aDetector = Mydet;
+  runManager->SetUserInitialization(MyPhys);
+
   runManager->SetNumberOfEventsToBeStored(0);
-  // myGeneratorAction and MyTrackingAction
   KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
-  myGeneratorAction->outfile = savefile;
-  myGeneratorAction->useHEPEvt = useHEPEvt;
-  myGeneratorAction->useANTARESformat = useANTARESformat;
   myGeneratorAction->fileParticles = fileParticles;
   myGeneratorAction->filePythiaParticles = filePythiaParticles;
-  myGeneratorAction->ParamEnergy = ParamEnergy;
   myGeneratorAction->idbeam = ParamParticle;
+  myGeneratorAction->outfile = savefile;
+  myGeneratorAction->ParamEnergy = ParamEnergy;
+  myGeneratorAction->useANTARESformat = useANTARESformat;
+  myGeneratorAction->useHEPEvt = useHEPEvt;
   Mydet->MyGenerator = myGeneratorAction;
 
   KM3TrackingAction *myTracking = new KM3TrackingAction;
@@ -169,12 +168,12 @@ int main(int argc, char *argv[]) {
   runManager->SetUserAction(myGeneratorAction);
 
   KM3EventAction *event_action = new KM3EventAction;
-  runManager->SetUserAction(event_action);
   event_action->outfile = savefile;
   event_action->TheEVTtoWrite = TheEVTtoWrite;
   event_action->useANTARESformat = useANTARESformat;
-  // generator knows event to set the number of initial particles
   myGeneratorAction->event_action = event_action;
+  // generator knows event to set the number of initial particles
+  runManager->SetUserAction(event_action);
 
   Mydet->outfile = savefile;
   Mydet->TheEVTtoWrite = TheEVTtoWrite;
@@ -188,6 +187,7 @@ int main(int argc, char *argv[]) {
   runManager->SetUserAction(myStacking);
   runManager->SetUserAction(myTracking);
   runManager->SetUserAction(myStepping);
+
   // Initialize G4 kernel
   runManager->Initialize();
 
@@ -195,7 +195,6 @@ int main(int argc, char *argv[]) {
   G4UImanager *UI = G4UImanager::GetUIpointer();
   G4UIsession *session = 0;
   session = new G4UIterminal();
-
   // inactivate the parametrization
   UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
 
