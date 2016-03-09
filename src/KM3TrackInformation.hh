@@ -29,10 +29,6 @@ class KM3TrackInformation : public G4VUserTrackInformation {
   G4double originalEnergy;
   G4int originalParentID;
   G4bool EmittedAsScattered;  // newmie
-#ifdef G4MYLASER_PARAMETERIZATION
-  std::vector<G4ThreeVector> *ScatteringPositions;
-  std::vector<double> *ScatteringAngles;
-#endif
 
  public:
   inline G4String GetOriginalTrackCreatorProcess() const {
@@ -46,22 +42,6 @@ class KM3TrackInformation : public G4VUserTrackInformation {
   inline G4bool GetEmittedAsScattered() const {
     return EmittedAsScattered;
   }  // newmie
-#ifdef G4MYLASER_PARAMETERIZATION
-  inline void KeepScatteringPosition(const G4ThreeVector &ScatteringPosition,
-                                     double ScatteringAngle) {
-    ScatteringPositions->push_back(ScatteringPosition);
-    ScatteringAngles->push_back(ScatteringAngle);
-  };
-  inline G4int GetNumberOfScatters(void) {
-    return ScatteringPositions->size();
-  };
-  inline G4ThreeVector GetScatteringPosition(G4int is) {
-    return (*ScatteringPositions)[is];
-  };
-  inline G4double GetScatteringAngle(G4int is) {
-    return (*ScatteringAngles)[is];
-  };
-#endif
 };
 
 extern G4Allocator<KM3TrackInformation> aTrackInformationAllocator;
