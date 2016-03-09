@@ -16,7 +16,7 @@ G4SYSTEM := Linux-g++
 CPPVERBOSE := true
 #G4DEBUG := true
 
-#G4USE_STD11 := true
+G4USE_STD11 := true
 G4PROFILE := true
 
 G4LIB_USE_EXPAT := true
@@ -30,6 +30,7 @@ GDMLLIBS := -levtio -lxerces-c -lpthread
 G4LIB_BUILD_ZLIB := true
 #CPPFLAGS += --static
 
+# antares evt reader
 CPPFLAGS += -I/sps/km3net/users/tsirigot/HOURS/v1r12seawiet/inc
 LDFLAGS += -L/sps/km3net/users/tsirigot/HOURS/v1r12seawiet/lib -L/afs/cern.ch/sw/lcg/external/XercesC/3.1.1p2/x86_64-slc6-gcc47-opt/lib
 
