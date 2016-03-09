@@ -10,19 +10,13 @@
 #include "G4ParticleTable.hh"
 #include "G4Material.hh"
 #include "G4ios.hh"
-// donotuse
-#include "G4FastSimulationManagerProcess.hh"
-//--apostolis parametrization------------
-//#include "g4std/iomanip"
 
-#ifdef G4HADRONIC_COMPILE
 #include "G4LeptonConstructor.hh"
 #include "G4BosonConstructor.hh"
 #include "G4BaryonConstructor.hh"
 #include "G4MesonConstructor.hh"
 #include "G4ShortLivedConstructor.hh"
 #include "G4IonConstructor.hh"
-#endif    // G4HADRONIC_COMPILE
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
@@ -42,7 +36,6 @@
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
 #include "G4MuPairProduction.hh"
-#ifdef G4HADRONIC_COMPILE
 #include "G4MuonMinusCaptureAtRest.hh"
 #include "G4MuonNuclearProcess.hh"  //transition to 4.9.6
 #include "G4MuonVDNuclearModel.hh"  //transition to 4.9.6
@@ -59,7 +52,6 @@
 #include "G4LETritonInelastic.hh"
 #include "G4PionMinusAbsorptionAtRest.hh"
 #include "G4KaonMinusAbsorption.hh"
-#endif
 //#include "G4AnnihiToMuPair.hh"
 #include "G4hIonisation.hh"
 
@@ -67,9 +59,7 @@
 #ifdef G4BOUNDARY_COMPILE
 #include "G4OpBoundaryProcess.hh"
 #endif
-#ifdef G4ENABLE_MIE
 #include "G4OpMie.hh"
-#endif
 #include "G4Decay.hh"
 #include "G4RadioactiveDecay.hh"
 #include "G4IonTable.hh"
@@ -88,8 +78,6 @@ KM3Physics::KM3Physics() : G4VUserPhysicsList() {
 }
 
 KM3Physics::~KM3Physics() { delete theCerenkovProcess; }
-
-#ifdef G4HADRONIC_COMPILE
 
 
 void KM3Physics::ConstructParticle() {
@@ -112,72 +100,13 @@ void KM3Physics::ConstructParticle() {
   aCIon.ConstructParticle();
 }
 
-#else
-
-void KM3Physics::ConstructParticle() {
-  // In this method, static member functions should be called
-  // for all particles which you want to use.
-  // This ensures that objects of these particle types will be
-  // created in the program.
-
-  // pseudo-particles
-  G4Geantino::GeantinoDefinition();
-  G4ChargedGeantino::ChargedGeantinoDefinition();
-
-  // gamma
-  G4Gamma::GammaDefinition();
-
-  // optical photon
-  G4OpticalPhoton::OpticalPhotonDefinition();
-
-  //  e+/-
-  G4Electron::ElectronDefinition();
-  G4Electron::ElectronDefinition()->SetApplyCutsFlag(true);
-  G4Positron::PositronDefinition();
-  G4Positron::PositronDefinition()->SetApplyCutsFlag(true);
-
-  // mu+/-
-  G4MuonPlus::MuonPlusDefinition();
-  G4MuonMinus::MuonMinusDefinition();
-
-  // nu_e
-  G4NeutrinoE::NeutrinoEDefinition();
-  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
-
-  // nu_mu
-  G4NeutrinoMu::NeutrinoMuDefinition();
-  G4AntiNeutrinoMu::AntiNeutrinoMuDefinition();
-
-  //  mesons
-  G4PionPlus::PionPlusDefinition();
-  G4PionMinus::PionMinusDefinition();
-  G4PionZero::PionZeroDefinition();
-  G4Eta::EtaDefinition();
-  G4EtaPrime::EtaPrimeDefinition();
-  G4KaonPlus::KaonPlusDefinition();
-  G4KaonMinus::KaonMinusDefinition();
-  G4KaonZero::KaonZeroDefinition();
-  G4AntiKaonZero::AntiKaonZeroDefinition();
-  G4KaonZeroLong::KaonZeroLongDefinition();
-  G4KaonZeroShort::KaonZeroShortDefinition();
-
-  //  barions
-  G4Proton::ProtonDefinition();
-  G4AntiProton::AntiProtonDefinition();
-  G4Neutron::NeutronDefinition();
-  G4AntiNeutron::AntiNeutronDefinition();
-}
-
-#endif
 
 void KM3Physics::ConstructProcess() {
   AddTransportation();
   AddParameterisation();
   ConstructEM();
-#ifdef G4HADRONIC_COMPILE
   ConstructHA();  // construct hadronic processes only in case of Pythia input
                   // (for apparent reasons)
-#endif
   ConstructGeneral();
   ConstructOP();
 
@@ -354,13 +283,11 @@ void KM3Physics::ConstructEM() {
       anIonisation->SetDEDXBinning(nBins);
       anIonisation->SetMaxKinEnergy(highE);
 
-#ifdef G4HADRONIC_COMPILE
       G4MuonNuclearProcess *aMuNuclearInteraction = new G4MuonNuclearProcess();
       aMuNuclearInteraction->SetVerboseLevel(0);
       G4MuonVDNuclearModel *muNucModel = new G4MuonVDNuclearModel();
       muNucModel->SetMaxEnergy(highE);
       aMuNuclearInteraction->RegisterMe(muNucModel);
-#endif
       //      ((G4MuPairProduction*)aPairProduction)->SetLowerBoundLambda(0.0021);
       //      G4cout<<"lower lambda pair m
       //      "<<((G4MuPairProduction*)aPairProduction)->GetLowerBoundLambda()<<G4endl;
@@ -371,12 +298,10 @@ void KM3Physics::ConstructEM() {
       pmanager->AddProcess(aBremsstrahlung);
       pmanager->AddProcess(aPairProduction);
 
-#ifdef G4HADRONIC_COMPILE
       // new add muon minus capture at rest
       if (particleName == "mu-")
         pmanager->AddRestProcess(new G4MuonMinusCaptureAtRest);
       pmanager->AddDiscreteProcess(aMuNuclearInteraction);
-#endif
       //
       // set ordering for AlongStepDoIt
       pmanager->SetProcessOrdering(aMultipleScattering, idxAlongStep, 1);
@@ -387,9 +312,7 @@ void KM3Physics::ConstructEM() {
       pmanager->SetProcessOrdering(anIonisation, idxPostStep, 2);
       pmanager->SetProcessOrdering(aBremsstrahlung, idxPostStep, 3);
       pmanager->SetProcessOrdering(aPairProduction, idxPostStep, 4);
-#ifdef G4HADRONIC_COMPILE
       pmanager->SetProcessOrdering(aMuNuclearInteraction, idxPostStep, 5);
-#endif
 
     } else if ((!particle->IsShortLived()) &&
                (particle->GetPDGCharge() != 0.0) &&
@@ -444,10 +367,7 @@ void KM3Physics::ConstructEM() {
   }
 }
 
-#ifdef G4HADRONIC_COMPILE
-/////////////////////////////////////////////////////////////////////////////
-// Hadronic Physics /////////////////////////////////////////////////////////
-
+// Hadronic Physics
 // New using physics list QGSP_FTFP_BERT
 
 void KM3Physics::ConstructHA() {
@@ -564,9 +484,6 @@ void KM3Physics::ConstructHA() {
 }
 
 
-#endif
-
-
 void KM3Physics::ConstructOP() {
   theCerenkovProcess = new KM3Cherenkov("KM3Cherenkov");
   G4OpAbsorption *theAbsorptionProcess = new G4OpAbsorption();
@@ -591,10 +508,8 @@ void KM3Physics::ConstructOP() {
   theBoundaryProcess->SetModel(themodel);
 #endif
 
-#ifdef G4ENABLE_MIE
   G4OpMie *theMieProcess = new G4OpMie();
   theMieProcess->SetVerboseLevel(0);
-#endif
 
   theParticleIterator->reset();
   while ((*theParticleIterator)()) {
@@ -611,9 +526,7 @@ void KM3Physics::ConstructOP() {
 #ifdef G4BOUNDARY_COMPILE
         pmanager->AddDiscreteProcess(theBoundaryProcess);
 #endif
-#ifdef G4ENABLE_MIE
         pmanager->AddDiscreteProcess(theMieProcess);
-#endif
       }
     }
   }
@@ -633,19 +546,12 @@ void KM3Physics::ConstructGeneral() {
         // set ordering for PostStepDoIt and AtRestDoIt. Muons do not decay but
         // are captured (dense medium). Only for Hadronic runs
         if (particle->GetParticleName() == "mu-") {
-#ifndef G4HADRONIC_COMPILE
-          pmanager->AddProcess(theDecayProcess);
-          pmanager->SetProcessOrdering(theDecayProcess, idxPostStep);
-          pmanager->SetProcessOrdering(theDecayProcess, idxAtRest);
-#endif
           ;
         } else {
           pmanager->AddProcess(theDecayProcess);
           pmanager->SetProcessOrdering(theDecayProcess, idxPostStep);
-#ifdef G4HADRONIC_COMPILE
           if ((particle->GetParticleName() != "pi-") &&
               (particle->GetParticleName() != "kaon-"))
-#endif
             pmanager->SetProcessOrdering(theDecayProcess, idxAtRest);
         }
       }

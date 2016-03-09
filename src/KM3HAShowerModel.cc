@@ -29,22 +29,13 @@ KM3HAShowerModel::KM3HAShowerModel(G4String modelName)
 }
 
 KM3HAShowerModel::~KM3HAShowerModel() {
-#ifndef G4DISABLE_PARAMETRIZATION
-  delete myFlux;
-#else
   ;
-#endif
 }
 
 void KM3HAShowerModel::InitializeFlux(char *infileParam,
                                       G4double Quantum_Efficiency,
                                       G4double TotCathodArea) {
-#ifndef G4DISABLE_PARAMETRIZATION
-  myFlux = new KM3HAEnergyFlux(infileParam, Quantum_Efficiency, TotCathodArea,
-                               EnergyMin, EnergyMax);
-#else
   ;
-#endif
 }
 
 // the following is for ha cascades only for pion plus and pion minus generated
@@ -88,7 +79,6 @@ G4bool KM3HAShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
 
 void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
                             G4FastStep &fastStep) {
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
   static G4int ooo = 0;
   if (ooo == 0) {
     ooo = 1;
@@ -283,7 +273,4 @@ void KM3HAShowerModel::DoIt(const G4FastTrack &fastTrack,
     }        // if(distancetower2<MaxAbsDist2)
   }          // for(int it=0;it<TotalNumberOfTowers;it++)
 //  G4cout << "Total photons created "<< PhotonsSurviving <<G4endl;
-#else
-  ;
-#endif
 }

@@ -8,10 +8,8 @@
 #include "KM3EMShowerModel.hh"  //apostolis parametrization
 KM3EMShowerModel *myEMShowerModel;
 
-#ifdef G4HADRONIC_COMPILE
 #include "KM3HAShowerModel.hh"  //apostolis parametrization
 KM3HAShowerModel *myHAShowerModel;
-#endif  // G4HADRONIC_COMPILE
 
 #include "globals.hh"
 #include "G4Material.hh"
@@ -30,8 +28,8 @@ KM3HAShowerModel *myHAShowerModel;
 #include "G4Colour.hh"
 #include "G4UserLimits.hh"
 #include "G4RegionStore.hh"
-#include "G4VoxelLimits.hh"
-// newgeant #include "G4Processor/GDMLProcessor.h"
+#include "G4VoxelLimits.hh" // newgeant
+#include "G4Processor/GDMLProcessor.h"
 #include "G4GDMLParser.hh"  //newgeant
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"

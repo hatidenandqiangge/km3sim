@@ -22,22 +22,13 @@ KM3EMShowerModel::KM3EMShowerModel(G4String modelName)
 }
 
 KM3EMShowerModel::~KM3EMShowerModel() {
-#ifndef G4DISABLE_PARAMETRIZATION
-  delete myFlux;
-#else
   ;
-#endif
 }
 
 void KM3EMShowerModel::InitializeFlux(char *infileParam,
                                       G4double Quantum_Efficiency,
                                       G4double TotCathodArea) {
-#ifndef G4DISABLE_PARAMETRIZATION
-  myFlux = new KM3EMEnergyFlux(infileParam, Quantum_Efficiency, TotCathodArea,
-                               8, 100.0);
-#else
   ;
-#endif
 }
 
 // the following is for em cascades only.

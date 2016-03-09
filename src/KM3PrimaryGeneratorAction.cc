@@ -43,25 +43,11 @@ KM3PrimaryGeneratorAction::KM3PrimaryGeneratorAction() {}
 KM3PrimaryGeneratorAction::~KM3PrimaryGeneratorAction() {
   if (useHEPEvt && !useANTARESformat) delete HEPEvt;
   if (useANTARESformat) delete antaresHEPEvt;
-#ifdef G4MYMUON_PARAMETERIZATION
-  delete myMuonParam;  // for muon param vs distance
-#endif
-
-#ifdef G4HADRONIC_COMPILE
-#ifndef G4DISABLE_PARAMETRIZATION
-  delete aHAVertexMuons;
-#endif
-#endif
 }
 
 void KM3PrimaryGeneratorAction::Initialize() {
   if (useHEPEvt && !useANTARESformat)
     HEPEvt = new G4HEPEvtInterface(filePythiaParticles);
-#ifndef G4MYFIT_PARAMETERIZATION
-#ifndef G4MYEM_PARAMETERIZATION
-#if (defined(G4MYHA_PARAMETERIZATION) &&       \
-     defined(G4MYHAMUONS_PARAMETERIZATION)) || \
-    !defined(G4MYHA_PARAMETERIZATION)
   if (useANTARESformat) {
     antaresHEPEvt = new HOURSevtREAD(fileParticles);
     nevents = antaresHEPEvt->GetNumberOfEvents();
@@ -74,17 +60,6 @@ void KM3PrimaryGeneratorAction::Initialize() {
     G4double runtime;
     fscanf(infile, "%d %lf\n", &nevents, &runtime);
   }
-#endif
-#ifndef G4MYHA_PARAMETERIZATION
-#ifdef G4HADRONIC_COMPILE
-#ifndef G4DISABLE_PARAMETRIZATION
-  aHAVertexMuons =
-      new HAVertexMuons("TheMuons_Hadron.dat", "TheMuons_Hadron.index");
-#endif
-#endif
-#endif
-#endif
-#endif
   if (outfile == NULL && !useANTARESformat)
     G4cout << "ERROR OUTFILE\n" << G4endl;
 }
@@ -104,14 +79,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       pzz0;     // Momentum of injected or produced particles (in GeV/c)
   G4double t0;  // initial time of injected particles(ns)
   ievent++;
-#ifndef G4MYFIT_PARAMETERIZATION
-#ifndef G4MYEM_PARAMETERIZATION
-#if (defined(G4MYHA_PARAMETERIZATION) &&       \
-     defined(G4MYHAMUONS_PARAMETERIZATION)) || \
-    !defined(G4MYHA_PARAMETERIZATION)
-#ifndef G4MYHA_PARAMETERIZATION  // newha
   event_action->Initialize();
-#endif
   if (ievent == 1 && !useANTARESformat)
     fprintf(outfile, "%d\n", nevents);  // write the number of events
   if (!useHEPEvt) {
@@ -171,9 +139,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 // old code
 // ///////////////////////////////////////////////////////////////////////////////////////////
   }
-#endif
-#endif
-#endif
 
 #ifdef G4MYSN_PARAMETERIZATION
   if (!useHEPEvt) {
