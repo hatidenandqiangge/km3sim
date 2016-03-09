@@ -61,8 +61,8 @@
  * HADRONIC_COMPILE = True
  * TRACK_INFORMATION = True
  * ENABLE_MIE = True
- * MYFIT_PARAM = False
  * DISABLE_PARAM = True
+ * MYFIT_PARAM = False
  * EM_PARAM = False
  * MUON_PARAM = False
  * HA_PARAM = False

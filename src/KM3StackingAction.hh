@@ -1,24 +1,3 @@
-//
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
 #ifndef KM3StackingAction_H
 #define KM3StackingAction_H 1
 
@@ -28,11 +7,6 @@
 #include "KM3Cherenkov.hh"
 #include "KM3EMDeltaFlux.hh"
 
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#endif
 
 class KM3StackingAction : public G4UserStackingAction {
  public:
@@ -65,12 +39,6 @@ class KM3StackingAction : public G4UserStackingAction {
 ////////////////////////////////////
 #endif
 #endif
-#endif
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-  void myrotate(G4ThreeVector &x, const G4ThreeVector &p0);
-  std::vector<G4double> *theTimes;
-  std::vector<G4ThreeVector> *thePositions;
-  std::vector<G4ThreeVector> *theMomentums;
 #endif
 
  protected:

@@ -36,6 +36,7 @@ KM3HAShowerModel *myHAShowerModel;
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4GeometryManager.hh"
+#include "CLHEP/Evaluator/Evaluator.h"
 
 KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();
@@ -103,7 +104,6 @@ void KM3Detector::FindDetectorRadius() {
                                bottomPosition);
 }
 
-#include "CLHEP/Evaluator/Evaluator.h"
 
 void KM3Detector::SetUpVariables() {
   FILE *infile;
@@ -428,8 +428,6 @@ void KM3Detector::SetUpVariables() {
   MaxAbsDist = MaxRelDist * Water_Transparency;
 }
 
-////////// Construction of
-/// Materials//////////////////////////////////////////////////////////////////////
 void KM3Detector::ConstructMaterials() {
   // All Basic Elements
   // --------------------------------------------------------------------------
@@ -910,12 +908,6 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   if (useANTARESformat) TheEVTtoWrite->WriteRunHeader();
 
-#if !defined(G4ENABLE_MIE) || \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
-  // initialize the splitted spheres
-  initializeSpheres();
-#endif
-
   // find the total photocathod area on a OM
   G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
   TotCathodArea =
@@ -929,217 +921,3 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // return the physical World
   return fWorld;
 }
-
-#if !defined(G4ENABLE_MIE) || \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
-//--new initialize spheres
-void KM3Detector::initializeSpheres(void) {
-  // allmyBenthos keep for each sphere the positions and radii of the PMts that
-  // are in the current spheres
-  // first load in allmyBenthos the whole of the detector
-  std::vector<StoreysPositions *> *allmyStoreys = allStoreys;
-  howmanySpheres = 0;
-  Spheres *mySphere = (Spheres *)malloc(sizeof(Spheres));
-  splitSpheresCluster(allmyStoreys, mySphere);
-  allSpheres = mySphere;
-}
-
-// split spheres with clustering methods.
-void KM3Detector::splitSpheresCluster(
-    std::vector<StoreysPositions *> *allmyStoreys, Spheres *mySphere) {
-  static G4int depth = 0;
-  G4cout << "Depth in split " << depth << G4endl;
-  depth++;
-  // find the center of mass of the detector
-  G4ThreeVector center(0.0, 0.0, 0.0);
-  G4int howmanyStoreys = allmyStoreys->size();
-  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
-    center += (*allmyStoreys)[isto]->position;
-  }
-  center /= double(howmanyStoreys);
-
-  // find the maximum distance
-  G4double maxDistance = -1.0;
-  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
-    G4ThreeVector pos = (*allmyStoreys)[isto]->position - center;
-    G4double distance = pos.mag() + (*allmyStoreys)[isto]->radius;
-    if (distance > maxDistance) {
-      maxDistance = distance;
-    }
-  }
-
-  // load the new sphere on array
-  mySphere->center = center;
-  mySphere->radius = maxDistance;
-  howmanySpheres++;
-  //  G4cout <<howmanySpheres <<" Number of benthos " << howmanyStoreys
-  //  <<G4endl;
-  std::vector<Spheres *> *thenext = new std::vector<Spheres *>;
-  mySphere->allnext = thenext;
-  if (howmanyStoreys == 1) {
-    size_t OMnumber = (*allmyStoreys)[0]->BenthosIDs->size();
-    for (size_t iom = 0; iom < OMnumber; iom++) {
-      Spheres *mySpherenext = (Spheres *)malloc(sizeof(Spheres));
-      G4int iOM = (*((*allmyStoreys)[0]->BenthosIDs))[iom];
-      mySpherenext->center = (*allOMs)[iOM]->position;
-      mySpherenext->radius = (*allOMs)[iOM]->radius;
-      std::vector<Spheres *> *thenextnext = new std::vector<Spheres *>;
-      mySpherenext->allnext = thenextnext;
-      mySphere->allnext->push_back(mySpherenext);
-    }
-    return;  // this is the end of the line
-  }
-
-  // load all benthos indexing in array ALLSTOREYS[1000] (needed only for
-  // clustering)
-  for (G4int isto = 0; isto < howmanyStoreys; isto++) {
-    ALLSTOREYS[isto] = -1;
-  }
-  //----here is the implementation of the clustering
-  // first time choose randomly the centers inside the initial sphere
-  G4double centers[4][3];
-  G4int imanystoreysarr[4];
-  G4int numofCenters = 2;
-  G4double radiusRANDOM, thetaRANDOM, phiRANDOM;
-  for (G4int i = 0; i < numofCenters; i++) {
-    radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
-    thetaRANDOM = M_PI * drand48();
-    phiRANDOM = 2 * M_PI * drand48();
-    centers[i][0] =
-        center[0] + radiusRANDOM * sin(thetaRANDOM) * cos(phiRANDOM);
-    centers[i][1] =
-        center[1] + radiusRANDOM * sin(thetaRANDOM) * sin(phiRANDOM);
-    centers[i][2] = center[2] + radiusRANDOM * cos(thetaRANDOM);
-  }
-
-  // next find the minimum and maximum number of storeys in each subdetector
-  G4int nmove = 10;
-  G4int jmin;
-  G4double distm, dist;
-  G4int imanymin, imanymax, igood;
-  G4int imanyminMAX = -10;
-  if (div(howmanyStoreys, 2).rem == 0) {
-    imanymin = howmanyStoreys / 2;
-    imanymax = howmanyStoreys - imanymin;
-  } else {
-    imanymin = (howmanyStoreys - 1) / 2;
-    imanymax = howmanyStoreys - imanymin;
-  }
-  G4int iter = 0;
-  while (nmove > 0) {  // while the iteration process has not converged to an
-    // acceptable solution
-    nmove = 0;
-    for (G4int i = 0; i < howmanyStoreys;
-         i++) {  // find each storey to what center belongs (is closer)
-      G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
-      distm = 1.0e20;
-      for (G4int j = 0; j < numofCenters; j++) {
-        dist = (centers[j][0] - StoPos[0]) * (centers[j][0] - StoPos[0]) +
-               (centers[j][1] - StoPos[1]) * (centers[j][1] - StoPos[1]) +
-               (centers[j][2] - StoPos[2]) * (centers[j][2] - StoPos[2]);
-        if (dist < distm) {
-          distm = dist;
-          jmin = j;
-        }
-      }
-      if (ALLSTOREYS[i] != jmin) {
-        ALLSTOREYS[i] = jmin;
-        nmove++;
-      }
-    }
-
-    igood = 1;
-    if (nmove == 0) {  // if it has converged see if the solution is acceptable
-      for (G4int j = 0; j < numofCenters; j++) {
-        imanystoreysarr[j] = 0;
-        for (G4int i = 0; i < howmanyStoreys; i++)
-          if (ALLSTOREYS[i] == j) imanystoreysarr[j]++;
-      }
-      for (G4int j = 0; j < numofCenters; j++) {
-        if ((imanystoreysarr[j] < imanymin) || (imanystoreysarr[j] > imanymax))
-          igood = 0;
-      }
-      if (igood ==
-          0) {  // if it is not acceptable then find randomly other centers
-        iter++;
-        imanyminMAX =
-            int(fmax(double(imanyminMAX),
-                     fmin(imanystoreysarr[0],
-                          imanystoreysarr[1])));  // for only 2 centers
-        if (iter > 1000) {
-          imanymin = imanyminMAX;
-          imanymax = howmanyStoreys - imanymin;
-        }
-        for (G4int j = 0; j < numofCenters; j++) {
-          radiusRANDOM = maxDistance * pow(drand48(), 0.33333333333);
-          thetaRANDOM = M_PI * drand48();
-          phiRANDOM = 2 * M_PI * drand48();
-          centers[j][0] =
-              center[0] + radiusRANDOM * sin(thetaRANDOM) * cos(phiRANDOM);
-          centers[j][1] =
-              center[1] + radiusRANDOM * sin(thetaRANDOM) * sin(phiRANDOM);
-          centers[j][2] = center[2] + radiusRANDOM * cos(thetaRANDOM);
-        }
-      }
-    }
-
-    if (igood == 1) {  // if the solution is acceptable or it has not converged
-      if (nmove != 0) {  // if it has not converged
-        // find the new center coordinates
-        for (G4int j = 0; j < numofCenters; j++) {
-          centers[j][0] = 0.0;
-          centers[j][1] = 0.0;
-          centers[j][2] = 0.0;
-          G4int imanystoreys = 0;
-          for (G4int i = 0; i < howmanyStoreys; i++) {
-            if (ALLSTOREYS[i] == j) {
-              G4ThreeVector StoPos = (*allmyStoreys)[i]->position;
-              imanystoreys++;
-              centers[j][0] += StoPos[0];
-              centers[j][1] += StoPos[1];
-              centers[j][2] += StoPos[2];
-            }
-          }
-          if (imanystoreys > 1) {
-            centers[j][0] /= double(imanystoreys);
-            centers[j][1] /= double(imanystoreys);
-            centers[j][2] /= double(imanystoreys);
-          }
-        }
-      }
-    } else
-      nmove = 10;  // the solution is not good and do again
-  }
-
-  //------------end of clustering---------------------------
-  // load in linked list the benthos of each center
-  std::vector<StoreysPositions *> *positivemyStoreys =
-      new std::vector<StoreysPositions *>;
-  std::vector<StoreysPositions *> *negativemyStoreys =
-      new std::vector<StoreysPositions *>;
-  for (G4int i = 0; i < howmanyStoreys; i++) {
-    if (ALLSTOREYS[i] == 0) {  // the first center
-      positivemyStoreys->push_back((*allmyStoreys)[i]);
-    } else {  // the second center
-      negativemyStoreys->push_back((*allmyStoreys)[i]);
-    }
-  }
-
-  Spheres *mySphere1 = (Spheres *)malloc(sizeof(Spheres));
-  splitSpheresCluster(positivemyStoreys, mySphere1);
-  mySphere->allnext->push_back(mySphere1);
-  depth--;
-  Spheres *mySphere2 = (Spheres *)malloc(sizeof(Spheres));
-  splitSpheresCluster(negativemyStoreys, mySphere2);
-  mySphere->allnext->push_back(mySphere2);
-  depth--;
-
-  // here we delete the positivemyStoreys address list.
-  positivemyStoreys->clear();
-  delete positivemyStoreys;
-  // here we delete the negativemyStoreys linked list.
-  negativemyStoreys->clear();
-  delete negativemyStoreys;
-}
-
-#endif  // Mie

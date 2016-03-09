@@ -1,27 +1,3 @@
-//
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
-//
-//
-
 #include "KM3PrimaryGeneratorAction.hh"
 
 #include "globals.hh"
@@ -32,11 +8,6 @@
 #include "Randomize.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
-
-#ifdef G4MYEM_PARAMETERIZATION
-#include "G4Material.hh"
-#include "G4MaterialPropertiesTable.hh"
-#endif
 
 #ifdef G4MYK40_PARAMETERIZATION
 G4double KM3PrimaryGeneratorAction::beta(G4double x) {
@@ -76,15 +47,9 @@ KM3PrimaryGeneratorAction::~KM3PrimaryGeneratorAction() {
   delete myMuonParam;  // for muon param vs distance
 #endif
 
-#ifndef G4MYFIT_PARAMETERIZATION
-#ifndef G4MYEM_PARAMETERIZATION
-#ifndef G4MYHA_PARAMETERIZATION
 #ifdef G4HADRONIC_COMPILE
 #ifndef G4DISABLE_PARAMETRIZATION
   delete aHAVertexMuons;
-#endif
-#endif
-#endif
 #endif
 #endif
 }
@@ -92,9 +57,6 @@ KM3PrimaryGeneratorAction::~KM3PrimaryGeneratorAction() {
 void KM3PrimaryGeneratorAction::Initialize() {
   if (useHEPEvt && !useANTARESformat)
     HEPEvt = new G4HEPEvtInterface(filePythiaParticles);
-#ifdef G4MYMUON_PARAMETERIZATION
-  myMuonParam = new KM3MuonParam();  // for muon param vs distance
-#endif
 #ifndef G4MYFIT_PARAMETERIZATION
 #ifndef G4MYEM_PARAMETERIZATION
 #if (defined(G4MYHA_PARAMETERIZATION) &&       \
@@ -126,6 +88,7 @@ void KM3PrimaryGeneratorAction::Initialize() {
   if (outfile == NULL && !useANTARESformat)
     G4cout << "ERROR OUTFILE\n" << G4endl;
 }
+
 // primary particle generation. Single, multiple (many vertexes) particles and
 // neutrino interaction events (single vertex) are supported
 // that covers almost everything, except exotic particles (monopoles etc)
@@ -171,213 +134,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       numberofParticles = antaresHEPEvt->GetNumberOfParticles();
     } else
       fscanf(infile, "%d\n", &numberofParticles);
-#ifdef G4MYMUON_PARAMETERIZATION
-    // newcode for muon param vs distance // applicable only for simulation of
-    // atmospheric muons from EAS
-    G4int idbeams[210000];
-    G4double t0s[210000], energies[210000], distances[210000];
-    std::vector<G4ThreeVector> theMuonsPositions;
-    std::vector<G4ThreeVector> theMuonsMomenta;
-    std::vector<G4ThreeVector> theMuonsDirections;
-    for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
-      if (useANTARESformat) {
-        antaresHEPEvt->GetParticleInfo(idbeams[ipart], xx0, yy0, zz0, pxx0,
-                                       pyy0, pzz0, t0s[ipart]);
-      } else
-        fscanf(infile, "%d %lf %lf %lf %lf %lf %lf %lf\n", &idbeams[ipart],
-               &xx0, &yy0, &zz0, &pxx0, &pyy0, &pzz0, &t0s[ipart]);
-      theMuonsPositions.push_back(G4ThreeVector(xx0 * cm, yy0 * cm, zz0 * cm));
-      theMuonsMomenta.push_back(
-          G4ThreeVector(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV));
-      theMuonsDirections.push_back(theMuonsMomenta[ipart].unit());
-      t0s[ipart] *= ns;
-      energies[ipart] = theMuonsMomenta[ipart].mag();
-      // here find the distance to cross the can
 
-      G4ThreeVector distanceV = theMuonsPositions[ipart] - detectorCenter;
-      G4double RRR2 = detectorMaxRho * detectorMaxRho;
-
-      distances[ipart] = -1.0;
-      // next check if is going to hit the top of the detector
-      G4double Ttop = (detectorMaxz - theMuonsPositions[ipart][2]) /
-                      theMuonsDirections[ipart][2];
-      if (Ttop > 0) {
-        G4ThreeVector PointOnTop(
-            distanceV[0] + Ttop * theMuonsDirections[ipart][0],
-            distanceV[1] + Ttop * theMuonsDirections[ipart][1],
-            distanceV[2] + Ttop * theMuonsDirections[ipart][2]);
-
-        G4double dRhoTop =
-            PointOnTop[0] * PointOnTop[0] + PointOnTop[1] * PointOnTop[1];
-        if (dRhoTop < RRR2) distances[ipart] = Ttop;
-
-        // next check if is going to hit the side of the detector
-        G4double c =
-            distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1] - RRR2;
-        if (c > 0.0 && distances[ipart] < 0) {
-          G4double a =
-              theMuonsDirections[ipart][0] * theMuonsDirections[ipart][0] +
-              theMuonsDirections[ipart][1] * theMuonsDirections[ipart][1];
-          G4double b = distanceV[0] * theMuonsDirections[ipart][0] +
-                       distanceV[1] * theMuonsDirections[ipart][1];
-          G4double dia = b * b - a * c;
-          if (dia > 0) {
-            dia = sqrt(dia);
-            G4double SideDist1 = (-b - dia) / a;
-            G4double sidez1 = theMuonsPositions[ipart][2] +
-                              SideDist1 * theMuonsDirections[ipart][2];
-            if ((sidez1 > bottomPosition) && (sidez1 < detectorMaxz) &&
-                (SideDist1 > 0))
-              distances[ipart] = SideDist1;
-          }
-        }
-      }
-    }
-    // check if there is any muon that can cross the detector
-    G4double distancemax = -1.e9;
-    for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
-      if (distances[ipart] > distancemax) distancemax = distances[ipart];
-    }
-    if (distancemax <
-        0.0) {  // no muon that moves to the detector. put a null muon
-      numberofParticles = 1;
-      EventWeight = 1.0;
-      if (!useANTARESformat)
-        fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
-      G4PrimaryParticle *initialParticle =
-          new G4PrimaryParticle(idbeams[0], 0.0, 0.0, 0.01 * GeV);
-      G4PrimaryVertex *vertex =
-          new G4PrimaryVertex(theMuonsPositions[0], t0s[0]);
-      vertex->SetPrimary(initialParticle);
-      anEvent->AddPrimaryVertex(vertex);
-      G4cout << "Generating vertex with x0= " << theMuonsPositions[0][0]
-             << " y0= " << theMuonsPositions[0][1]
-             << " z0= " << theMuonsPositions[0][2] << G4endl;
-      G4cout << "Generating null particle with px0= 0.0 py0= 0.0 pz0= 10.0MeV "
-             << ievent << G4endl;
-      // write the beam and target ids (PDG codes), the vertex (cm), momentum
-      // (GeV/c)
-      if (!useANTARESformat)
-        fprintf(outfile, "%d %.6e %.6e %.6e 0.0 0.0 0.01 %.6e\n", idbeams[0],
-                theMuonsPositions[0][0] / cm, theMuonsPositions[0][1] / cm,
-                theMuonsPositions[0][2] / cm, t0s[0]);
-      if ((idbeams[0] == 13) || (idbeams[0] == -13)) {
-        event_action->AddPrimaryNumber(1);
-      }
-    } else {  // there are some particles moving to the detector. Consider only
-              // the ones that move to.
-      for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
-        if (distances[ipart] >= 0.0)
-          myMuonParam->AddMuon(energies[ipart], distances[ipart]);
-      }
-      myMuonParam->Initialize();
-      // find if there are any capable particles
-      G4int numcapable = 0;
-      G4int ip = 0;
-      for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
-        if (distances[ipart] >= 0.0) {
-          if (myMuonParam->IsCapable(ip)) numcapable++;
-          ip++;
-        }
-      }
-      if (numcapable ==
-          0) {  // no muon capable to reach the detector. put a null muon
-        numberofParticles = 1;
-        EventWeight = 1.0;
-        if (!useANTARESformat)
-          fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
-        G4PrimaryParticle *initialParticle =
-            new G4PrimaryParticle(idbeams[0], 0.0, 0.0, 0.01 * GeV);
-        G4PrimaryVertex *vertex =
-            new G4PrimaryVertex(theMuonsPositions[0], t0s[0]);
-        vertex->SetPrimary(initialParticle);
-        anEvent->AddPrimaryVertex(vertex);
-        G4cout << "Generating vertex with x0= " << theMuonsPositions[0][0]
-               << " y0= " << theMuonsPositions[0][1]
-               << " z0= " << theMuonsPositions[0][2] << G4endl;
-        G4cout
-            << "Generating null particle with px0= 0.0 py0= 0.0 pz0= 10.0MeV "
-            << ievent << G4endl;
-        // write the beam and target ids (PDG codes), the vertex (cm), momentum
-        // (GeV/c)
-        if (!useANTARESformat)
-          fprintf(outfile, "%d %.6e %.6e %.6e 0.0 0.0 0.01 %.6e\n", idbeams[0],
-                  theMuonsPositions[0][0] / cm, theMuonsPositions[0][1] / cm,
-                  theMuonsPositions[0][2] / cm, t0s[0]);
-        if ((idbeams[0] == 13) || (idbeams[0] == -13)) {
-          event_action->AddPrimaryNumber(1);
-        }
-      } else {  // there are some muons capable to reach the detector. Consider
-                // only the ones that can.
-        G4int numberofParticleskeep = numberofParticles;
-        do {
-          numberofParticles = 0;
-          ip = 0;
-          for (G4int ipart = 0; ipart < numberofParticleskeep; ipart++) {
-            if (distances[ipart] >= 0.0) {
-              if (myMuonParam->IsCapable(ip)) {
-                distances[ipart] = myMuonParam->GetDistance(ip);
-                energies[ipart] = myMuonParam->GetEnergy(ip);
-                if (energies[ipart] > 0.0) numberofParticles++;
-              } else
-                energies[ipart] = -1.0;
-              ip++;
-            }
-          }
-        } while (numberofParticles <= 0);
-        EventWeight = myMuonParam->GetWeight();
-        if (!useANTARESformat)
-          fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
-        ip = 0;
-        for (G4int ipart = 0; ipart < numberofParticleskeep; ipart++) {
-          if (distances[ipart] >= 0.0) {
-            if (energies[ipart] > 0.0) {
-              G4cout << "FERtest " << distances[ipart] << " " << energies[ipart]
-                     << G4endl;
-              theMuonsMomenta[ipart] =
-                  energies[ipart] * theMuonsDirections[ipart];
-              theMuonsPositions[ipart] +=
-                  distances[ipart] * theMuonsDirections[ipart];
-              t0s[ipart] += distances[ipart] / c_light;
-              G4PrimaryParticle *initialParticle = new G4PrimaryParticle(
-                  idbeams[ipart], theMuonsMomenta[ipart][0],
-                  theMuonsMomenta[ipart][1], theMuonsMomenta[ipart][2]);
-              G4PrimaryVertex *vertex =
-                  new G4PrimaryVertex(theMuonsPositions[ipart], t0s[ipart]);
-              vertex->SetPrimary(initialParticle);
-              anEvent->AddPrimaryVertex(vertex);
-              G4cout << "Generating vertex with x0= "
-                     << theMuonsPositions[ipart][0]
-                     << " y0= " << theMuonsPositions[ipart][1]
-                     << " z0= " << theMuonsPositions[ipart][2] << G4endl;
-              G4cout << "Generating particle with px0= "
-                     << theMuonsMomenta[ipart][0]
-                     << " py0= " << theMuonsMomenta[ipart][1]
-                     << " pz0= " << theMuonsMomenta[ipart][2] << "MeV "
-                     << ievent << G4endl;
-              // write the beam and target ids (PDG codes), the vertex (cm),
-              // momentum (GeV/c)
-              if (!useANTARESformat)
-                fprintf(outfile, "%d %.6e %.6e %.6e %.6e %.6e %.6e %.6e\n",
-                        idbeams[ipart], theMuonsPositions[ipart][0] / cm,
-                        theMuonsPositions[ipart][1] / cm,
-                        theMuonsPositions[ipart][2] / cm,
-                        theMuonsMomenta[ipart][0] / GeV,
-                        theMuonsMomenta[ipart][1] / GeV,
-                        theMuonsMomenta[ipart][2] / GeV, t0s[ipart]);
-              if ((idbeams[ipart] == 13) || (idbeams[ipart] == -13)) {
-                event_action->AddPrimaryNumber(ip + 1);
-              }
-              ip++;
-            }
-          }
-        }
-      }
-      myMuonParam->Finalize();  // stop using the muon distance-energy param
-    }
-// newcode for muon param vs distance
-// ///////////////////////////////////////////////////////////////
-#else
     // old code
     // ///////////////////////////////////////////////////////////////////////////////////////
     EventWeight = 1.0;
@@ -407,64 +164,17 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       if (!useANTARESformat)
         fprintf(outfile, "%d %.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", idbeam, xx0,
                 yy0, zz0, pxx0, pyy0, pzz0, t0);
-#ifndef G4MYHA_PARAMETERIZATION  // newha
       if ((idbeam == 13) || (idbeam == -13)) {
         event_action->AddPrimaryNumber(ipart + 1);
       }
-#endif
     }
 // old code
 // ///////////////////////////////////////////////////////////////////////////////////////////
-#endif
   }
 #endif
 #endif
 #endif
-#ifdef G4MYFIT_PARAMETERIZATION
-  event_action->Initialize();
-  if (!useHEPEvt) {
-    numberofParticles = 1;
-    idbeam = 13;  // muon minus
-    G4double startz = -600.0 * meter;
-    G4PrimaryParticle *initialParticle =
-        new G4PrimaryParticle(idbeam, 0.0, 0.0, ParamEnergy);
-    G4PrimaryVertex *vertex =
-        new G4PrimaryVertex(G4ThreeVector(0.0, 0.0, startz), 0.0);
-    vertex->SetPrimary(initialParticle);
-    anEvent->AddPrimaryVertex(vertex);
-    event_action->AddPrimaryNumber(1);
-    G4cout << "Generating one event " << ievent << G4endl;
-  }
-#endif
-#if defined(G4MYHA_PARAMETERIZATION) && !defined(G4MYHAMUONS_PARAMETERIZATION)
-  if (!useHEPEvt) {
-    position[0] = 0.0;
-    position[1] = 0.0;
-    position[2] = 0.0;
-    direction[0] = 0.0;
-    direction[1] = 0.0;
-    direction[2] = 1.0;
-    G4double zpos = 3.46;  // it is the shift for 100.0GeV pion and kaon zero
-                           // long. see also the EM parametrization section in
-                           // here
-    G4ThreeVector thisPosition = position - zpos * m * direction;
-    G4PrimaryVertex *vertex = new G4PrimaryVertex(thisPosition, 0.0);
-    numberofParticles = 1;
-    // type of incident particle for HA parametrization is input in the command
-    // line
-    //    idbeam=211; //pion plus
-    //    idbeam=321; //kaon plus
-    //    idbeam=130; // kaon zero long
-    //    idbeam=2112; //Neutron
-    //    idbeam=2212; //Proton
-    G4PrimaryParticle *initialParticle = new G4PrimaryParticle(
-        idbeam, ParamEnergy * direction[0], ParamEnergy * direction[1],
-        ParamEnergy * direction[2]);
-    vertex->SetPrimary(initialParticle);
-    anEvent->AddPrimaryVertex(vertex);
-    G4cout << "Generating one event " << ievent << G4endl;
-  }
-#endif
+
 #ifdef G4MYSN_PARAMETERIZATION
   if (!useHEPEvt) {
     //-----------------antonis-------------------------//
@@ -535,7 +245,8 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     //-----------------antonis-------------------------//
   }
 #endif
-// laser beam
+
+  // laser beam
 #ifdef G4MYLASER_PARAMETERIZATION
   if (!useHEPEvt) {
     /// at first initialize the pointers to Rindex,Q_E, glass and gell
@@ -916,9 +627,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     G4cout << "Generating one event " << ievent << G4endl;
   }
 #endif
-#ifndef G4MYFIT_PARAMETERIZATION
-#ifndef G4MYEM_PARAMETERIZATION
-#ifndef G4MYHA_PARAMETERIZATION
+
   else {
     t0 = 0.0;  // starting particle time is common in neutrino interaction
     if (useANTARESformat) {
@@ -1038,52 +747,5 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 #endif
 #endif
   }
-#else
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-  // Here we do parametrization for hadronic interactions (primary particles
-  // that are considered are all except leptons, gamma and pion zero
-  // input files must have been generated from dif_cross application with hadron
-  // parametrization enabled
-  // that means that in the secondaries there are no leptons, gammas and pion
-  // zeros
-  // the output is just the energetic muons (Ek>1GeV)
-  else {
-    position[0] = 0.0;
-    position[1] = 0.0;
-    position[2] = 0.0;
-    t0 = 0.0;  // starting particle time is common in neutrino interaction
-    // Generate the Event (reads from Pythia output file)
-    HEPEvt->GeneratePrimaryVertex(anEvent);
-    // Change the position of the vertex of the event
-    anEvent->GetPrimaryVertex(0)->SetPosition(0.0, 0.0, 0.0);
-    numberofParticles = anEvent->GetPrimaryVertex(0)->GetNumberOfParticle();
-    direction = G4ThreeVector(0.0, 0.0, 0.0);
-    G4float HadronicEnergy = 0.0;
-    for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
-      idbeam =
-          fabs(anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetPDGcode());
-      if (idbeam != 22 && idbeam != 13 && idbeam != 11 && idbeam != 15 &&
-          idbeam != 111) {  // disregard em particles
-        G4ThreeVector thisMomentum =
-            anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetMomentum();
-        G4double thisMass =
-            anEvent->GetPrimaryVertex(0)->GetPrimary(ipart)->GetMass();
-        G4double Energy = sqrt(thisMomentum.mag2() + thisMass * thisMass);
-        direction += thisMomentum;
-        HadronicEnergy += (float)Energy;
-      }
-    }
-    direction =
-        direction.unit();  // this direction is used in the stacking action
-    HadronicEnergy -= 938.92 * MeV;
-    HadronicEnergy /= (float)GeV;
-    outMuonHAFile->write((char *)&HadronicEnergy, sizeof(HadronicEnergy));
-    G4cout << "Hadronic parametrization. Event " << ievent << " with energy "
-           << HadronicEnergy << " GeV" << G4endl;
-  }
-#endif
-#endif
-#endif
-#endif
   myTracking->numofInitialParticles = numberofParticles;
 }

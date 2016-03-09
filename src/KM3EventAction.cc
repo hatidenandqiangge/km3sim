@@ -1,33 +1,3 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-// $Id: G4UserEventAction.cc,v 1.7 2006/06/29 18:10:31 gunter Exp $
-// GEANT4 tag $Name: geant4-08-01-patch-01 $
-//
-
 #include "KM3EventAction.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
@@ -96,23 +66,6 @@ void KM3EventAction::BeginOfEventAction(const G4Event *) {
     stopTime.push_back(izero);
   }
   if (useANTARESformat) TheEVTtoWrite->ReadEvent();
-#if defined(G4MYEM_PARAMETERIZATION) || \
-    defined(G4MYHA_PARAMETERIZATION)  // newha
-  G4int TotalNumberOfCathods = MyStDetector->allCathods->GetNumberOfCathods();
-  G4bool FineBin = false;
-  G4int VertexSolidAngleBins = 51;
-  if (MyGenerator->ParamEnergy == 0.0) {
-    FineBin = true;
-    VertexSolidAngleBins = 71;
-  }
-  for (G4int icath = 0; icath < TotalNumberOfCathods; icath++) {
-    for (G4int cang1bin = 0; cang1bin < VertexSolidAngleBins; cang1bin++) {
-      G4int distbin = icath;
-      G4int ibin_d1 = cang1bin + VertexSolidAngleBins * distbin;
-      (*myPhotonsNumber)[ibin_d1] = 0.0;
-    }
-  }
-#endif
 }
 
 void KM3EventAction::EndOfEventAction(const G4Event *) {
@@ -220,67 +173,4 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
 #endif
   // write to output file
   if (useANTARESformat) TheEVTtoWrite->WriteEvent();
-#if defined(G4MYEM_PARAMETERIZATION) || \
-    defined(G4MYHA_PARAMETERIZATION)  // newha
-  long double cont;
-  G4int TotalNumberOfCathods = MyStDetector->allCathods->GetNumberOfCathods();
-  G4bool FineBin = false;
-  G4int VertexSolidAngleBins = 51;
-  if (MyGenerator->ParamEnergy == 0.0) {
-    FineBin = true;
-    VertexSolidAngleBins = 71;
-  }
-  for (G4int icath = 0; icath < TotalNumberOfCathods; icath++) {
-    //    G4ThreeVector FromGeneToOM =
-    //    MyStDetector->allCathods->GetPosition(icath) - MyGenerator->position;
-    // G4double cosangle1=(MyGenerator->direction).dot(FromGeneToOM)/dist;
-
-    G4double dist = MyStDetector->allCathods->GetCathodRadius(icath);
-    G4int distbin = icath;  // for the definition of distances look at the gdml
-                            // geometry file
-    G4int cang1bin;
-    for (cang1bin = 0; cang1bin < VertexSolidAngleBins; cang1bin++) {
-      G4double weight = 2 * pi * dist * dist;
-      if (!FineBin) {
-        if (cang1bin < 15)
-          weight *= 0.1;
-        else if (cang1bin < 23)
-          weight *= 0.025;
-        else if (cang1bin < 43)
-          weight *= 0.005;
-        else
-          weight *= 0.025;
-      } else {
-        if (cang1bin < 15)
-          weight *= 0.1;
-        else if (cang1bin < 23)
-          weight *= 0.025;
-        else if (cang1bin < 28)
-          weight *= 0.005;
-        else if (cang1bin < 53)
-          weight *= 0.001;
-        else if (cang1bin < 63)
-          weight *= 0.005;
-        else
-          weight *= 0.025;
-      }
-      // if(cosangle1<0.5){
-      //   cang1bin=int((cosangle1+1.0)/0.1);} //bins 0-14
-      // else if(cosangle1<0.7){
-      //   cang1bin=int((cosangle1-0.5)/0.025)+15;} //bins 15-22
-      // else if(cosangle1<0.8){
-      //   cang1bin=int((cosangle1-0.7)/0.005)+23;} //bins 23-42
-      // else if(cosangle1<1.0){
-      //   cang1bin=int((cosangle1-0.8)/0.025)+43;} //bins 43-50
-      // else cang1bin=50;                          //bin 50
-
-      G4int ibin_d1 = cang1bin + VertexSolidAngleBins * distbin;
-      (*myCumNorma)[ibin_d1] += weight;
-
-      cont = (*myPhotonsNumber)[ibin_d1];          // newbin
-      (*myCumPhotons)[ibin_d1] += cont;            // newbin
-      (*myCumPhotonsRms)[ibin_d1] += cont * cont;  // newbin
-    }
-  }
-#endif
 }

@@ -1,24 +1,3 @@
-//
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
 #include "KM3StackingAction.hh"
 #include "G4ios.hh"
 #include "G4ParticleDefinition.hh"
@@ -34,57 +13,22 @@
 #include "G4RunManager.hh"
 #include "KM3PrimaryGeneratorAction.hh"
 //#endif
-
-KM3StackingAction::KM3StackingAction() {
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
 #ifdef G4ENABLE_MIE
 #ifndef G4DISABLE_PARAMETRIZATION
-  // delta rays parametrization section. Works only for muons primaries (not for
-  // showers ve)
-  idprikeep = new std::vector<G4int>;
-  depenekeep = new std::vector<G4double>;
-  poskeep = new std::vector<G4ThreeVector>;
-  timekeep = new std::vector<G4double>;
-  myFlux = NULL;
-////////////////////////////////////
-#endif
+
+#include "KM3SD.hh"
+#include "G4SDManager.hh"
+#include "KM3Cherenkov.hh"
+#include "G4ProcessTable.hh"
+
 #endif
 #endif
 
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-  theTimes = new std::vector<G4double>;
-  thePositions = new std::vector<G4ThreeVector>;
-  theMomentums = new std::vector<G4ThreeVector>;
-#endif
-
+KM3StackingAction::KM3StackingAction() {
   ;
 }
 
 KM3StackingAction::~KM3StackingAction() {
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
-#ifdef G4ENABLE_MIE
-#ifndef G4DISABLE_PARAMETRIZATION
-  poskeep->clear();
-  delete poskeep;
-  timekeep->clear();
-  delete timekeep;
-  idprikeep->clear();
-  delete idprikeep;
-  depenekeep->clear();
-  delete depenekeep;
-  if (myFlux != NULL) delete myFlux;
-#endif
-#endif
-#endif
-
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-  theTimes->clear();
-  delete theTimes;
-  thePositions->clear();
-  delete thePositions;
-  theMomentums->clear();
-  delete theMomentums;
-#endif
   ;
 }
 
@@ -107,105 +51,7 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
       (aTrack->GetTrackStatus() == fKillTrackAndSecondaries))
     return fKill;
 
-// tempo for range and energy dependance
-//   if(aTrack->GetParentID()==0)return fUrgent;  //only the primary particle
-//   else return fKill;
-///////////////////////////////////////
 
-// the following was added to see the creator process of every particle (and
-// rule out processes that are not likely to happen)
-// if( (aTrack->GetParentID()!=0) &&
-// (aTrack->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition()) ){
-//   G4String theCreatorProcess=aTrack->GetCreatorProcess()->GetProcessName();
-//   if( (theCreatorProcess != "conv"  ) &&
-//   (theCreatorProcess != "compt"   ) &&
-//    (theCreatorProcess != "Decay"   ) &&
-//   (theCreatorProcess != "eIoni"   ) &&
-//   (theCreatorProcess != "eBrem"   ) &&
-//    (theCreatorProcess != "phot"   ) &&
-//   (theCreatorProcess != "hIoni"   ) &&
-//   (theCreatorProcess != "muIoni"   ) &&
-//   (theCreatorProcess != "annihil"   ) &&
-//   (theCreatorProcess != "muBrems"   ) &&
-//   (theCreatorProcess != "muPairProd"   ) &&
-//   (theCreatorProcess != "muonNuclear" )
-//       ){
-//     G4String theParticleName=aTrack->GetDefinition()->GetParticleName();
-//     kineticEnergy=aTrack->GetKineticEnergy();
-//     G4cout << "The particle " << theParticleName << " created from " <<
-//     theCreatorProcess <<" with kinetic energy " << kineticEnergy <<G4endl;
-//   }
-// }
-
-// the following was added to see what initial hadrons can give muons
-// if(aTrack->GetDefinition()==G4MuonPlus::MuonPlusDefinition() ||
-// aTrack->GetDefinition()==G4MuonMinus::MuonMinusDefinition()){
-//   KM3TrackInformation* info=
-//   (KM3TrackInformation*)(aTrack->GetUserInformation());
-//   if(info != NULL){
-//     G4cout << "Muon "<<aTrack->GetTrackID()<<" with kinetic energy "
-//     <<aTrack->GetKineticEnergy() << " was created by particle ID
-//     "<<info->GetOriginalParentID()<<G4endl;
-//   }
-//   else{
-//     G4cout << "NULL info for muon "<< aTrack->GetTrackID()<<G4endl;
-//   }
-// }
-
-#if defined(G4MYHA_PARAMETERIZATION) && defined(G4MYHAMUONS_PARAMETERIZATION)
-  // here is the section for hadronic parametrization producing muons.
-  // We kill any em component and leptons from the primary particles
-  // We also kill any secondary high energy muon with range more that 4.4915581
-  // meters (kinetic energy>1GeV), while we write its track information
-  if (aTrack->GetParentID() == 0) {
-    if (aTrack->GetDefinition() == G4MuonPlus::MuonPlusDefinition() ||
-        aTrack->GetDefinition() == G4MuonMinus::MuonMinusDefinition() ||
-        aTrack->GetDefinition() == G4Positron::PositronDefinition() ||
-        aTrack->GetDefinition() == G4Electron::ElectronDefinition() ||
-        aTrack->GetDefinition() == G4Gamma::GammaDefinition() ||
-        aTrack->GetDefinition() == G4PionZero::PionZeroDefinition() ||
-        aTrack->GetDefinition() == G4TauPlus::TauPlusDefinition() ||
-        aTrack->GetDefinition() == G4TauMinus::TauMinusDefinition())
-      return fKill;
-  } else {
-    if (aTrack->GetDefinition() == G4MuonPlus::MuonPlusDefinition() ||
-        aTrack->GetDefinition() == G4MuonMinus::MuonMinusDefinition()) {
-      if (aTrack->GetKineticEnergy() > 1.0 * GeV) {
-        G4ThreeVector thePosition = aTrack->GetPosition() / cm;
-        G4ThreeVector theMomentum = aTrack->GetMomentum() / GeV;
-        G4double theTime = aTrack->GetGlobalTime();
-        G4ThreeVector PrimDirection = aGeneAction->direction;
-        myrotate(thePosition, PrimDirection);
-        myrotate(theMomentum, PrimDirection);
-        theTimes->push_back(theTime);
-        thePositions->push_back(thePosition);
-        theMomentums->push_back(theMomentum);
-        G4cout << "Energetic Muons " << theTime << " " << thePosition[0] << " "
-               << thePosition[1] << " " << thePosition[2] << " "
-               << theMomentum[0] << " " << theMomentum[1] << " "
-               << theMomentum[2] << G4endl;
-      }
-      return fKill;
-    } else if (aTrack->GetDefinition() == G4Positron::PositronDefinition() ||
-               aTrack->GetDefinition() == G4Electron::ElectronDefinition() ||
-               aTrack->GetDefinition() == G4Gamma::GammaDefinition() ||
-               aTrack->GetDefinition() == G4PionZero::PionZeroDefinition()) {
-      return fKill;
-    }
-  }
-#endif
-#if defined(G4MYHA_PARAMETERIZATION) && !defined(G4MYHAMUONS_PARAMETERIZATION)
-  // here is the hadronic parametrization for charged pions as primaries
-  // here kill energetic muons (Ek>1GeV)
-  // they have benn included in the muons parametrization
-  if (aTrack->GetDefinition() == G4MuonPlus::MuonPlusDefinition() ||
-      aTrack->GetDefinition() == G4MuonMinus::MuonMinusDefinition()) {
-    if (aTrack->GetKineticEnergy() > 1.0 * GeV) return fKill;
-  }
-#endif
-#ifndef G4MYFIT_PARAMETERIZATION
-#ifndef G4MYEM_PARAMETERIZATION
-#ifndef G4MYHA_PARAMETERIZATION
 #ifdef G4HADRONIC_COMPILE
 #ifndef G4DISABLE_PARAMETRIZATION
   // here we kill any generated muon with kinetic energy >1GeV that is not
@@ -216,9 +62,6 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
         (aTrack->GetKineticEnergy() > 1.0 * GeV))
       return fKill;
   }
-#endif
-#endif
-#endif
 #endif
 #endif
   //----------------------------------------------------------------------------------------
@@ -254,7 +97,6 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
           (distanceRho2 > detectorMaxRho2) ||
           (x0[2] > MyStDetector->detectorMaxz))
         return fKill;
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
 #ifdef G4ENABLE_MIE
 #ifndef G4DISABLE_PARAMETRIZATION
       // delta rays parametrization section. Works only for muons primaries (not
@@ -290,7 +132,6 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
         }
       }
 ////////////////////////////////////
-#endif
 #endif
 #endif
       return fUrgent;
@@ -349,21 +190,8 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
   return fUrgent;
 }
 
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
-#ifdef G4ENABLE_MIE
-#ifndef G4DISABLE_PARAMETRIZATION
-
-#include "KM3SD.hh"
-#include "G4SDManager.hh"
-#include "KM3Cherenkov.hh"
-#include "G4ProcessTable.hh"
-
-#endif
-#endif
-#endif
 
 void KM3StackingAction::NewStage() {
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
 #ifdef G4ENABLE_MIE
 #ifndef G4DISABLE_PARAMETRIZATION
   // delta rays parametrization section. Works only for muons primaries (not for
@@ -519,33 +347,11 @@ void KM3StackingAction::NewStage() {
   }
   myCher->CreateDirectPhotons();
 ///////////////////////////////////
-#endif
-#endif
+endif
 #endif
 
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-  G4int theSize = theTimes->size();
-  outMuonHAFile->write((char *)&theSize, sizeof(theSize));
-  for (G4int ii = 0; ii < theSize; ii++) {
-    G4float theTime = (*theTimes)[ii];
-    G4float thePosition0 = (float)(*thePositions)[ii][0];
-    G4float thePosition1 = (float)(*thePositions)[ii][1];
-    G4float thePosition2 = (float)(*thePositions)[ii][2];
-    G4float theMomentum0 = (float)(*theMomentums)[ii][0];
-    G4float theMomentum1 = (float)(*theMomentums)[ii][1];
-    G4float theMomentum2 = (float)(*theMomentums)[ii][2];
-    outMuonHAFile->write((char *)&theTime, sizeof(theTime));
-    outMuonHAFile->write((char *)&thePosition0, sizeof(thePosition0));
-    outMuonHAFile->write((char *)&thePosition1, sizeof(thePosition1));
-    outMuonHAFile->write((char *)&thePosition2, sizeof(thePosition2));
-    outMuonHAFile->write((char *)&theMomentum0, sizeof(theMomentum0));
-    outMuonHAFile->write((char *)&theMomentum1, sizeof(theMomentum1));
-    outMuonHAFile->write((char *)&theMomentum2, sizeof(theMomentum2));
-  }
-#endif
 }
 
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
 #ifdef G4ENABLE_MIE
 #ifndef G4DISABLE_PARAMETRIZATION
 void KM3StackingAction::CreateAllWaitingPhotons() {
@@ -724,42 +530,7 @@ void KM3StackingAction::PrepareNewEvent() {
 ////////////////////////////////////
 #endif
 #endif
-#endif
 
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-  theTimes->clear();
-  thePositions->clear();
-  theMomentums->clear();
-#endif
 }
 
 void KM3StackingAction::SetDetector(KM3Detector *adet) { MyStDetector = adet; }
-
-#ifdef G4MYHAMUONS_PARAMETERIZATION
-// the following function does exactly the oposite as the rotateUz. It rotates
-// the vector x to a coordinate system that the p0 is pointing to the positive
-// z-axis
-// the rotation matrix is the transverse of the one at rotateUz. the vector p0
-// must be normalized !!!
-void KM3StackingAction::myrotate(G4ThreeVector &x, const G4ThreeVector &p0) {
-  G4double u1 = p0.x();
-  G4double u2 = p0.y();
-  G4double u3 = p0.z();
-  G4double up = u1 * u1 + u2 * u2;
-  G4double x0 = x.x();
-  G4double x1 = x.y();
-  G4double x2 = x.z();
-
-  if (up > 0) {
-    up = sqrt(up);
-    x.setX((u1 * u3 * x0 + u2 * u3 * x1) / up - up * x2);
-    x.setY((-u2 * x0 + u1 * x1) / up);
-    x.setZ(u1 * x0 + u2 * x1 + u3 * x2);
-  } else if (u3 < 0.) {
-    x.setX(-x0);
-    x.setZ(-x2);
-  }  // phi=0  teta=pi
-  else {
-  };
-}
-#endif

@@ -46,8 +46,6 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4bool DrawDetector;
   char *Geometry_File;
   char *Parameter_File;
-  char *EMParametrization_FILE;
-  char *HAParametrization_FILE;
   G4double TotCathodArea;
   KM3PrimaryGeneratorAction *MyGenerator;
 
@@ -58,18 +56,6 @@ class KM3Detector : public G4VUserDetectorConstruction {
   void SetUpVariables(void);
 // newgeant  void sxpInitialize(void);
 
-// Mie = true, param = true
-#if !defined(G4ENABLE_MIE) || \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
- public:
-  Spheres *allSpheres;  // keep the spheres used in KM3Cherenkov
- private:
-  void initializeSpheres(void);
-  void splitSpheresCluster(std::vector<StoreysPositions *> *, Spheres *);
-  G4int howmanySpheres;  // this is used in clustering method of splitSpheres
-  G4int ALLSTOREYS[1000000];  // this is used in clustering method of
-                              // splitSpheres
-#endif
  private:
   // newgeant  SAXProcessor sxp;
   // newgeant ProcessingConfigurator config;
