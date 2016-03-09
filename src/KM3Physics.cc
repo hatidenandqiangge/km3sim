@@ -56,9 +56,6 @@
 #include "G4hIonisation.hh"
 
 #include "G4OpAbsorption.hh"
-#ifdef G4BOUNDARY_COMPILE
-#include "G4OpBoundaryProcess.hh"
-#endif
 #include "G4OpMie.hh"
 #include "G4Decay.hh"
 #include "G4RadioactiveDecay.hh"
@@ -501,13 +498,6 @@ void KM3Physics::ConstructOP() {
   theCerenkovProcess->SetTrackSecondariesFirst(true);
   theCerenkovProcess->SetMaxNumPhotonsPerStep(MaxNumPhotons);
 
-#ifdef G4BOUNDARY_COMPILE
-  G4OpBoundaryProcess *theBoundaryProcess = new G4OpBoundaryProcess();
-  theBoundaryProcess->SetVerboseLevel(0);
-  G4OpticalSurfaceModel themodel = unified;
-  theBoundaryProcess->SetModel(themodel);
-#endif
-
   G4OpMie *theMieProcess = new G4OpMie();
   theMieProcess->SetVerboseLevel(0);
 
@@ -523,9 +513,6 @@ void KM3Physics::ConstructOP() {
       }
       if (particleName == "opticalphoton") {
         pmanager->AddDiscreteProcess(theAbsorptionProcess);
-#ifdef G4BOUNDARY_COMPILE
-        pmanager->AddDiscreteProcess(theBoundaryProcess);
-#endif
         pmanager->AddDiscreteProcess(theMieProcess);
       }
     }
