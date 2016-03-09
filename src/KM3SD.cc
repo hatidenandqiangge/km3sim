@@ -21,16 +21,6 @@ KM3SD::~KM3SD() {}
 void KM3SD::Initialize(G4HCofThisEvent *HCE) {
   MyCollection =
     new KM3HitsCollection(SensitiveDetectorName, collectionName[0]);
-#ifdef G4MYFIT_PARAMETERIZATION
-  G4int TotalNumberOfCathods = myStDetector->allCathods->GetNumberOfCathods();
-  if (TotalNumberOfCathods > 20000)
-    G4Exception(
-        "KM3SD::Initialize Number of cathods for energy fit is greater "
-        "than 20000. Change the corresponding dimension in KM3SD.hh",
-        "", FatalException, "");
-  for (G4int i = 0; i < TotalNumberOfCathods; i++) ArrayParam[i] = 0;
-  for (G4int i = 0; i < TotalNumberOfCathods; i++) ArrayParamAll[i] = 0;
-#endif
 }
 
 
@@ -227,32 +217,6 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);
   }
   //////////////////////////////////////////////////////////////
-#ifndef G4MYFIT_PARAMETERIZATION
-  if (MyCollection->entries() < 10000000) {
-    G4ThreeVector PMTDirection = myStDetector->allCathods->GetDirection(id);
-    //    G4cout << "OutFromParam "<<id<<"
-    //    "<<photonDirection.dot(PMTDirection)<<G4endl;
-    // the two 1.0 are the cathod radius and height that do not play any role
-    // in parametrization it is not accepted
-    if (!AcceptAngle(photonDirection.dot(PMTDirection), 1.0, 1.0,
-          true)) {
-      return;
-    }
-    // correct the time to correspond to the cathod positions and not the OM
-    // position
-    G4ThreeVector PMTPosition = myStDetector->allCathods->GetPosition(id);
-    G4double Tcorr =
-      (photonDirection.dot(PMTPosition - OMPosition)) / thespeedmaxQE;
-    KM3Hit *newHit = new KM3Hit();
-    newHit->SetCathodId(id);
-    newHit->SetTime(time + Tcorr);
-    // short    newHit->SetangleIncident(angleIncident);
-    // short    newHit->SetangleDirection(angleDirection);
-    newHit->SetoriginalInfo(originalInfo);
-    newHit->SetMany(1);
-    MyCollection->insert(newHit);
-  }
-#else
   G4ThreeVector dirPARAM(0.0, 0.0, 1.0);
   G4double startz = -600.0 * meter;
   G4ThreeVector vertexPARAM(0.0, 0.0, startz);
@@ -262,7 +226,6 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
   if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns)) ArrayParamAll[id]++;
   //  G4cout<<"ForFit "<<posPMT[0]/m<<" "<<posPMT[1]/m<<" "<<posPMT[2]/m<<"
   //  "<<time<<" "<<TRes<<G4endl;
-#endif
 }
 
 void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
