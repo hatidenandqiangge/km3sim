@@ -467,10 +467,6 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 
   /// at first initialize the pointers to Q_E, glass and gell transparencies////
   static G4MaterialPropertyVector *QECathod = NULL;
-#ifdef G4MY_TRANSPARENCIES
-  static G4MaterialPropertyVector *AbsBenth = NULL;
-  static G4MaterialPropertyVector *AbsGell = NULL;
-#endif
   if (QECathod == NULL) {
     const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
     for (size_t J = 0; J < theMaterialTable->size(); J++) {
@@ -479,17 +475,6 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
             (*theMaterialTable)[J]->GetMaterialPropertiesTable();
         QECathod = aMaterialPropertiesTable->GetProperty("Q_EFF");
       }
-#ifdef G4MY_TRANSPARENCIES
-      else if ((*theMaterialTable)[J]->GetName() == G4String("Glass")) {
-        G4MaterialPropertiesTable *aMaterialPropertiesTable =
-            (*theMaterialTable)[J]->GetMaterialPropertiesTable();
-        AbsBenth = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-      } else if ((*theMaterialTable)[J]->GetName() == G4String("Gell")) {
-        G4MaterialPropertiesTable *aMaterialPropertiesTable =
-            (*theMaterialTable)[J]->GetMaterialPropertiesTable();
-        AbsGell = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-      }
-#endif
     }
   }
   /// end of
@@ -853,10 +838,6 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
       } while (rand * maxSin2 > sin2Theta);
 
       G4double qeProb = QECathod->Value(sampledEnergy);
-#ifdef G4MY_TRANSPARENCIES
-      qeProb *= exp(-15.0 / AbsBenth->Value(sampledEnergy) -
-                    10.0 / AbsGell->Value(sampledEnergy));
-#endif
       if (G4UniformRand() < qeProb) {
         // calculate x,y, and z components of photon momentum
         // (in coord system with primary particle direction

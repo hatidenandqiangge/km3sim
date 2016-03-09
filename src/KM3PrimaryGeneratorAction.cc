@@ -217,10 +217,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     /// at first initialize the pointers to Rindex,Q_E, glass and gell
     /// transparencies////
     static G4MaterialPropertyVector *QECathod = NULL;
-#ifdef G4MY_TRANSPARENCIES
-    static G4MaterialPropertyVector *AbsBenth = NULL;
-    static G4MaterialPropertyVector *AbsGell = NULL;
-#endif
     if (QECathod == NULL) {
       const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
       for (size_t J = 0; J < theMaterialTable->size(); J++) {
@@ -229,17 +225,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
               (*theMaterialTable)[J]->GetMaterialPropertiesTable();
           QECathod = aMaterialPropertiesTable->GetProperty("Q_EFF");
         }
-#ifdef G4MY_TRANSPARENCIES
-        else if ((*theMaterialTable)[J]->GetName() == G4String("Glass")) {
-          G4MaterialPropertiesTable *aMaterialPropertiesTable =
-              (*theMaterialTable)[J]->GetMaterialPropertiesTable();
-          AbsBenth = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-        } else if ((*theMaterialTable)[J]->GetName() == G4String("Gell")) {
-          G4MaterialPropertiesTable *aMaterialPropertiesTable =
-              (*theMaterialTable)[J]->GetMaterialPropertiesTable();
-          AbsGell = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-        }
-#endif
       }
     }
     /// end of
@@ -277,10 +262,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
          ip++) {  // Num_Laser_Photons is the number of photns before the
                   // relative QE and transparencies
       G4double qeProb = QECathod->Value(photonEnergy);
-#ifdef G4MY_TRANSPARENCIES
-      qeProb *= exp(-15.0 / AbsBenth->Value(photonEnergy) -
-                    10.0 / AbsGell->Value(photonEnergy));
-#endif
       if (G4UniformRand() < qeProb) {
         numberofParticles++;
         G4double px = photonEnergy * direction[0];
@@ -468,10 +449,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       /// transparencies////
       static G4MaterialPropertyVector *QECathod = NULL;
       static G4MaterialPropertyVector *Rindex = NULL;
-#ifdef G4MY_TRANSPARENCIES
-      static G4MaterialPropertyVector *AbsBenth = NULL;
-      static G4MaterialPropertyVector *AbsGell = NULL;
-#endif
       if (QECathod == NULL) {
         const G4MaterialTable *theMaterialTable =
             G4Material::GetMaterialTable();
@@ -485,17 +462,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
                 (*theMaterialTable)[J]->GetMaterialPropertiesTable();
             Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
           }
-#ifdef G4MY_TRANSPARENCIES
-          else if ((*theMaterialTable)[J]->GetName() == G4String("Glass")) {
-            G4MaterialPropertiesTable *aMaterialPropertiesTable =
-                (*theMaterialTable)[J]->GetMaterialPropertiesTable();
-            AbsBenth = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-          } else if ((*theMaterialTable)[J]->GetName() == G4String("Gell")) {
-            G4MaterialPropertiesTable *aMaterialPropertiesTable =
-                (*theMaterialTable)[J]->GetMaterialPropertiesTable();
-            AbsGell = aMaterialPropertiesTable->GetProperty("ABSLENGTH");
-          }
-#endif
         }
       }
       /// end of
@@ -542,10 +508,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 
         } while (rand * maxSin2 > sin2Theta);
         G4double qeProb = QECathod->Value(sampledMomentum);
-#ifdef G4MY_TRANSPARENCIES
-        qeProb *= exp(-15.0 / AbsBenth->Value(sampledMomentum) -
-                      10.0 / AbsGell->Value(sampledMomentum));
-#endif
         if (G4UniformRand() < qeProb) {
           numberofParticles++;
           G4double sinTheta = sqrt(sin2Theta);
