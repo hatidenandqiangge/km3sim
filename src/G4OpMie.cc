@@ -2,11 +2,6 @@
 #include "G4ExceptionHandler.hh"
 #include <stdio.h>
 #include "G4OpMie.hh"
-#if (defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)) || \
-    (!defined(G4DISABLE_PARAMETRIZATION) &&                                  \
-     defined(G4TRACK_INFORMATION))  // newmie
-#include "KM3TrackInformation.hh"
-#endif
 
 G4OpMie::G4OpMie(const G4String &processName, G4ProcessType type)
     : G4VDiscreteProcess(processName, type) {
@@ -78,11 +73,6 @@ G4VParticleChange *G4OpMie::PostStepDoIt(const G4Track &aTrack,
         OldPolarization.y(), OldPolarization.z(), NewPolarization.x(),
         NewPolarization.y(), NewPolarization.z());
   }
-#if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
-  KM3TrackInformation *info =
-      (KM3TrackInformation *)(aTrack.GetUserInformation());
-  info->KeepScatteringPosition(aTrack.GetPosition(), CosTheta);
-#endif
   return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }
 

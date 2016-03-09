@@ -128,17 +128,6 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
       originalTrackCreatorProcess = 9;
     else
       originalTrackCreatorProcess = 5;
-#ifdef G4MYLASER_PARAMETERIZATION
-    info->KeepScatteringPosition(aStep->GetPostStepPoint()->GetPosition(), 1.0);
-    G4int NumberOfScatters = info->GetNumberOfScatters();
-    newHit->SetIManyScatters(NumberOfScatters - 1);
-    for (G4int is = 0; is < NumberOfScatters - 1; is++) {
-      newHit->SetScatteringSteps(is, (info->GetScatteringPosition(is + 1) -
-            info->GetScatteringPosition(is))
-          .mag());
-      newHit->SetScatteringAngles(is, info->GetScatteringAngle(is + 1));
-    }
-#endif
 #else
     originalParentID = 1;
     originalTrackCreatorProcess = 0;
@@ -256,10 +245,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           QuickSort(1, theCollectionVector, istart, istop);
           G4double MergeWindow = 0.5 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
-#ifdef G4MYLASER_PARAMETERIZATION
-          G4double MergeWindow = 0.1 * ns;
-          MergeHits(istart, istop + 1, MergeWindow);
-#endif
           prevCathod = currentCathod;
           istart = i;
         } else if ((currentCathod == prevCathod) && (i == NbHits - 1)) {
@@ -267,10 +252,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           QuickSort(1, theCollectionVector, istart, istop);
           G4double MergeWindow = 0.5 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
-#ifdef G4MYLASER_PARAMETERIZATION
-          G4double MergeWindow = 0.1 * ns;
-          MergeHits(istart, istop + 1, MergeWindow);
-#endif
         }
       }
     }
@@ -349,14 +330,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
                     ((*MyCollection)[j]->GetTime() - timefirst) * 1E-9,
                     (*MyCollection)[j]->GetoriginalInfo(),
                     (*MyCollection)[j]->GetMany());
-#if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
-                G4int IManyScatters = (*MyCollection)[j]->GetIManyScatters();
-                fprintf(outfile, "%d\n", IManyScatters);
-                for (G4int is = 0; is < IManyScatters; is++)
-                  fprintf(outfile, "%.3e %.6e\n",
-                      (*MyCollection)[j]->GetScatteringSteps(is) / m,
-                      (*MyCollection)[j]->GetScatteringAngles(is));
-#endif
               } else {
                 // here write antares format info
                 G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
@@ -396,14 +369,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
                     ((*MyCollection)[j]->GetTime() - timefirst) * 1E-9,
                     (*MyCollection)[j]->GetoriginalInfo(),
                     (*MyCollection)[j]->GetMany());
-#if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
-                G4int IManyScatters = (*MyCollection)[j]->GetIManyScatters();
-                fprintf(outfile, "%d\n", IManyScatters);
-                for (G4int is = 0; is < IManyScatters; is++)
-                  fprintf(outfile, "%.3e %.6e\n",
-                      (*MyCollection)[j]->GetScatteringSteps(is) / m,
-                      (*MyCollection)[j]->GetScatteringAngles(is));
-#endif
               } else {
                 // here write antares format info
                 G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
