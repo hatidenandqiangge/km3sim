@@ -1,11 +1,5 @@
-////////////////////////////////////////////////////////////////////////
-
 #ifndef KM3Cherenkov_H
 #define KM3Cherenkov_H 1
-
-/////////////
-// Includes
-/////////////
 
 #include <CLHEP/Units/SystemOfUnits.h>
 
@@ -24,44 +18,23 @@
 #include "G4MaterialPropertiesTable.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
 #include "KM3Detector.hh"
-#ifndef G4DISABLE_PARAMETRIZATION
-#ifdef G4ENABLE_MIE
-#include "KM3EMDirectFlux.hh"
-#endif
-#endif
 // Class Description:
 // Continuous Process -- Generation of Cerenkov Photons.
 // Class inherits publicly from G4VDiscreteProcess.
 // Class Description - End:
 
-/////////////////////
-// Class Definition
-/////////////////////
 class KM3Cherenkov : public G4VProcess {
  public:
-  ////////////////////////////////
-  // Constructors and Destructor
-  ////////////////////////////////
 
   KM3Cherenkov(const G4String &processName = "KM3Cherenkov",
                G4ProcessType type = fElectromagnetic);
-
   KM3Cherenkov(const KM3Cherenkov &right);
-
   ~KM3Cherenkov();
 
-  ////////////
-  // Methods
-  ////////////
-
  private:
-  //////////////
-  // Operators
-  //////////////
-
   KM3Cherenkov &operator=(const KM3Cherenkov &right);
 
- public:  // With description
+ public:
   void SetDetector(KM3Detector *);
 
   G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
@@ -125,26 +98,8 @@ class KM3Cherenkov : public G4VProcess {
   void DumpPhysicsTable() const;
 // Prints the physics table.
 
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
-#ifdef G4ENABLE_MIE
-#ifndef G4DISABLE_PARAMETRIZATION
-  void CreateDirectPhotons(void);
-#endif
-#endif
-#endif
 
  private:
-#if !defined(G4MYEM_PARAMETERIZATION) && !defined(G4MYHA_PARAMETERIZATION)
-#ifdef G4ENABLE_MIE
-#ifndef G4DISABLE_PARAMETRIZATION
-  std::vector<G4ThreeVector> *poskeep;
-  std::vector<G4double> *timekeep;
-  std::vector<G4int> *idprikeep;
-  std::vector<G4double> *depenekeep;
-  std::vector<G4ThreeVector> *dirkeep;
-#endif
-#endif
-#endif
 
 #ifdef G4JUST_COUNT_PHOTONS
   long double Count_Photons;
@@ -156,17 +111,9 @@ class KM3Cherenkov : public G4VProcess {
 
   void BuildThePhysicsTable();
 
-  /////////////////////
-  // Helper Functions
-  /////////////////////
-
   G4double GetAverageNumberOfPhotons(const G4double charge, const G4double beta,
                                      const G4Material *aMaterial,
                                      G4MaterialPropertyVector *Rindex) const;
-
-  ///////////////////////
-  // Class Data Members
-  ///////////////////////
 
  protected:
   G4PhysicsTable *thePhysicsTable;
@@ -182,40 +129,7 @@ class KM3Cherenkov : public G4VProcess {
   G4double MaxAbsDist;
   G4double M_PI2;
   G4double MinMeanNumberOfPhotonsForParam;
-#ifndef G4DISABLE_PARAMETRIZATION
-#ifdef G4ENABLE_MIE
-  KM3EMDirectFlux *myFlux;
-#endif
-#endif
-#if !defined(G4ENABLE_MIE) || \
-    (defined(G4ENABLE_MIE) && !defined(G4DISABLE_PARAMETRIZATION))  // newmie
-  G4double HITBENTHOS[20000][10];
-  G4int icountHitBenthos;
-  G4double globalMaxCos, globalMinCos;
-  G4ThreeVector parent;
-  G4ThreeVector parent1;
-  void myrotate(G4ThreeVector &x, const G4ThreeVector &p0);
-  G4int PhotonHitsaBenthos(G4double x1, G4double y1, G4double z1, G4double px,
-                           G4double py, G4double pz, G4double x0, G4double y0,
-                           G4double z0, G4double r, G4double dir1,
-                           G4double dir2, G4double dir3);
-  G4int checkIfParticleCanEmitToShpere(G4ThreeVector center, G4double r,
-                                       G4double minCos, G4double maxCos,
-                                       G4double &minPhi, G4double &maxPhi,
-                                       G4int icare);
-  G4int mycheckParticleOneStar(const G4ThreeVector &p0, const G4ThreeVector &x0,
-                               const G4ThreeVector &xx0, const G4double &minCos,
-                               const G4double &maxCos);
-  void myIterativeCheck(Spheres *mySphere, const G4ThreeVector &p0,
-                        const G4double &minCos, const G4double &maxCos);
-  G4int checkPhi(const G4double &aphi);
-  G4int PhotonHitsAnyBenthos(G4ThreeVector r, G4ParticleMomentum p);
-#endif
 };
-
-////////////////////
-// Inline methods
-////////////////////
 
 inline G4bool KM3Cherenkov::IsApplicable(
     const G4ParticleDefinition &aParticleType) {
