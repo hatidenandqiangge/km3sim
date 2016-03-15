@@ -30,12 +30,6 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
             G4MuonMinus::MuonMinusDefinition()) {
       p0 = aStep->GetTrack()->GetMomentumDirection();
       x0 = aStep->GetTrack()->GetPosition();
-#ifdef G4MYFIT_PARAMETERIZATION
-      if (x0[2] > 280.0 * meter) {
-        aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-        return;
-      }
-#endif
 // here we keep the energy of the muon every 10 meters (approximately)
 // only if the first primary is a muon
 #ifdef G4MYMUON_KEEPENERGY

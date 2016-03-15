@@ -6,12 +6,8 @@
 
 void KM3TrackingAction::PreUserTrackingAction(const G4Track *aTrack) {
 #ifdef G4TRACK_INFORMATION
-#ifdef G4MYLASER_PARAMETERIZATION
-  if (aTrack->GetUserInformation() == 0)
-#else
   if (aTrack->GetParentID() > 0 &&
       aTrack->GetParentID() <= numofInitialParticles)
-#endif
   {
     if (aTrack->GetUserInformation() == 0) {
       KM3TrackInformation *anInfo = new KM3TrackInformation(aTrack);

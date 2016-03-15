@@ -1,4 +1,3 @@
-//
 #include "KM3Hit.hh"
 #include "G4UnitsTable.hh"
 #include "G4VisManager.hh"
@@ -33,6 +32,4 @@ const KM3Hit &KM3Hit::operator=(const KM3Hit &right) {
   return *this;
 }
 
-
 int KM3Hit::operator==(const KM3Hit &right) const { return 0; }
-

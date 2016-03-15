@@ -1,4 +1,3 @@
-
 #ifndef KM3Hit_h
 #define KM3Hit_h 1
 
@@ -8,6 +7,7 @@
 #include "G4ThreeVector.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4Transform3D.hh"
+
 
 class KM3Hit : public G4VHit {
  public:
