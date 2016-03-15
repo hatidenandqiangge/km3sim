@@ -5,9 +5,7 @@
 #include "G4ThreeVector.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
-#ifdef G4TRACK_INFORMATION
 #include "KM3TrackInformation.hh"
-#endif
 
 
 KM3SD::KM3SD(G4String name) : G4VSensitiveDetector(name) {
@@ -21,16 +19,6 @@ KM3SD::~KM3SD() {}
 void KM3SD::Initialize(G4HCofThisEvent *HCE) {
   MyCollection =
     new KM3HitsCollection(SensitiveDetectorName, collectionName[0]);
-#ifdef G4MYFIT_PARAMETERIZATION
-  G4int TotalNumberOfCathods = myStDetector->allCathods->GetNumberOfCathods();
-  if (TotalNumberOfCathods > 20000)
-    G4Exception(
-        "KM3SD::Initialize Number of cathods for energy fit is greater "
-        "than 20000. Change the corresponding dimension in KM3SD.hh",
-        "", FatalException, "");
-  for (G4int i = 0; i < TotalNumberOfCathods; i++) ArrayParam[i] = 0;
-  for (G4int i = 0; i < TotalNumberOfCathods; i++) ArrayParamAll[i] = 0;
-#endif
 }
 
 
@@ -81,9 +69,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     // here we disgard photons that have been scattered and are created with
     // parametrization also in KM3Cherenkov this for parametrization running. Not
     // anymore, since these are killed in the G4OpMie scattering process
-#ifdef G4TRACK_INFORMATION
     KM3TrackInformation *info = NULL;
-#endif
 
     /////next is new cathod id finding mode/////
     G4int Depth = aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
@@ -117,10 +103,10 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
 
     G4int originalTrackCreatorProcess;
     G4int originalParentID;
-#ifdef G4TRACK_INFORMATION
     if (info == NULL)
       info = (KM3TrackInformation *)(aStep->GetTrack()->GetUserInformation());
     originalParentID = info->GetOriginalParentID();
+    G4String creator = info->GetOriginalTrackCreatorProcess();
     G4String creator = info->GetOriginalTrackCreatorProcess();
     if (creator == "KM3Cherenkov")
       originalTrackCreatorProcess = 0;
@@ -138,21 +124,26 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
       originalTrackCreatorProcess = 9;
     else
       originalTrackCreatorProcess = 5;
-#ifdef G4MYLASER_PARAMETERIZATION
-    info->KeepScatteringPosition(aStep->GetPostStepPoint()->GetPosition(), 1.0);
-    G4int NumberOfScatters = info->GetNumberOfScatters();
-    newHit->SetIManyScatters(NumberOfScatters - 1);
-    for (G4int is = 0; is < NumberOfScatters - 1; is++) {
-      newHit->SetScatteringSteps(is, (info->GetScatteringPosition(is + 1) -
-            info->GetScatteringPosition(is))
-          .mag());
-      newHit->SetScatteringAngles(is, info->GetScatteringAngle(is + 1));
-    }
-#endif
-#else
     originalParentID = 1;
     originalTrackCreatorProcess = 0;
-#endif
+    if (creator == "KM3Cherenkov")
+      originalTrackCreatorProcess = 0;
+    else if (creator == "muPairProd")
+      originalTrackCreatorProcess = 1;
+    else if (creator == "muIoni")
+      originalTrackCreatorProcess = 2;
+    else if (creator == "muBrems")
+      originalTrackCreatorProcess = 3;
+    else if (creator == "muonNuclear")
+      originalTrackCreatorProcess = 4;
+    else if (creator == "Decay")
+      originalTrackCreatorProcess = 8;
+    else if (creator == "muMinusCaptureAtRest")
+      originalTrackCreatorProcess = 9;
+    else
+      originalTrackCreatorProcess = 5;
+    originalParentID = 1;
+    originalTrackCreatorProcess = 0;
     G4int originalInfo;
     originalInfo = (originalParentID - 1) * 10 + originalTrackCreatorProcess;
     //    newHit->SetoriginalInfo(int(1.e6*h_Planck*c_light/aStep->GetTrack()->GetTotalEnergy()));
@@ -227,32 +218,6 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);
   }
   //////////////////////////////////////////////////////////////
-#ifndef G4MYFIT_PARAMETERIZATION
-  if (MyCollection->entries() < 10000000) {
-    G4ThreeVector PMTDirection = myStDetector->allCathods->GetDirection(id);
-    //    G4cout << "OutFromParam "<<id<<"
-    //    "<<photonDirection.dot(PMTDirection)<<G4endl;
-    // the two 1.0 are the cathod radius and height that do not play any role
-    // in parametrization it is not accepted
-    if (!AcceptAngle(photonDirection.dot(PMTDirection), 1.0, 1.0,
-          true)) {
-      return;
-    }
-    // correct the time to correspond to the cathod positions and not the OM
-    // position
-    G4ThreeVector PMTPosition = myStDetector->allCathods->GetPosition(id);
-    G4double Tcorr =
-      (photonDirection.dot(PMTPosition - OMPosition)) / thespeedmaxQE;
-    KM3Hit *newHit = new KM3Hit();
-    newHit->SetCathodId(id);
-    newHit->SetTime(time + Tcorr);
-    // short    newHit->SetangleIncident(angleIncident);
-    // short    newHit->SetangleDirection(angleDirection);
-    newHit->SetoriginalInfo(originalInfo);
-    newHit->SetMany(1);
-    MyCollection->insert(newHit);
-  }
-#else
   G4ThreeVector dirPARAM(0.0, 0.0, 1.0);
   G4double startz = -600.0 * meter;
   G4ThreeVector vertexPARAM(0.0, 0.0, startz);
@@ -262,7 +227,6 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
   if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns)) ArrayParamAll[id]++;
   //  G4cout<<"ForFit "<<posPMT[0]/m<<" "<<posPMT[1]/m<<" "<<posPMT[2]/m<<"
   //  "<<time<<" "<<TRes<<G4endl;
-#endif
 }
 
 void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
@@ -293,10 +257,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           QuickSort(1, theCollectionVector, istart, istop);
           G4double MergeWindow = 0.5 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
-#ifdef G4MYLASER_PARAMETERIZATION
-          G4double MergeWindow = 0.1 * ns;
-          MergeHits(istart, istop + 1, MergeWindow);
-#endif
           prevCathod = currentCathod;
           istart = i;
         } else if ((currentCathod == prevCathod) && (i == NbHits - 1)) {
@@ -304,10 +264,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           QuickSort(1, theCollectionVector, istart, istop);
           G4double MergeWindow = 0.5 * ns;
           MergeHits(istart, istop + 1, MergeWindow);
-#ifdef G4MYLASER_PARAMETERIZATION
-          G4double MergeWindow = 0.1 * ns;
-          MergeHits(istart, istop + 1, MergeWindow);
-#endif
         }
       }
     }
@@ -386,14 +342,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
                     ((*MyCollection)[j]->GetTime() - timefirst) * 1E-9,
                     (*MyCollection)[j]->GetoriginalInfo(),
                     (*MyCollection)[j]->GetMany());
-#if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
-                G4int IManyScatters = (*MyCollection)[j]->GetIManyScatters();
-                fprintf(outfile, "%d\n", IManyScatters);
-                for (G4int is = 0; is < IManyScatters; is++)
-                  fprintf(outfile, "%.3e %.6e\n",
-                      (*MyCollection)[j]->GetScatteringSteps(is) / m,
-                      (*MyCollection)[j]->GetScatteringAngles(is));
-#endif
               } else {
                 // here write antares format info
                 G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
@@ -433,14 +381,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
                     ((*MyCollection)[j]->GetTime() - timefirst) * 1E-9,
                     (*MyCollection)[j]->GetoriginalInfo(),
                     (*MyCollection)[j]->GetMany());
-#if defined(G4MYLASER_PARAMETERIZATION) && defined(G4TRACK_INFORMATION)
-                G4int IManyScatters = (*MyCollection)[j]->GetIManyScatters();
-                fprintf(outfile, "%d\n", IManyScatters);
-                for (G4int is = 0; is < IManyScatters; is++)
-                  fprintf(outfile, "%.3e %.6e\n",
-                      (*MyCollection)[j]->GetScatteringSteps(is) / m,
-                      (*MyCollection)[j]->GetScatteringAngles(is));
-#endif
               } else {
                 // here write antares format info
                 G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
@@ -488,7 +428,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
       //   }
       // }
       // old
-#endif
       if (myStDetector->vrmlhits) {
         static G4int HCID = -1;
         if (HCID < 0) {

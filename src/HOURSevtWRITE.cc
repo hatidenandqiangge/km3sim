@@ -132,9 +132,8 @@ void HOURSevtWRITE::AddHit(int id, int PMTid, double pe, double t, int trackid,
   int Gid;
   if (trackid <= NumberOfParticles) {
     Gid = ParticlesHEPNumber[trackid - 1];
-    trackid =
-        ParticlesIdNumber[trackid -
-                          1];  // convert from geant track id to input track id
+    // convert from geant track id to input track id
+    trackid = ParticlesIdNumber[trackid - 1];
   } else {
     Gid = 6;
     trackid = 999999;
