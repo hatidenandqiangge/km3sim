@@ -14,33 +14,28 @@
 #include "KM3PrimaryGeneratorAction.hh"
 //#endif
 
-KM3StackingAction::KM3StackingAction() {
-  ;
-}
+KM3StackingAction::KM3StackingAction() { ; }
 
-KM3StackingAction::~KM3StackingAction() {
-  ;
-}
+KM3StackingAction::~KM3StackingAction() { ; }
 
 //#############################################################################
 G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
     const G4Track *aTrack) {
   static KM3PrimaryGeneratorAction *aGeneAction =
-    (KM3PrimaryGeneratorAction *)(G4RunManager::GetRunManager()
-        ->GetUserPrimaryGeneratorAction());
+      (KM3PrimaryGeneratorAction *)(G4RunManager::GetRunManager()
+                                        ->GetUserPrimaryGeneratorAction());
   G4double kineticEnergy;
   G4ThreeVector x0;
   G4ThreeVector p0;
   G4ThreeVector distanceV;
   G4double direction, distanceRho2;
   static G4double detectorMaxRho2 =
-    MyStDetector->detectorMaxRho * MyStDetector->detectorMaxRho;
+      MyStDetector->detectorMaxRho * MyStDetector->detectorMaxRho;
 
   // here kill tracks that have already killed by other classes
   if ((aTrack->GetTrackStatus() == fStopAndKill) ||
       (aTrack->GetTrackStatus() == fKillTrackAndSecondaries))
     return fKill;
-
 
   //----------------------------------------------------------------------------------------
 
@@ -102,9 +97,9 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
       G4double Tbottom = (MyStDetector->bottomPosition - x0[2]) / p0[2];
       if (Tbottom > 0) {
         G4double Xbottom =
-          x0[0] + Tbottom * p0[0] - MyStDetector->detectorCenter[0];
+            x0[0] + Tbottom * p0[0] - MyStDetector->detectorCenter[0];
         G4double Ybottom =
-          x0[1] + Tbottom * p0[1] - MyStDetector->detectorCenter[1];
+            x0[1] + Tbottom * p0[1] - MyStDetector->detectorCenter[1];
         G4double dRhoBottom = Xbottom * Xbottom + Ybottom * Ybottom;
         if (dRhoBottom < detectorMaxRho2) return fUrgent;
       }
@@ -131,9 +126,8 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
   return fUrgent;
 }
 
+void KM3StackingAction::NewStage() {}
 
-void KM3StackingAction::NewStage() { }
-
-void KM3StackingAction::PrepareNewEvent() { }
+void KM3StackingAction::PrepareNewEvent() {}
 
 void KM3StackingAction::SetDetector(KM3Detector *adet) { MyStDetector = adet; }

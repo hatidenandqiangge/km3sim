@@ -7,7 +7,6 @@
 #include "KM3Cherenkov.hh"
 #include "KM3EMDeltaFlux.hh"
 
-
 class KM3StackingAction : public G4UserStackingAction {
  public:
   KM3StackingAction();

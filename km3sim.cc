@@ -100,40 +100,21 @@ int main(int argc, char *argv[]) {
   char *Geometry_File = argv[4];
   char *Parameter_File = argv[5];
   G4bool useHEPEvt;
-  G4bool useANTARESformat;
+  G4bool useANTARESformat = true;
   char *fileParticles;
   char *filePythiaParticles;
   FILE *outfilePar;
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
-  if ((argv[8][0] == 'A') && (argv[8][1] == 'N') && (argv[8][2] == 'T') &&
-      (argv[8][3] == 'A') && (argv[8][4] == 'R') && (argv[8][5] == 'E') &&
-      (argv[8][6] == 'S') && (argv[8][7] == '_') && (argv[8][8] == 'E') &&
-      (argv[8][9] == 'V') && (argv[8][10] == 'T') && (argv[8][11] == '_') &&
-      (argv[8][12] == 'F') && (argv[8][13] == 'O') && (argv[8][14] == 'R') &&
-      (argv[8][15] == 'M') && (argv[8][16] == 'A') && (argv[8][17] == 'T') &&
-      (argv[8][18] == '\0')) {
-    useHEPEvt = true;
-    useANTARESformat = true;
-    fileParticles = argv[9];
-  }
-  else {
-    useHEPEvt = false;
-    useANTARESformat = false;
-    fileParticles = argv[8];
-  }
+
+  useHEPEvt = true;
+  useANTARESformat = true;
+  fileParticles = argv[9];
 
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
-  if (!useANTARESformat) {
-    if ((savefile = fopen(argv[3], "w")) == NULL) {
-      printf("Error open file\n");
-      return 1;
-    }
-  } else {
-    TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
-  }
+  TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
 
   G4RunManager *runManager = new G4RunManager;
 
@@ -202,11 +183,7 @@ int main(int argc, char *argv[]) {
   runManager->SetVerboseLevel(1);
   runManager->BeamOn(myGeneratorAction->nevents);
 
-  // job termination
-  if (!useANTARESformat)
-    fclose(savefile);
-  else
-    delete TheEVTtoWrite;
+  delete TheEVTtoWrite;
 
   delete runManager;
   return 0;

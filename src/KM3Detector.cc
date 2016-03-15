@@ -28,7 +28,7 @@ KM3HAShowerModel *myHAShowerModel;
 #include "G4Colour.hh"
 #include "G4UserLimits.hh"
 #include "G4RegionStore.hh"
-#include "G4VoxelLimits.hh" // newgeant
+#include "G4VoxelLimits.hh"  // newgeant
 #include "G4Processor/GDMLProcessor.h"
 #include "G4GDMLParser.hh"  //newgeant
 #include "G4LogicalVolumeStore.hh"
@@ -101,7 +101,6 @@ void KM3Detector::FindDetectorRadius() {
   MyGenerator->PutFromDetector(detectorCenter, detectorMaxRho, detectorMaxz,
                                bottomPosition);
 }
-
 
 void KM3Detector::SetUpVariables() {
   FILE *infile;
@@ -885,26 +884,16 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // here in case of antares evt format I should write something general about
   // simulation
-  if (useANTARESformat) TheEVTtoWrite->ReadRunHeader();
-
-  if (outfile == NULL && !useANTARESformat)
-    G4cout << "ERROR OUTFILE\n" << G4endl;
+  TheEVTtoWrite->ReadRunHeader();
 
 #ifdef G4PRINT_HEADER
-  if (!useANTARESformat) {
-    fprintf(outfile, "%d %d %d %d %d %d %d %d %d %d %f %f %d %d\n", nnn0, nnn1,
-            nnn1, nnn1, nben, nnn0, nnn0, nnn0, nnn0, nnn0, Water_Transparency,
-            Quantum_Efficiency, nnn0, nnn0);
-    allCathods->PrintAllCathods(outfile);
-  } else {
-    FILE *oofile = fopen("PmtPositionsAndDirections", "w");
-    fprintf(oofile, "%d %f\n", nben, Quantum_Efficiency);
-    allCathods->PrintAllCathods(oofile);
-    fclose(oofile);
-  }
+  FILE *oofile = fopen("PmtPositionsAndDirections", "w");
+  fprintf(oofile, "%d %f\n", nben, Quantum_Efficiency);
+  allCathods->PrintAllCathods(oofile);
+  fclose(oofile);
 #endif  // G4PRINT_HEADER
 
-  if (useANTARESformat) TheEVTtoWrite->WriteRunHeader();
+  TheEVTtoWrite->WriteRunHeader();
 
   // find the total photocathod area on a OM
   G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();

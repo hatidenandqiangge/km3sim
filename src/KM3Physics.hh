@@ -6,7 +6,6 @@
 #include "KM3Detector.hh"
 #include "KM3Cherenkov.hh"
 
-
 class KM3Physics : public G4VUserPhysicsList {
  public:
   KM3Physics();

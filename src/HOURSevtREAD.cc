@@ -287,8 +287,8 @@ void HOURSevtREAD::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   int argnumber;
   GetArgs(ParticleInfo, argnumber, args);
   if ((int)args[9] <= 0) {  // in order to get rid off particles that are not
-                            // standard (pythia or genie internal code particles
-                            // e.g. 93)
+    // standard (pythia or genie internal code particles
+    // e.g. 93)
     idbeam = 0;
     return;
   }
@@ -425,11 +425,11 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
     for (int IHEP = 0; IHEP < NHEP; IHEP++) {
       GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
       if (idbeam != 0) {  // do not load particles not within PDG coding (e.g.
-                          // 93) and from muon bundle
+        // 93) and from muon bundle
         if (abs(idbeam) != 411 && abs(idbeam) != 421 && abs(idbeam) != 431 &&
             abs(idbeam) != 4122 && abs(idbeam) != 4212 &&
             abs(idbeam) != 4222) {  // these particles are not defined or have
-                                    // not decay modes in GEANT4
+          // not decay modes in GEANT4
           G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
           particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
           vertex->SetPrimary(particle);
@@ -469,11 +469,11 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
       double t0;
       GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
       if (idbeam != 0) {  // do not load particles not within PDG coding (e.g.
-                          // 93)
+        // 93)
         if (abs(idbeam) != 411 && abs(idbeam) != 421 && abs(idbeam) != 431 &&
             abs(idbeam) != 4122 && abs(idbeam) != 4212 &&
             abs(idbeam) != 4222) {  // these particles are not defined or have
-                                    // not decay modes in GEANT4
+          // not decay modes in GEANT4
           G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
           particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
           vertex->SetPrimary(particle);

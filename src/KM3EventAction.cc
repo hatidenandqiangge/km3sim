@@ -65,7 +65,7 @@ void KM3EventAction::BeginOfEventAction(const G4Event *) {
     stopPosition.push_back(vzero);
     stopTime.push_back(izero);
   }
-  if (useANTARESformat) TheEVTtoWrite->ReadEvent();
+  TheEVTtoWrite->ReadEvent();
 }
 
 void KM3EventAction::EndOfEventAction(const G4Event *) {
@@ -73,102 +73,60 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
   G4ThreeVector Momentum;
   G4ThreeVector vzero(0.0, 0.0, 0.0);
   G4double izero = 0.0;
-  if (!useANTARESformat) fprintf(outfile, "%d\n", numofMuons);
   for (G4int ip = 0; ip < numofMuons; ip++) {
     // record entering position//////
     if ((enterPre[ip] != vzero) && (enterPost[ip] != vzero)) {
       Momentum = ((enterMomentum[ip])) * (enterPost[ip] - enterPre[ip]) /
                  (enterPost[ip] - enterPre[ip]).mag();
-      if (!useANTARESformat)
-        fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n",
-                (enterPosition[ip])[0] / cm, (enterPosition[ip])[1] / cm,
-                (enterPosition[ip])[2] / cm, Momentum[0] / GeV,
-                Momentum[1] / GeV, Momentum[2] / GeV, (enterTime[ip]) / second);
-      else {
-        Momentum = Momentum.unit();
-        TheEVTtoWrite->AddMuonPositionInfo(
-            MuonIds[ip], -1, (enterPosition[ip])[0] / m,
-            (enterPosition[ip])[1] / m, (enterPosition[ip])[2] / m, Momentum[0],
-            Momentum[1], Momentum[2], enterMomentum[ip] / GeV,
-            (enterTime[ip]) / ns);
-      }
+      Momentum = Momentum.unit();
+      TheEVTtoWrite->AddMuonPositionInfo(
+          MuonIds[ip], -1, (enterPosition[ip])[0] / m,
+          (enterPosition[ip])[1] / m, (enterPosition[ip])[2] / m, Momentum[0],
+          Momentum[1], Momentum[2], enterMomentum[ip] / GeV,
+          (enterTime[ip]) / ns);
     } else {
-      if (!useANTARESformat)
-        fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n", vzero[0],
-                vzero[1], vzero[2], vzero[0], vzero[1], vzero[2], izero);
-      else
-        TheEVTtoWrite->AddMuonPositionInfo(MuonIds[ip], -1, 0., 0., 0., 0., 0.,
-                                           0., 0., 0.);
+      TheEVTtoWrite->AddMuonPositionInfo(MuonIds[ip], -1, 0., 0., 0., 0., 0.,
+                                         0., 0., 0.);
     }
     // record center position///////////
     if ((centerPre[ip] != vzero) && (centerPost[ip] != vzero)) {
       Momentum = ((centerMomentum[ip])) * (centerPost[ip] - centerPre[ip]) /
                  (centerPost[ip] - centerPre[ip]).mag();
-      if (!useANTARESformat)
-        fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n",
-                (centerPosition[ip])[0] / cm, (centerPosition[ip])[1] / cm,
-                (centerPosition[ip])[2] / cm, Momentum[0] / GeV,
-                Momentum[1] / GeV, Momentum[2] / GeV,
-                (centerTime[ip]) / second);
-      else {
-        Momentum = Momentum.unit();
-        TheEVTtoWrite->AddMuonPositionInfo(
-            MuonIds[ip], 0, (centerPosition[ip])[0] / m,
-            (centerPosition[ip])[1] / m, (centerPosition[ip])[2] / m,
-            Momentum[0], Momentum[1], Momentum[2], centerMomentum[ip] / GeV,
-            (centerTime[ip]) / ns);
-      }
+      Momentum = Momentum.unit();
+      TheEVTtoWrite->AddMuonPositionInfo(
+          MuonIds[ip], 0, (centerPosition[ip])[0] / m,
+          (centerPosition[ip])[1] / m, (centerPosition[ip])[2] / m, Momentum[0],
+          Momentum[1], Momentum[2], centerMomentum[ip] / GeV,
+          (centerTime[ip]) / ns);
     } else {
-      if (!useANTARESformat)
-        fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n", vzero[0],
-                vzero[1], vzero[2], vzero[0], vzero[1], vzero[2], izero);
-      else
-        TheEVTtoWrite->AddMuonPositionInfo(MuonIds[ip], 0, 0., 0., 0., 0., 0.,
-                                           0., 0., 0.);
+      TheEVTtoWrite->AddMuonPositionInfo(MuonIds[ip], 0, 0., 0., 0., 0., 0., 0.,
+                                         0., 0.);
     }
     // record leaving position//////////////////////
     if ((leavePre[ip] != vzero) && (leavePost[ip] != vzero)) {
       Momentum = ((leaveMomentum[ip])) * (leavePost[ip] - leavePre[ip]) /
                  (leavePost[ip] - leavePre[ip]).mag();
-      if (!useANTARESformat)
-        fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n",
-                (leavePosition[ip])[0] / cm, (leavePosition[ip])[1] / cm,
-                (leavePosition[ip])[2] / cm, Momentum[0] / GeV,
-                Momentum[1] / GeV, Momentum[2] / GeV, (leaveTime[ip]) / second);
-      else {
-        Momentum = Momentum.unit();
-        TheEVTtoWrite->AddMuonPositionInfo(
-            MuonIds[ip], 1, (leavePosition[ip])[0] / m,
-            (leavePosition[ip])[1] / m, (leavePosition[ip])[2] / m, Momentum[0],
-            Momentum[1], Momentum[2], leaveMomentum[ip] / GeV,
-            (leaveTime[ip]) / ns);
-      }
+      Momentum = Momentum.unit();
+      TheEVTtoWrite->AddMuonPositionInfo(
+          MuonIds[ip], 1, (leavePosition[ip])[0] / m,
+          (leavePosition[ip])[1] / m, (leavePosition[ip])[2] / m, Momentum[0],
+          Momentum[1], Momentum[2], leaveMomentum[ip] / GeV,
+          (leaveTime[ip]) / ns);
     } else {
-      if (!useANTARESformat)
-        fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n", vzero[0],
-                vzero[1], vzero[2], vzero[0], vzero[1], vzero[2], izero);
-      else
-        TheEVTtoWrite->AddMuonPositionInfo(MuonIds[ip], 1, 0., 0., 0., 0., 0.,
-                                           0., 0., 0.);
+      TheEVTtoWrite->AddMuonPositionInfo(MuonIds[ip], 1, 0., 0., 0., 0., 0., 0.,
+                                         0., 0.);
     }
     // record stopping position//////////////
-    if (!useANTARESformat)
-      fprintf(outfile, "%.6e %.6e %.6e %.7e\n", (stopPosition[ip])[0] / cm,
-              (stopPosition[ip])[1] / cm, (stopPosition[ip])[2] / cm,
-              (stopTime[ip]) / ns);
-    else
-      TheEVTtoWrite->AddMuonPositionInfo(
-          MuonIds[ip], 2, (stopPosition[ip])[0] / m, (stopPosition[ip])[1] / m,
-          (stopPosition[ip])[2] / m, (stopTime[ip]) / ns);
+    TheEVTtoWrite->AddMuonPositionInfo(
+        MuonIds[ip], 2, (stopPosition[ip])[0] / m, (stopPosition[ip])[1] / m,
+        (stopPosition[ip])[2] / m, (stopTime[ip]) / ns);
   }
 // write information of muon energies every 10 meters
 #ifdef G4MYMUON_KEEPENERGY
-  if (useANTARESformat) {
-    for (int ien = 0; ien < EnergyAtPosition.size(); ien++)
-      EnergyAtPosition[ien] = EnergyAtPosition[ien] / GeV;  // convert to GeV
-    TheEVTtoWrite->AddMuonEnergyInfo(EnergyAtPosition);
-  }
+  for (int ien = 0; ien < EnergyAtPosition.size(); ien++)
+    EnergyAtPosition[ien] = EnergyAtPosition[ien] / GeV;  // convert to GeV
+  TheEVTtoWrite->AddMuonEnergyInfo(EnergyAtPosition);
 #endif
   // write to output file
-  if (useANTARESformat) TheEVTtoWrite->WriteEvent();
+  TheEVTtoWrite->WriteEvent();
 }

@@ -27,10 +27,7 @@ struct PhaseFactors {
 
 class G4OpMie : public G4VDiscreteProcess {
  private:
-
-
  public:
-
   G4OpMie(const G4String &processName = "OpMie", G4ProcessType type = fOptical);
 
   ~G4OpMie();

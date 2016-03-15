@@ -13,9 +13,7 @@ KM3TrackInformation::KM3TrackInformation() {
   EmittedAsScattered = true;  // newmie
 }
 
-KM3TrackInformation::~KM3TrackInformation() {
-  ;
-}
+KM3TrackInformation::~KM3TrackInformation() { ; }
 
 KM3TrackInformation::KM3TrackInformation(const G4Track *aTrack) {
   originalTrackCreatorProcess = aTrack->GetCreatorProcess()->GetProcessName();

@@ -54,7 +54,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
   void ConstructMaterials(void);
   G4int TotalPMTEntities(const G4VPhysicalVolume *) const;
   void SetUpVariables(void);
-// newgeant  void sxpInitialize(void);
+  // newgeant  void sxpInitialize(void);
 
  private:
   // newgeant  SAXProcessor sxp;

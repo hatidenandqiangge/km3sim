@@ -32,7 +32,6 @@ class KM3Cherenkov : public G4VProcess {
   ~KM3Cherenkov();
 
  private:
-
   KM3Cherenkov &operator=(const KM3Cherenkov &right);
 
  public:  // With description
@@ -97,10 +96,9 @@ class KM3Cherenkov : public G4VProcess {
   // Returns the address of the physics table.
 
   void DumpPhysicsTable() const;
-// Prints the physics table.
+  // Prints the physics table.
 
  private:
-
 #ifdef G4JUST_COUNT_PHOTONS
   long double Count_Photons;
   long double Posit_Photons_Mean;

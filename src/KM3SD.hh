@@ -11,7 +11,6 @@
 class G4Step;
 class G4HCofThisEvent;
 
-
 class KM3SD : public G4VSensitiveDetector {
  public:
   FILE *outfile;
@@ -27,6 +26,7 @@ class KM3SD : public G4VSensitiveDetector {
   void InsertExternalHit(G4int ic, const G4ThreeVector &OMPosition,
                          G4double time, G4int originalInfo,
                          const G4ThreeVector &photonDirection);
+
  private:
   KM3HitsCollection *MyCollection;
   G4int ProcessMyCollection(KM3HitsCollection *aCollection);

@@ -9,29 +9,29 @@
 #include "KM3Cherenkov.hh"
 
 KM3Cherenkov::KM3Cherenkov(const G4String &processName, G4ProcessType type)
-  : G4VProcess(processName, type) {
-    SetProcessSubType(fCerenkov);
+    : G4VProcess(processName, type) {
+  SetProcessSubType(fCerenkov);
 
-    fTrackSecondariesFirst = false;
-    fMaxBetaChange = 0.;
-    fMaxPhotons = 0;
+  fTrackSecondariesFirst = false;
+  fMaxBetaChange = 0.;
+  fMaxPhotons = 0;
 
-    thePhysicsTable = NULL;
+  thePhysicsTable = NULL;
 
-    if (verboseLevel > 0) {
-      G4cout << GetProcessName() << " is created " << G4endl;
-    }
-    BuildThePhysicsTable();
+  if (verboseLevel > 0) {
+    G4cout << GetProcessName() << " is created " << G4endl;
+  }
+  BuildThePhysicsTable();
 
-    M_PI2 = 2 * M_PI;
-    MinMeanNumberOfPhotonsForParam = 20.0;
+  M_PI2 = 2 * M_PI;
+  MinMeanNumberOfPhotonsForParam = 20.0;
 
 #ifdef G4JUST_COUNT_PHOTONS
-    Count_Photons = 0.0;
-    Posit_Photons_Mean = 0.0;
-    for (G4int i = 0; i < 3002; i++) Posit_Photons_Histo[i] = 0.0;
+  Count_Photons = 0.0;
+  Posit_Photons_Mean = 0.0;
+  for (G4int i = 0; i < 3002; i++) Posit_Photons_Histo[i] = 0.0;
 #endif
-  }
+}
 
 KM3Cherenkov::~KM3Cherenkov() {
   if (thePhysicsTable != NULL) {
@@ -49,7 +49,7 @@ KM3Cherenkov::~KM3Cherenkov() {
   G4double Posit_Photons_Median = -10 * m + 0.5 * cm + G4double(ibin - 1) * cm;
   Posit_Photons_Mean /= Count_Photons;
   printf("Count_Photons %.20Le %.5Le %.5e\n", Count_Photons,
-      Posit_Photons_Mean / m, Posit_Photons_Median / m);
+         Posit_Photons_Mean / m, Posit_Photons_Median / m);
 #endif
 }
 
@@ -59,14 +59,14 @@ void KM3Cherenkov::SetDetector(KM3Detector *adet) {
 }
 
 G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
-    const G4Step &aStep)
+                                              const G4Step &aStep)
 
-  // This routine is called for each tracking Step of a charged particle
-  // in a radiator. A Poisson-distributed number of photons is generated
-  // according to the Cerenkov formula, distributed evenly along the track
-  // segment and uniformly azimuth w.r.t. the particle direction. The
-  // parameters are then transformed into the Master Reference System, and
-  // they are added to the particle change.
+// This routine is called for each tracking Step of a charged particle
+// in a radiator. A Poisson-distributed number of photons is generated
+// according to the Cerenkov formula, distributed evenly along the track
+// segment and uniformly azimuth w.r.t. the particle direction. The
+// parameters are then transformed into the Master Reference System, and
+// they are added to the particle change.
 
 {
   // G4cout << " IN CHERENKOV";
@@ -92,7 +92,7 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
     for (size_t J = 0; J < theMaterialTable->size(); J++) {
       if ((*theMaterialTable)[J]->GetName() == G4String("Cathod")) {
         G4MaterialPropertiesTable *aMaterialPropertiesTable =
-          (*theMaterialTable)[J]->GetMaterialPropertiesTable();
+            (*theMaterialTable)[J]->GetMaterialPropertiesTable();
         QECathod = aMaterialPropertiesTable->GetProperty("Q_EFF");
       }
     }
@@ -109,24 +109,24 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
   const G4Material *aMaterial = aTrack.GetMaterial();
 
   G4MaterialPropertiesTable *aMaterialPropertiesTable =
-    aMaterial->GetMaterialPropertiesTable();
+      aMaterial->GetMaterialPropertiesTable();
 
   if (!aMaterialPropertiesTable) return pParticleChange;
 
   G4MaterialPropertyVector *Rindex =
-    aMaterialPropertiesTable->GetProperty("RINDEX");
+      aMaterialPropertiesTable->GetProperty("RINDEX");
 
   if (!Rindex) return pParticleChange;
 
   // check that the particle is inside the active volume of the detector
   static G4double detectorMaxRho2 =
-    MyStDetector->detectorMaxRho * MyStDetector->detectorMaxRho;
+      MyStDetector->detectorMaxRho * MyStDetector->detectorMaxRho;
   G4StepPoint *pPreStepPoint = aStep.GetPreStepPoint();
   G4ThreeVector x0 = pPreStepPoint->GetPosition();
   //  G4cout <<"prepoint "<< x0[0] <<" "<< x0[1] <<" "<< x0[2] <<G4endl;
   G4ThreeVector distanceV = x0 - MyStDetector->detectorCenter;
   G4double distanceRho2 =
-    distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1];
+      distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1];
   if ((distanceRho2 > detectorMaxRho2) ||
       (x0[2] < MyStDetector->bottomPosition) ||
       (x0[2] > MyStDetector->detectorMaxz)) {
@@ -144,9 +144,9 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
   // particle beta
   G4StepPoint *pPostStepPoint = aStep.GetPostStepPoint();
   const G4double beta =
-    (pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta()) / 2.;
+      (pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta()) / 2.;
   G4double MeanNumPhotons =
-    GetAverageNumberOfPhotons(charge, beta, aMaterial, Rindex);
+      GetAverageNumberOfPhotons(charge, beta, aMaterial, Rindex);
   MeanNumPhotons *= step_length * MyStDetector->Quantum_Efficiency;
   G4double BetaInverse = 1.0 / beta;
   G4ThreeVector p0 = aStep.GetDeltaPosition().unit();
@@ -169,10 +169,10 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 #ifdef G4JUST_COUNT_PHOTONS
   Count_Photons += (long double)NumPhotons;
   G4double pos_z_projection =
-    0.5 * ((aStep.GetPreStepPoint()->GetPosition())[2] +
-        (aStep.GetPostStepPoint()->GetPosition())[2]);
+      0.5 * ((aStep.GetPreStepPoint()->GetPosition())[2] +
+             (aStep.GetPostStepPoint()->GetPosition())[2]);
   Posit_Photons_Mean +=
-    ((long double)NumPhotons) * ((long double)pos_z_projection);
+      ((long double)NumPhotons) * ((long double)pos_z_projection);
   G4int ibin = 1001 + int(floor(pos_z_projection / cm));
   if (ibin < 0) ibin = 0;
   if (ibin > 3001) ibin = 3001;
@@ -198,9 +198,9 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
   const G4double beta1 = pPreStepPoint->GetBeta();
   const G4double beta2 = pPostStepPoint->GetBeta();
   G4double MeanNumberOfPhotons1 =
-    GetAverageNumberOfPhotons(charge, beta1, aMaterial, Rindex);
+      GetAverageNumberOfPhotons(charge, beta1, aMaterial, Rindex);
   G4double MeanNumberOfPhotons2 =
-    GetAverageNumberOfPhotons(charge, beta2, aMaterial, Rindex);
+      GetAverageNumberOfPhotons(charge, beta2, aMaterial, Rindex);
   G4double t0 = pPreStepPoint->GetGlobalTime();
   //  NumPhotons=0; //lookout
   for (G4int i = 0; i < NumPhotons; i++) {
@@ -270,35 +270,32 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
       do {
         rand = G4UniformRand();
         delta = rand * step_length;
-        NumberOfPhotons = MeanNumberOfPhotons1 -
-          delta *
-          (MeanNumberOfPhotons1 - MeanNumberOfPhotons2) /
-          step_length;
+        NumberOfPhotons =
+            MeanNumberOfPhotons1 -
+            delta * (MeanNumberOfPhotons1 - MeanNumberOfPhotons2) / step_length;
         N = G4UniformRand() *
-          std::max(MeanNumberOfPhotons1, MeanNumberOfPhotons2);
+            std::max(MeanNumberOfPhotons1, MeanNumberOfPhotons2);
       } while (N > NumberOfPhotons);
 
       G4double deltaTime =
-        delta /
-        ((pPreStepPoint->GetVelocity() + pPostStepPoint->GetVelocity()) /
-         2.);
+          delta /
+          ((pPreStepPoint->GetVelocity() + pPostStepPoint->GetVelocity()) / 2.);
 
       G4ThreeVector aSecondaryPosition = x0 + rand * aStep.GetDeltaPosition();
 
       G4double aSecondaryTime = t0 + deltaTime;
 
-
       G4DynamicParticle *aCerenkovPhoton = new G4DynamicParticle(
           G4OpticalPhoton::OpticalPhoton(), photonMomentum);
       aCerenkovPhoton->SetPolarization(photonPolarization.x(),
-          photonPolarization.y(),
-          photonPolarization.z());
+                                       photonPolarization.y(),
+                                       photonPolarization.z());
 
       aCerenkovPhoton->SetKineticEnergy(sampledEnergy);
 
       // Generate the track
       G4Track *aSecondaryTrack =
-        new G4Track(aCerenkovPhoton, aSecondaryTime, aSecondaryPosition);
+          new G4Track(aCerenkovPhoton, aSecondaryTime, aSecondaryPosition);
 
       aSecondaryTrack->SetTouchableHandle(
           aStep.GetPreStepPoint()->GetTouchableHandle());
@@ -306,11 +303,11 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
 
       aParticleChange.AddSecondary(aSecondaryTrack);
     }  // if (G4UniformRand()<qeProb)
-  }  // for each photon
+  }    // for each photon
 
   if (verboseLevel > 0) {
     G4cout << "\n Exiting from KM3Cherenkov::DoIt -- NumberOfSecondaries = "
-      << aParticleChange.GetNumberOfSecondaries() << G4endl;
+           << aParticleChange.GetNumberOfSecondaries() << G4endl;
   }
 
   return pParticleChange;
@@ -330,7 +327,7 @@ void KM3Cherenkov::BuildThePhysicsTable() {
 
   for (G4int i = 0; i < numOfMaterials; i++) {
     G4PhysicsOrderedFreeVector *aPhysicsOrderedFreeVector =
-      new G4PhysicsOrderedFreeVector();
+        new G4PhysicsOrderedFreeVector();
 
     // Retrieve vector of refraction indices for the material
     // from the material's optical properties table
@@ -338,11 +335,11 @@ void KM3Cherenkov::BuildThePhysicsTable() {
     G4Material *aMaterial = (*theMaterialTable)[i];
 
     G4MaterialPropertiesTable *aMaterialPropertiesTable =
-      aMaterial->GetMaterialPropertiesTable();
+        aMaterial->GetMaterialPropertiesTable();
 
     if (aMaterialPropertiesTable) {
       G4MaterialPropertyVector *theRefractionIndexVector =
-        aMaterialPropertiesTable->GetProperty("RINDEX");
+          aMaterialPropertiesTable->GetProperty("RINDEX");
 
       if (theRefractionIndexVector) {
         // Retrieve the first refraction index in vector
@@ -369,12 +366,12 @@ void KM3Cherenkov::BuildThePhysicsTable() {
           // pairs stored for this material
 
           for (size_t i = 1; i < theRefractionIndexVector->GetVectorLength();
-              i++) {
+               i++) {
             currentRI = (*theRefractionIndexVector)[i];
             currentPM = theRefractionIndexVector->Energy(i);
 
             currentCAI =
-              0.5 * (1.0 / (prevRI * prevRI) + 1.0 / (currentRI * currentRI));
+                0.5 * (1.0 / (prevRI * prevRI) + 1.0 / (currentRI * currentRI));
 
             currentCAI = prevCAI + (currentPM - prevPM) * currentCAI;
 
@@ -402,7 +399,7 @@ void KM3Cherenkov::BuildThePhysicsTable() {
 //
 
 G4double KM3Cherenkov::GetMeanFreePath(const G4Track &, G4double,
-    G4ForceCondition *) {
+                                       G4ForceCondition *) {
   return 1.;
 }
 
@@ -425,7 +422,7 @@ G4double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
   G4double gamma = aParticle->GetTotalEnergy() / mass;
 
   G4MaterialPropertiesTable *aMaterialPropertiesTable =
-    aMaterial->GetMaterialPropertiesTable();
+      aMaterial->GetMaterialPropertiesTable();
 
   G4MaterialPropertyVector *Rindex = NULL;
 
@@ -449,7 +446,7 @@ G4double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
   G4double kinEmin = mass * (GammaMin - 1.);
 
   G4double RangeMin =
-    G4LossTableManager::Instance()->GetRange(particleType, kinEmin, couple);
+      G4LossTableManager::Instance()->GetRange(particleType, kinEmin, couple);
   G4double Range = G4LossTableManager::Instance()->GetRange(
       particleType, kineticEnergy, couple);
 
@@ -467,7 +464,7 @@ G4double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
     const G4double charge = aParticle->GetDefinition()->GetPDGCharge();
 
     G4double MeanNumberOfPhotons =
-      GetAverageNumberOfPhotons(charge, beta, aMaterial, Rindex);
+        GetAverageNumberOfPhotons(charge, beta, aMaterial, Rindex);
 
     Step = 0.;
     if (MeanNumberOfPhotons > 0.0) Step = fMaxPhotons / MeanNumberOfPhotons;
@@ -481,9 +478,9 @@ G4double KM3Cherenkov::PostStepGetPhysicalInteractionLength(
         particleType, kineticEnergy, couple);
 
     G4double deltaGamma = gamma -
-      1. / std::sqrt(1. -
-          beta * beta * (1. - fMaxBetaChange) *
-          (1. - fMaxBetaChange));
+                          1. / std::sqrt(1. -
+                                         beta * beta * (1. - fMaxBetaChange) *
+                                             (1. - fMaxBetaChange));
 
     Step = mass * deltaGamma / dedx;
 
@@ -518,7 +515,7 @@ G4double KM3Cherenkov::GetAverageNumberOfPhotons(
   // Retrieve the Cerenkov Angle Integrals for this material
 
   G4PhysicsOrderedFreeVector *CerenkovAngleIntegrals =
-    (G4PhysicsOrderedFreeVector *)((*thePhysicsTable)(materialIndex));
+      (G4PhysicsOrderedFreeVector *)((*thePhysicsTable)(materialIndex));
 
   if (!(CerenkovAngleIntegrals->IsFilledVectorExist())) return 0.0;
 
@@ -576,7 +573,7 @@ G4double KM3Cherenkov::GetAverageNumberOfPhotons(
 
   // Calculate number of photons
   G4double NumPhotons = Rfact * charge / eplus * charge / eplus *
-    (dp - ge * BetaInverse * BetaInverse);
+                        (dp - ge * BetaInverse * BetaInverse);
 
   return NumPhotons;
 }

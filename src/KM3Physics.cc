@@ -62,16 +62,12 @@
 #include "G4IonTable.hh"
 #include "G4Ions.hh"
 
-
-
-
 KM3Physics::KM3Physics() : G4VUserPhysicsList() {
   defaultCutValue = 0.5 * mm;
   SetVerboseLevel(2);
 }
 
 KM3Physics::~KM3Physics() { delete theCerenkovProcess; }
-
 
 void KM3Physics::ConstructParticle() {
   // In this method, static member functions should be called
@@ -92,7 +88,6 @@ void KM3Physics::ConstructParticle() {
   aCShort.ConstructParticle();
   aCIon.ConstructParticle();
 }
-
 
 void KM3Physics::ConstructProcess() {
   AddTransportation();
@@ -127,9 +122,6 @@ void KM3Physics::ConstructProcess() {
 
   // tempo
 }
-
-
-
 
 // Attention. I must change the high energy of all electromagnetic processes
 void KM3Physics::ConstructEM() {
@@ -476,7 +468,6 @@ void KM3Physics::ConstructHA() {
   pmanager->AddRestProcess(new G4KaonMinusAbsorption);
 }
 
-
 void KM3Physics::ConstructOP() {
   theCerenkovProcess = new KM3Cherenkov("KM3Cherenkov");
   G4OpAbsorption *theAbsorptionProcess = new G4OpAbsorption();
@@ -515,7 +506,6 @@ void KM3Physics::ConstructOP() {
   }
   // set ordering for AtRestDoIt
 }
-
 
 void KM3Physics::ConstructGeneral() {
   // Add Decay Process
@@ -562,7 +552,6 @@ void KM3Physics::ConstructGeneral() {
 }
 // THIS IS END OF TEST
 // Where was the beginning?
-
 
 void KM3Physics::SetCuts() {
   // G4VUserPhysicsList::SetCutsWithDefault method sets

@@ -7,29 +7,26 @@
 void KM3TrackingAction::PreUserTrackingAction(const G4Track *aTrack) {
 #ifdef G4TRACK_INFORMATION
   if (aTrack->GetParentID() > 0 &&
-      aTrack->GetParentID() <= numofInitialParticles)
-  {
+      aTrack->GetParentID() <= numofInitialParticles) {
     if (aTrack->GetUserInformation() == 0) {
       KM3TrackInformation *anInfo = new KM3TrackInformation(aTrack);
       G4Track *theTrack = (G4Track *)aTrack;
       theTrack->SetUserInformation(anInfo);
       // write info on evt file about the muon capture or decay secondaries
-      if (useANTARESformat) {
-        G4String theCreatorProcess =
-            aTrack->GetCreatorProcess()->GetProcessName();
-        if ((theCreatorProcess == "Decay") ||
-            (theCreatorProcess == "muMinusCaptureAtRest")) {
-          G4int trackID = aTrack->GetTrackID();
-          G4int parentID = aTrack->GetParentID();
-          G4ThreeVector pos = aTrack->GetPosition();
-          G4ThreeVector ddd = aTrack->GetMomentumDirection();
-          G4double TotalEnergy = aTrack->GetTotalEnergy();
-          G4double time = aTrack->GetGlobalTime();
-          G4int idPDG = aTrack->GetDefinition()->GetPDGEncoding();
-          TheEVTtoWrite->AddMuonDecaySecondaries(
-              trackID, parentID, pos[0] / m, pos[1] / m, pos[2] / m, ddd[0],
-              ddd[1], ddd[2], TotalEnergy, time, idPDG);
-        }
+      G4String theCreatorProcess =
+          aTrack->GetCreatorProcess()->GetProcessName();
+      if ((theCreatorProcess == "Decay") ||
+          (theCreatorProcess == "muMinusCaptureAtRest")) {
+        G4int trackID = aTrack->GetTrackID();
+        G4int parentID = aTrack->GetParentID();
+        G4ThreeVector pos = aTrack->GetPosition();
+        G4ThreeVector ddd = aTrack->GetMomentumDirection();
+        G4double TotalEnergy = aTrack->GetTotalEnergy();
+        G4double time = aTrack->GetGlobalTime();
+        G4int idPDG = aTrack->GetDefinition()->GetPDGEncoding();
+        TheEVTtoWrite->AddMuonDecaySecondaries(
+            trackID, parentID, pos[0] / m, pos[1] / m, pos[2] / m, ddd[0],
+            ddd[1], ddd[2], TotalEnergy, time, idPDG);
       }
     } else {
       //      if(aTrack->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition()){

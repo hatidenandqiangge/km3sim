@@ -8,7 +8,6 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4Transform3D.hh"
 
-
 class KM3Hit : public G4VHit {
  public:
   KM3Hit();

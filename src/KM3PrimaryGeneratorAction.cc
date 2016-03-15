@@ -12,27 +12,13 @@
 KM3PrimaryGeneratorAction::KM3PrimaryGeneratorAction() {}
 
 KM3PrimaryGeneratorAction::~KM3PrimaryGeneratorAction() {
-  if (useHEPEvt && !useANTARESformat) delete HEPEvt;
-  if (useANTARESformat) delete antaresHEPEvt;
+  delete antaresHEPEvt;
 }
 
 void KM3PrimaryGeneratorAction::Initialize() {
-  if (useHEPEvt && !useANTARESformat)
-    HEPEvt = new G4HEPEvtInterface(filePythiaParticles);
-  if (useANTARESformat) {
-    antaresHEPEvt = new HOURSevtREAD(fileParticles);
-    nevents = antaresHEPEvt->GetNumberOfEvents();
-    useHEPEvt = antaresHEPEvt->IsNeutrinoEvent();
-  } else {
-    infile =
-        fopen(fileParticles, "r");  // it contains the number of events, the
-    // particle type, the vertex and
-    // momentum information
-    G4double runtime;
-    fscanf(infile, "%d %lf\n", &nevents, &runtime);
-  }
-  if (outfile == NULL && !useANTARESformat)
-    G4cout << "ERROR OUTFILE\n" << G4endl;
+  antaresHEPEvt = new HOURSevtREAD(fileParticles);
+  nevents = antaresHEPEvt->GetNumberOfEvents();
+  useHEPEvt = antaresHEPEvt->IsNeutrinoEvent();
 }
 
 // primary particle generation. Single, multiple (many vertexes) particles and
@@ -51,8 +37,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   G4double t0;  // initial time of injected particles(ns)
   ievent++;
   event_action->Initialize();
-  if (ievent == 1 && !useANTARESformat)
-    fprintf(outfile, "%d\n", nevents);  // write the number of events
   if (!useHEPEvt) {
     idtarget = 0;  // the target id is not relevant in case of injected
     // particles.
@@ -63,31 +47,17 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     pxneu = 0.0;
     pyneu = 0.0;
     pzneu = 0.0;  // or the neutrino momentum
-    if (!useANTARESformat) {
-      fprintf(outfile, "%d %d %d\n", ievent, idneu, idtarget);
-      fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e\n", xneu, yneu, zneu,
-              pxneu, pyneu, pzneu);
-    }
-    if (useANTARESformat) {
-      antaresHEPEvt->ReadEvent();
-      numberofParticles = antaresHEPEvt->GetNumberOfParticles();
-    } else
-      fscanf(infile, "%d\n", &numberofParticles);
+    antaresHEPEvt->ReadEvent();
+    numberofParticles = antaresHEPEvt->GetNumberOfParticles();
 
     // old code
     // ///////////////////////////////////////////////////////////////////////////////////////
     EventWeight = 1.0;
-    if (!useANTARESformat)
-      fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
     for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
       // define the particle object and properties from the particle PDG code
       // idbeam
-      if (useANTARESformat) {
-        antaresHEPEvt->GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0,
-                                       t0);
-      } else
-        fscanf(infile, "%d %lf %lf %lf %lf %lf %lf %lf\n", &idbeam, &xx0, &yy0,
-               &zz0, &pxx0, &pyy0, &pzz0, &t0);
+      antaresHEPEvt->GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0,
+                                     t0);
       G4PrimaryParticle *initialParticle =
           new G4PrimaryParticle(idbeam, pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
       G4PrimaryVertex *vertex = new G4PrimaryVertex(
@@ -100,9 +70,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
              << " pz0=" << pzz0 << " " << ievent << G4endl;
       // write the beam and target ids (PDG codes), the vertex (cm), momentum
       // (GeV/c)
-      if (!useANTARESformat)
-        fprintf(outfile, "%d %.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", idbeam, xx0,
-                yy0, zz0, pxx0, pyy0, pzz0, t0);
       if ((idbeam == 13) || (idbeam == -13)) {
         event_action->AddPrimaryNumber(ipart + 1);
       }
@@ -194,34 +161,18 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 
   else {
     t0 = 0.0;  // starting particle time is common in neutrino interaction
-    if (useANTARESformat) {
-      antaresHEPEvt->ReadEvent();
-      antaresHEPEvt->GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu,
-                                     pyneu, pzneu, t0);
-    } else
-      fscanf(infile, "%d %d %lf %lf %lf %lf %lf %lf\n", &idneu, &idtarget,
-             &xneu, &yneu, &zneu, &pxneu, &pyneu, &pzneu);
+    antaresHEPEvt->ReadEvent();
+    antaresHEPEvt->GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu,
+                                   pyneu, pzneu, t0);
     // Generate the Event (reads from Pythia output file)
-    if (useANTARESformat) {
-      antaresHEPEvt->GeneratePrimaryVertex(anEvent);
-    } else
-      HEPEvt->GeneratePrimaryVertex(anEvent);
+    antaresHEPEvt->GeneratePrimaryVertex(anEvent);
     // Change the position of the vertex of the event
     anEvent->GetPrimaryVertex(0)->SetPosition(xneu * cm, yneu * cm, zneu * cm);
     G4int numberofVertices = anEvent->GetNumberOfPrimaryVertex();
     numberofParticles = 0;
     for (G4int iv = 0; iv < numberofVertices; iv++)
       numberofParticles += anEvent->GetPrimaryVertex(iv)->GetNumberOfParticle();
-    if (!useANTARESformat) {
-      fprintf(outfile, "%d %d %d\n", ievent, idneu,
-              idtarget);  // write the event number (starting with 1) , the beam
-      // and target ids (PDG codes)
-      fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e\n", xneu, yneu, zneu,
-              pxneu, pyneu, pzneu);  // write the vertex (cm), momentum (GeV/c)
-    }
     EventWeight = 1.0;
-    if (!useANTARESformat)
-      fprintf(outfile, "%d %.6e\n", numberofParticles, EventWeight);
     G4int ipart = 0;
     for (G4int iv = 0; iv < numberofVertices; iv++) {
       for (G4int ip = 0;
@@ -230,10 +181,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         pxx0 = anEvent->GetPrimaryVertex(iv)->GetPrimary(ip)->GetPx() / GeV;
         pyy0 = anEvent->GetPrimaryVertex(iv)->GetPrimary(ip)->GetPy() / GeV;
         pzz0 = anEvent->GetPrimaryVertex(iv)->GetPrimary(ip)->GetPz() / GeV;
-        if (!useANTARESformat)
-          fprintf(outfile, "%d %.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", idbeam,
-                  xneu, yneu, zneu, pxx0, pyy0, pzz0,
-                  t0);  // vertex position is common in neutrino interaction
         if ((idbeam == 13) || (idbeam == -13)) {
           event_action->AddPrimaryNumber(ipart + 1);
         }
