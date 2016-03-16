@@ -18,10 +18,6 @@
 #include "G4MaterialPropertiesTable.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
 #include "KM3Detector.hh"
-// Class Description:
-// Continuous Process -- Generation of Cerenkov Photons.
-// Class inherits publicly from G4VDiscreteProcess.
-// Class Description - End:
 
 class KM3Cherenkov : public G4VProcess {
  public:
@@ -34,24 +30,31 @@ class KM3Cherenkov : public G4VProcess {
  private:
   KM3Cherenkov &operator=(const KM3Cherenkov &right);
 
- public:  // With description
+ public:
   void SetDetector(KM3Detector *);
 
+  // Returns true -> 'is applicable', for all charged particles. except
+  // short-lived particles.
   G4bool IsApplicable(const G4ParticleDefinition &aParticleType);
-  // Returns true -> 'is applicable', for all charged particles.
-  // except short-lived particles.
 
+  // Returns the discrete step limit and sets the 'StronglyForced' condition
+  // for the DoIt to be invoked at every step.
   G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition *);
-  // Returns the discrete step limit and sets the 'StronglyForced'
-  // condition for the DoIt to be invoked at every step.
 
+  // Returns the discrete step limit and sets the 'StronglyForced' condition
+  // for the DoIt to be invoked at every step.
   G4double PostStepGetPhysicalInteractionLength(const G4Track &aTrack, G4double,
                                                 G4ForceCondition *);
-  // Returns the discrete step limit and sets the 'StronglyForced'
-  // condition for the DoIt to be invoked at every step.
 
-  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
   // This is the method implementing the Cerenkov process.
+  // This routine is called for each tracking Step of a charged particle in a
+  // radiator. A Poisson-distributed number of photons is generated according
+  // to the Cerenkov formula, distributed evenly along the track segment and
+  // uniformly azimuth w.r.t. the particle direction. The parameters are then
+  // transformed into the Master Reference System, and they are added to the
+  // particle change.
+//
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
 
   //  no operation in  AtRestDoIt and  AlongStepDoIt
   virtual G4double AlongStepGetPhysicalInteractionLength(const G4Track &,
@@ -75,28 +78,26 @@ class KM3Cherenkov : public G4VProcess {
     return 0;
   };
 
+  // If set, the primary particle tracking is interrupted and any produced
+  // Cerenkov photons are tracked next. When all have been tracked, the
+  // tracking of the primary resumes.
   void SetTrackSecondariesFirst(const G4bool state);
-  // If set, the primary particle tracking is interrupted and any
-  // produced Cerenkov photons are tracked next. When all have
-  // been tracked, the tracking of the primary resumes.
 
+  // Set the maximum allowed change in beta = v/c in % (perCent) per step.
   void SetMaxBetaChangePerStep(const G4double d);
-  // Set the maximum allowed change in beta = v/c in % (perCent)
-  // per step.
 
-  void SetMaxNumPhotonsPerStep(const G4int NumPhotons);
-  // Set the maximum number of Cerenkov photons allowed to be
-  // generated during a tracking step. This is an average ONLY;
-  // the actual number will vary around this average. If invoked,
-  // the maximum photon stack will roughly be of the size set.
-  // If not called, the step is not limited by the number of
+  // Set the maximum number of Cerenkov photons allowed to be generated during
+  // a tracking step. This is an average ONLY; the actual number will vary
+  // around this average. If invoked, the maximum photon stack will roughly be
+  // of the size set. If not called, the step is not limited by the number of
   // photons generated.
+  void SetMaxNumPhotonsPerStep(const G4int NumPhotons);
 
-  G4PhysicsTable *GetPhysicsTable() const;
   // Returns the address of the physics table.
+  G4PhysicsTable *GetPhysicsTable() const;
 
-  void DumpPhysicsTable() const;
   // Prints the physics table.
+  void DumpPhysicsTable() const;
 
  private:
 #ifdef G4JUST_COUNT_PHOTONS
@@ -114,10 +115,9 @@ class KM3Cherenkov : public G4VProcess {
                                      G4MaterialPropertyVector *Rindex) const;
 
  protected:
+  //  A Physics Table can be either a cross-sections table or an energy table
+  //  (or can be used for other specific purposes).
   G4PhysicsTable *thePhysicsTable;
-  //  A Physics Table can be either a cross-sections table or
-  //  an energy table (or can be used for other specific
-  //  purposes).
 
  private:
   G4bool fTrackSecondariesFirst;
