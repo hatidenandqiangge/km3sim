@@ -36,12 +36,14 @@ KM3HAShowerModel *myHAShowerModel;
 #include "G4GeometryManager.hh"
 #include "CLHEP/Evaluator/Evaluator.h"
 
+
 KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();
   allStoreys = new std::vector<StoreysPositions *>;
   allOMs = new std::vector<OMPositions *>;
   allTowers = new std::vector<TowersPositions *>;  // new towers
 }
+
 KM3Detector::~KM3Detector() {
   // newgeant  sxp.Finalize();
   delete allCathods;
@@ -108,6 +110,7 @@ void KM3Detector::SetUpVariables() {
   NUMENTRIES = -10;
   NUMENTRIES_ANGLEACC = -10;
 
+  // Mie, water etc parameters
   if ((infile = fopen(Parameter_File, "r")) == NULL) {
     G4Exception("Error open input parameter file\n", "", FatalException, "");
   } else {
@@ -361,6 +364,7 @@ void KM3Detector::SetUpVariables() {
         G4Exception("Not a keyword I can recognize\n", "", FatalException, "");
     }
     fclose(infile);
+
     for (G4int i = 0; i < 18; i++) {
       if (readvalues[i] == 0) {
         switch (i) {
