@@ -1,0 +1,358 @@
+//
+// ********************************************************************
+// * DISCLAIMER                                                       *
+// *                                                                  *
+// * The following disclaimer summarizes all the specific disclaimers *
+// * of contributors to this software. The specific disclaimers,which *
+// * govern, are listed with their locations in:                      *
+// *   http://cern.ch/geant4/license                                  *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.                                                             *
+// *                                                                  *
+// * This  code  implementation is the  intellectual property  of the *
+// * GEANT4 collaboration.                                            *
+// * By copying,  distributing  or modifying the Program (or any work *
+// * based  on  the Program)  you indicate  your  acceptance of  this *
+// * statement, and all its terms.                                    *
+// ********************************************************************
+#include "KM3StackingAction.hh"
+#include "G4ios.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTypes.hh"
+#include "G4Track.hh"
+#include "G4UnitsTable.hh"
+#include "G4VProcess.hh"
+#include <math.h>
+#include "G4StackManager.hh"
+
+KM3StackingAction::KM3StackingAction() {
+#ifndef G4MYEM_PARAMETERIZATION
+#ifdef G4ENABLE_MIE
+#ifndef G4DISABLE_PARAMETRIZATION
+  // delta rays parametrization section. Works only for muons primaries (not for
+  // showers ve)
+  idprikeep = new std::vector<G4int>;
+  depenekeep = new std::vector<G4double>;
+  poskeep = new std::vector<G4ThreeVector>;
+  timekeep = new std::vector<G4double>;
+  myFlux = NULL;
+////////////////////////////////////
+#endif
+#endif
+#endif
+  ;
+}
+
+KM3StackingAction::~KM3StackingAction() { ; }
+
+//#############################################################################
+G4ClassificationOfNewTrack
+KM3StackingAction::ClassifyNewTrack(const G4Track *aTrack) {
+  G4double kineticEnergy;
+  G4ThreeVector x0;
+  G4ThreeVector p0;
+  G4ThreeVector distanceV;
+  G4double direction, distanceRho;
+
+  // tempo for range and energy dependance
+  //   if(aTrack->GetParentID()==0)return fUrgent;  //only the primary particle
+  //   else return fKill;
+  ///////////////////////////////////////
+
+  // the following was added to see the creator process of every particle (and
+  // rule out processes that are not likely to happen)
+  /*  if( (aTrack->GetParentID()!=0) &&
+  (aTrack->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition()) ){
+    G4String theCreatorProcess=aTrack->GetCreatorProcess()->GetProcessName();
+    if( (theCreatorProcess != "muIoni"  ) &&
+        (theCreatorProcess != "eBrem"   ) &&
+        (theCreatorProcess != "eIoni"   ) &&
+        (theCreatorProcess != "compt"   ) &&
+        (theCreatorProcess != "conv"    ) &&
+        (theCreatorProcess != "annihil" ) &&
+        (theCreatorProcess != "phot"    ) ){
+      G4String theParticleName=aTrack->GetDefinition()->GetParticleName();
+      G4cout << "The particle " << theParticleName << " created from " <<
+  theCreatorProcess <<" with kinetic energy " << kineticEnergy <<G4endl;
+    }
+  }
+  */
+  //----------------------------------------------------------------------------------------
+
+  if (aTrack->GetDefinition() !=
+      G4OpticalPhoton::OpticalPhotonDefinition()) { // first check that is not a
+                                                    // photon to save time
+    kineticEnergy = aTrack->GetKineticEnergy();
+
+    // threshold for electron cerenkov production (not applicable for positron
+    // due to anihhilation
+    if ((aTrack->GetDefinition()->GetParticleName() == "e-") &&
+        (kineticEnergy < 240 * keV))
+      return fKill;
+    // threshold for gamma potentially absorbed by an atomic electron
+    if ((aTrack->GetDefinition()->GetParticleName() == "gamma") &&
+        (kineticEnergy < 240 * keV))
+      return fKill;
+
+    x0 = aTrack->GetPosition();
+    p0 = aTrack->GetMomentumDirection();
+    distanceV = x0 - MyStDetector->detectorCenter;
+    distanceRho =
+        sqrt(distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1]);
+
+    // if the particle is not muon and is created outside the can kill it
+    if (aTrack->GetDefinition() != G4MuonPlus::MuonPlusDefinition() &&
+        aTrack->GetDefinition() != G4MuonMinus::MuonMinusDefinition()) {
+      if ((x0[2] < MyStDetector->bottomPosition) ||
+          (distanceRho > MyStDetector->detectorMaxRho) ||
+          (x0[2] > MyStDetector->detectorMaxz))
+        return fKill;
+#ifndef G4MYEM_PARAMETERIZATION
+#ifdef G4ENABLE_MIE
+#ifndef G4DISABLE_PARAMETRIZATION
+      // delta rays parametrization section. Works only for muons primaries (not
+      // for showers ve)
+      // kill e- from muIoni and keep position and deposited energy information
+      if ((aTrack->GetCreatorProcess()->GetProcessName() == "muIoni") &&
+          (kineticEnergy < 31.6)) { // delta rays up to 31.6MeV kinene
+        // save point and energy deposited above threshold
+        idprikeep->push_back(aTrack->GetParentID());
+        depenekeep->push_back(kineticEnergy - 0.24);
+        poskeep->push_back(x0);
+        timekeep->push_back(aTrack->GetGlobalTime());
+        if (indexkeep == 0) {
+          return fWaiting; // i do this in order to add the hits of the delta
+                           // rays at the end of the event
+          indexkeep = 1;
+        } else
+          return fKill;
+      }
+////////////////////////////////////
+#endif
+#endif
+#endif
+      return fUrgent;
+    } else { // if it is a muon kill it only if is not going to cross the can
+      if ((x0[2] < MyStDetector->bottomPosition) && (p0[2] < 0))
+        return fKill; // goes down while below the can
+      if ((x0[2] > MyStDetector->detectorMaxz) && (p0[2] > 0))
+        return fKill; // goes up while above the can
+      direction = p0[0] * distanceV[0] + p0[1] * distanceV[1];
+      if ((distanceRho > MyStDetector->detectorMaxRho) && (direction > 0))
+        return fKill; // goes away while outside the can
+
+      // first check if it is inside the can
+      G4double RRR2 =
+          MyStDetector->detectorMaxRho * MyStDetector->detectorMaxRho;
+      G4double rxy2 = x0[0] * x0[0] + x0[1] * x0[1];
+      if ((rxy2 < RRR2) && (x0[2] > MyStDetector->bottomPosition) &&
+          (x0[2] < MyStDetector->detectorMaxz)) {
+        return fUrgent;
+      }
+      G4double Tbottom = (MyStDetector->bottomPosition - x0[2]) / p0[2];
+      if (Tbottom > 0) {
+        G4double Xbottom =
+            x0[0] + Tbottom * p0[0] - MyStDetector->detectorCenter[0];
+        G4double Ybottom =
+            x0[1] + Tbottom * p0[1] - MyStDetector->detectorCenter[1];
+        G4double dRhoBottom = Xbottom * Xbottom + Ybottom * Ybottom;
+        if (dRhoBottom < RRR2)
+          return fUrgent;
+      }
+      G4double Ttop = (MyStDetector->detectorMaxz - x0[2]) / p0[2];
+      if (Ttop > 0) {
+        G4double Xtop = x0[0] + Ttop * p0[0] - MyStDetector->detectorCenter[0];
+        G4double Ytop = x0[1] + Ttop * p0[1] - MyStDetector->detectorCenter[1];
+        G4double dRhoTop = Xtop * Xtop + Ytop * Ytop;
+        if (dRhoTop < RRR2)
+          return fUrgent;
+      }
+      G4double a = p0[0] * p0[0] + p0[1] * p0[1];
+      G4double b = x0[0] * p0[0] + x0[1] * p0[1];
+      G4double c = x0[0] * x0[0] + x0[1] * x0[1] - RRR2;
+      G4double dia = b * b - a * c;
+      if (dia > 0) {
+        dia = sqrt(dia);
+        G4double SideDist1 = (-b - dia) / a;
+        G4double sidez1 = x0[2] + SideDist1 * p0[2];
+        if ((sidez1 > MyStDetector->bottomPosition) &&
+            (sidez1 < MyStDetector->detectorMaxz) && (SideDist1 > 0))
+          return fUrgent;
+        G4double SideDist2 = (-b + dia) / a;
+        G4double sidez2 = x0[2] + SideDist2 * p0[2];
+        if ((sidez2 > MyStDetector->bottomPosition) &&
+            (sidez2 < MyStDetector->detectorMaxz) && (SideDist2 > 0))
+          return fUrgent;
+      }
+      return fKill;
+    }
+  }
+  return fUrgent;
+}
+
+#ifndef G4MYEM_PARAMETERIZATION
+#ifdef G4ENABLE_MIE
+#ifndef G4DISABLE_PARAMETRIZATION
+
+#include "KM3SD.hh"
+#include "G4SDManager.hh"
+#include "KM3Cherenkov.hh"
+#include "G4ProcessTable.hh"
+
+#endif
+#endif
+#endif
+
+void KM3StackingAction::NewStage() {
+#ifndef G4MYEM_PARAMETERIZATION
+#ifdef G4ENABLE_MIE
+#ifndef G4DISABLE_PARAMETRIZATION
+  // delta rays parametrization section. Works only for muons primaries (not for
+  // showers ve)
+  // initialization for the group velocity at maximum qe and MySD pointer
+  static G4double thespeedmaxQE = -1.0;
+  static KM3SD *aMySD = NULL;
+  if (thespeedmaxQE < 0) {
+    G4Material *aMaterial = G4Material::GetMaterial("Cathod");
+    G4double MaxQE = -1;
+    G4double PhEneAtMaxQE;
+    G4MaterialPropertyVector *aPropertyVector =
+        aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
+    aPropertyVector->ResetIterator();
+    while (++*aPropertyVector) {
+      G4double ThisQE = aPropertyVector->GetProperty();
+      G4double ThisPhEne = aPropertyVector->GetPhotonMomentum();
+      if (ThisQE > MaxQE) {
+        MaxQE = ThisQE;
+        PhEneAtMaxQE = ThisPhEne;
+      }
+    }
+    aMaterial = G4Material::GetMaterial("Water");
+    G4MaterialPropertyVector *GroupVel =
+        aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+    thespeedmaxQE =
+        GroupVel->GetProperty(PhEneAtMaxQE); // coresponds to the maximum qe
+                                             // each time. This is the right one
+    G4SDManager *SDman = G4SDManager::GetSDMpointer();
+    aMySD = (KM3SD *)SDman->FindSensitiveDetector(G4String("mydetector1/MySD"),
+                                                  true);
+    myFlux = new KM3EMDeltaFlux(MyStDetector->EMParametrization_FILE,
+                                MyStDetector->Quantum_Efficiency,
+                                MyStDetector->TotCathodArea);
+  }
+  // end of initialization
+  static G4int originalTrackCreatorProcess = 2; // it is always muIoni
+  static G4int TotalNumberOfOMs = MyStDetector->allOMs->size();
+  static G4double distbin2 =
+      (20.0 * cm) *
+      (20.0 * cm); // is the distance binning in the delta rays for gathering
+  size_t arraysize = idprikeep->size();
+  G4cout << "----------- size from stacking ----------- " << arraysize
+         << G4endl;
+  size_t counter = 0;
+  while (counter < arraysize) {
+    G4int idpri = (*idprikeep)[counter];
+    while ((counter < arraysize) && (idpri == (*idprikeep)[counter])) {
+      G4int originalInfo = ((*idprikeep)[counter] - 1) * 10 +
+                           originalTrackCreatorProcess; // to write in MySD
+      G4ThreeVector p0(0.0, 0.0, 0.0);
+      G4ThreeVector pospri = (*poskeep)[counter];
+      G4double depene = 0.0;
+      G4ThreeVector thispos(0.0, 0.0, 0.0);
+      G4double thistime = 0.0;
+      while ((counter < arraysize) &&
+             ((pospri - (*poskeep)[counter]).mag2() < distbin2)) {
+        depene += (*depenekeep)[counter];
+        thispos += (*depenekeep)[counter] * (*poskeep)[counter];
+        thistime += (*depenekeep)[counter] * (*timekeep)[counter];
+        counter++;
+      }
+      G4ThreeVector p0this = (*poskeep)[counter - 1] - pospri;
+      if (p0this.mag2() > 0.0)
+        p0 = p0this;
+      G4double step = p0.mag();
+      if (step > 0.0) {
+        p0 /= step;
+        thispos /= depene;
+        thistime /= depene;
+        for (int io = 0; io < TotalNumberOfOMs; io++) {
+          G4ThreeVector FromGeneToOM =
+              (*MyStDetector->allOMs)[io]->position - thispos;
+          G4double distancein = FromGeneToOM.mag();
+          FromGeneToOM /= distancein;
+          if (distancein < MyStDetector->MaxAbsDist) {
+            G4int icstart = (*(*MyStDetector->allOMs)[io]->CathodsIDs)[0];
+            G4int icstop =
+                1 + (*(*MyStDetector->allOMs)[io]->CathodsIDs)
+                        [(*MyStDetector->allOMs)[io]->CathodsIDs->size() - 1];
+            G4double anglein = p0.dot(FromGeneToOM);
+            myFlux->FindBins(depene, distancein, anglein); // here change
+            G4int NumberOfSamples = myFlux->GetNumberOfSamples(); // here change
+            G4double theFastTime = distancein / thespeedmaxQE + thistime;
+            G4ThreeVector z = FromGeneToOM;
+            G4ThreeVector y = p0.cross(z) / (1.0 - anglein * anglein);
+            G4ThreeVector x = y.cross(z);
+            for (G4int isa = 0; isa < NumberOfSamples; isa++) {
+              onePE aPE = myFlux->GetSamplePoint();
+              G4double costh = aPE.costh; // here change
+              G4double sinth = sqrt(1.0 - costh * costh);
+              G4double cosphi = cos(aPE.phi); // here change
+              G4double sinphi = sin(aPE.phi); // here change
+              G4ThreeVector photonDirection =
+                  -(sinth * (cosphi * x + sinphi * y) + costh * z);
+              G4double angleThetaDirection = photonDirection.theta();
+              G4double anglePhiDirection = photonDirection.phi();
+              angleThetaDirection *= 180. / M_PI;
+              anglePhiDirection *= 180. / M_PI;
+              if (anglePhiDirection < 0.0)
+                anglePhiDirection += 360.0;
+              G4int angleDirection =
+                  (G4int)(nearbyint(angleThetaDirection) * 1000.0 +
+                          nearbyint(anglePhiDirection));
+              G4int ic = G4int(icstart + (icstop - icstart) * G4UniformRand());
+              aMySD->InsertExternalHit(ic, theFastTime + aPE.time, originalInfo,
+                                       angleDirection, -997);
+            } // for(G4int isa=0 ; isa<NumberOfSamples ; isa++){
+          } // if(distancein<MyStDetector->MaxAbsDist){
+        } // for(int io=0;io<TotalNumberOfOMs;io++){
+      } // if(step > 0.0){
+    } // while( idpri == (*idprikeep)[counter] ){
+  } // while (counter<arraysize){
+  stackManager
+      ->clear(); // delete all waiting tracks from delta rays and end the event
+  ////////////////////////////////////
+  // section direct ch-photons
+  static KM3Cherenkov *myCher = NULL;
+  if (myCher == NULL) {
+    myCher = (KM3Cherenkov *)(G4ProcessTable::GetProcessTable()->FindProcess(
+        "KM3Cherenkov", "mu-"));
+  }
+  myCher->CreateDirectPhotons();
+///////////////////////////////////
+#endif
+#endif
+#endif
+}
+
+void KM3StackingAction::PrepareNewEvent() {
+#ifndef G4MYEM_PARAMETERIZATION
+#ifdef G4ENABLE_MIE
+#ifndef G4DISABLE_PARAMETRIZATION
+  // delta rays parametrization section. Works only for muons primaries (not for
+  // showers ve)
+  indexkeep = 0;
+  idprikeep->clear();
+  depenekeep->clear();
+  poskeep->clear();
+  timekeep->clear();
+////////////////////////////////////
+#endif
+#endif
+#endif
+}
+
+void KM3StackingAction::SetDetector(KM3Detector *adet) { MyStDetector = adet; }

@@ -1,0 +1,41 @@
+#ifndef KM3OpticalPhotonInfo_h
+#define KM3OpticalPhotonInfo_h 1
+
+#include "globals.hh"
+#include "G4Track.hh"
+#include "G4Allocator.hh"
+#include "G4VUserTrackInformation.hh"
+
+class KM3OpticalPhotonInfo : public G4VUserTrackInformation {
+public:
+  KM3OpticalPhotonInfo(const G4Track *aTrack);
+  virtual ~KM3OpticalPhotonInfo();
+
+  inline void *operator new(size_t);
+  inline void operator delete(void *aTrackInfo);
+  inline int operator==(const KM3OpticalPhotonInfo &right) const {
+    return (this == &right);
+  }
+
+  void Print() const;
+
+private:
+  G4ThreeVector GenerationPoint;
+
+public:
+  inline G4ThreeVector GetGenerationPoint() const { return GenerationPoint; }
+};
+
+extern G4Allocator<KM3OpticalPhotonInfo> aTrackInformationAllocator;
+
+inline void *KM3OpticalPhotonInfo::operator new(size_t) {
+  void *aTrackInfo;
+  aTrackInfo = (void *)aTrackInformationAllocator.MallocSingle();
+  return aTrackInfo;
+}
+
+inline void KM3OpticalPhotonInfo::operator delete(void *aTrackInfo) {
+  aTrackInformationAllocator.FreeSingle((KM3OpticalPhotonInfo *)aTrackInfo);
+}
+
+#endif

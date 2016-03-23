@@ -1,0 +1,173 @@
+#include "KM3EMTimePointDis.hh"
+#include "Randomize.hh"
+
+KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
+  keepDis = new std::vector<G4float>;
+  keepDis->reserve(5772);
+  keepExpoCTh2 = new std::vector<G4float>;
+  keepExpoCTh2->reserve(52);
+  keepExpoTh3 = new std::vector<G4float>;
+  keepExpoTh3->reserve(52);
+  keepTh2Th3Num = new std::vector<G4float>;
+  keepTh2Th3Num->reserve(52);
+  G4float val;
+  char valC[4];
+  infile.read(valC, 4);
+  angle = double(*(float *)valC);
+  infile.read(valC, 4);
+  Flux = double(*(float *)valC);
+  infile.read(valC, 4);
+  FluxRMS = double(*(float *)valC);
+  if (FluxRMS <= 0.0)
+    FluxRMS = sqrt(Flux);
+  FluxRMS = FluxRMS * FluxRMS;
+  Flux = log(Flux);
+  FluxRMS = log(FluxRMS);
+  for (G4int i = 0; i < 52; i++) {
+    infile.read(valC, 4);
+    val = *(float *)valC;
+    keepTh2Th3Num->push_back(val);
+    infile.read(valC, 4);
+    val = *(float *)valC;
+    keepExpoCTh2->push_back(val);
+    infile.read(valC, 4);
+    val = *(float *)valC;
+    keepExpoTh3->push_back(val);
+  }
+  for (G4int i = 0; i < 5772; i++) {
+    infile.read(valC, 4);
+    val = *(float *)valC;
+    keepDis->push_back(val);
+  }
+  //  phi2=pi/2;
+  //  phi3=pi/3;
+  //  phi4=pi/4;
+  //  phi5=pi/5;
+  //  phi6=pi/6;
+  pi2 = 2.0 * pi;
+  ok = ((*keepDis)[5771] > 0.99);
+  if (ok)
+    IsThisValid = true;
+  else {
+    IsThisValid = false;
+    keepDis->clear();
+    delete keepDis;
+    keepDis = NULL;
+  }
+}
+KM3EMTimePointDis::~KM3EMTimePointDis() {
+  if (keepDis != NULL) {
+    keepDis->clear();
+    delete keepDis;
+    keepDis = NULL;
+  }
+}
+
+// gives the random values. Sampling based on sorting the pdf
+onePE KM3EMTimePointDis::GetSamplePoint() {
+  onePE aPE;
+  G4double time;
+  G4double costh;
+  G4double phi;
+  if (!IsThisValid)
+    G4Exception("Error sampling point and time for null distribution\n", "",
+                FatalException, "");
+  // first we sample a direction point using the cumulative keepTh2Th3Num [0-51]
+  G4double rrr = G4UniformRand();
+  G4int cang23bin;
+  for (cang23bin = 0; cang23bin < 52; cang23bin++) {
+    if (rrr < (*keepTh2Th3Num)[cang23bin])
+      break;
+  }
+  rrr = G4UniformRand();
+  G4int ibint;
+  for (ibint = 111 * cang23bin; ibint < 111 * cang23bin + 111; ibint++) {
+    if (rrr < (*keepDis)[ibint])
+      break;
+  }
+  ibint -= cang23bin * 111;
+  if (ibint < 40)
+    time = double(ibint) * 0.5 - 10.0 + G4UniformRand() * 0.5;
+  else if (ibint < 60)
+    time = double(ibint - 40) + 10.0 + G4UniformRand();
+  else if (ibint < 80)
+    time = double(ibint - 60) * 3.0 + 30.0 + G4UniformRand() * 3.0;
+  else if (ibint < 90)
+    time = double(ibint - 80) * 11.0 + 90.0 + G4UniformRand() * 11.0;
+  else if (ibint < 106)
+    time = double(ibint - 90) * 50.0 + 200.0 + G4UniformRand() * 50.0;
+  else
+    time = double(ibint - 106) * 200.0 + 1000.0 + G4UniformRand() * 200.0;
+
+  static double mincth2[52] = {
+      0.997, 0.997, 0.997, 0.994, 0.994, 0.994, 0.990, 0.990, 0.990,
+      0.985, 0.985, 0.985, 0.980, 0.980, 0.980, 0.970, 0.970, 0.970,
+      0.950, 0.950, 0.950, 0.925, 0.925, 0.925, 0.925, 0.900, 0.900,
+      0.900, 0.900, 0.800, 0.800, 0.800, 0.800, 0.800, 0.700, 0.700,
+      0.700, 0.700, 0.600, 0.600, 0.600, 0.450, 0.450, 0.450, 0.000,
+      0.000, 0.000, -0.40, -0.40, -0.40, -0.80, -1.00};
+  static double maxcth2[52] = {
+      1.000, 1.000, 1.000, 0.997, 0.997, 0.997, 0.994, 0.994, 0.994,
+      0.990, 0.990, 0.990, 0.985, 0.985, 0.985, 0.980, 0.980, 0.980,
+      0.970, 0.970, 0.970, 0.950, 0.950, 0.950, 0.950, 0.925, 0.925,
+      0.925, 0.925, 0.900, 0.900, 0.900, 0.900, 0.900, 0.800, 0.800,
+      0.800, 0.800, 0.700, 0.700, 0.700, 0.600, 0.600, 0.600, 0.450,
+      0.450, 0.450, 0.000, 0.000, 0.000, -0.40, -0.80};
+  static double minth3[52] = {
+      0.00, 55.0, 105., 0.00, 45.0, 110., 0.00, 45.0, 110., 0.00, 45.0,
+      95.0, 0.00, 45.0, 120., 0.00, 45.0, 110., 0.00, 40.0, 75.0, 0.00,
+      30.0, 45.0, 95.0, 0.00, 40.0, 75.0, 110., 0.00, 30.0, 45.0, 85.0,
+      145., 0.00, 40.0, 75.0, 115., 0.00, 40.0, 95.0, 0.00, 45.0, 85.0,
+      0.00, 40.0, 110., 0.00, 65.0, 120., 0.00, 0.00};
+  static double maxth3[52] = {
+      55.0, 105., 180., 45.0, 110., 180., 45.0, 110., 180., 45.0, 95.0,
+      180., 45.0, 120., 180., 45.0, 110., 180., 40.0, 75.0, 180., 30.0,
+      45.0, 95.0, 180., 40.0, 75.0, 110., 180., 30.0, 45.0, 85.0, 145.,
+      180., 40.0, 75.0, 115., 180., 40.0, 95.0, 180., 45.0, 85.0, 180.,
+      40.0, 110., 180., 65.0, 120., 180., 180., 180.};
+
+  // first sample a costh
+  double minval = mincth2[cang23bin];
+  double maxval = maxcth2[cang23bin];
+  double param = (*keepExpoCTh2)[cang23bin];
+  if (fabs(param) > 1.0e-6) {
+    double dm = param * (maxval - minval);
+    if (dm < 700.0)
+      costh =
+          minval + (1.0 / param) * log(1.0 + G4UniformRand() * (exp(dm) - 1.0));
+    else {
+      double rrr = G4UniformRand();
+      if (rrr > 0.0)
+        costh = maxval + log(rrr) / param;
+      else
+        costh = minval;
+    }
+  } else
+    costh = minval + G4UniformRand() * (maxval - minval);
+  // next sample a phi
+  minval = minth3[cang23bin];
+  maxval = maxth3[cang23bin];
+  param = (*keepExpoTh3)[cang23bin];
+  if (fabs(param) > 1.0e-6) {
+    double dm = param * (maxval - minval);
+    if (dm < 700.0)
+      phi =
+          minval + (1.0 / param) * log(1.0 + G4UniformRand() * (exp(dm) - 1.0));
+    else {
+      double rrr = G4UniformRand();
+      if (rrr > 0.0)
+        phi = maxval + log(rrr) / param;
+      else
+        phi = minval;
+    }
+  } else
+    phi = minval + G4UniformRand() * (maxval - minval);
+
+  phi *= pi / 180.0; // lookout supposed for expo distributions with degrees
+  if (G4UniformRand() < 0.5)
+    phi = pi2 - phi;
+  aPE.time = time;
+  aPE.costh = costh;
+  aPE.phi = phi;
+  return aPE;
+}

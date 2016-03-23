@@ -1,0 +1,97 @@
+//
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
+// * the Geant4 Collaboration.  It is provided  under  the terms  and *
+// * conditions of the Geant4 Software License,  included in the file *
+// * LICENSE and available at  http://cern.ch/geant4/license .  These *
+// * include a list of copyright holders.                             *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
+// ********************************************************************
+//
+//
+// $Id: G4UserEventAction.cc,v 1.7 2006/06/29 18:10:31 gunter Exp $
+// GEANT4 tag $Name: geant4-08-01-patch-01 $
+//
+
+#include "KM3EventAction.hh"
+#include "G4Event.hh"
+#include "G4EventManager.hh"
+#include "G4ParticleTable.hh"
+#include "globals.hh"
+
+void KM3EventAction::BeginOfEventAction(const G4Event *) {
+  if (!(G4ParticleTable::GetParticleTable()->GetReadiness())) {
+    G4String msg;
+    msg = " You are instantiating G4UserEventAction BEFORE your\n";
+    msg += "G4VUserPhysicsList is instantiated and assigned to G4RunManager.\n";
+    msg += " Such an instantiation is prohibited by Geant4 version 8.0. To fix "
+           "this problem,\n";
+    msg += "please make sure that your main() instantiates G4VUserPhysicsList "
+           "AND\n";
+    msg += "set it to G4RunManager before instantiating other user action "
+           "classes\n";
+    msg += "such as G4UserEventAction.";
+    G4Exception("G4UserEventAction::G4UserEventAction()", "Event0001",
+                FatalException, msg);
+  }
+  centerMomentum.clear();
+  enterMomentum.clear();
+  leaveMomentum.clear();
+  centerPosition.clear();
+  enterPosition.clear();
+  leavePosition.clear();
+  centerTime.clear();
+  enterTime.clear();
+  leaveTime.clear();
+
+  G4ThreeVector vzero;
+  G4double izero;
+  izero = 0.0;
+  for (G4int ip = 0; ip < numofInitialParticles; ip++) {
+    centerMomentum.push_back(vzero);
+    enterMomentum.push_back(vzero);
+    leaveMomentum.push_back(vzero);
+    centerPosition.push_back(vzero);
+    enterPosition.push_back(vzero);
+    leavePosition.push_back(vzero);
+    centerTime.push_back(izero);
+    enterTime.push_back(izero);
+    leaveTime.push_back(izero);
+  }
+}
+
+void KM3EventAction::EndOfEventAction(const G4Event *) {
+  // write the momentums, positions and times to out file
+  for (G4int ip = 0; ip < numofInitialParticles; ip++) {
+    fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n",
+            (enterPosition[ip])[0] / cm, (enterPosition[ip])[1] / cm,
+            (enterPosition[ip])[2] / cm, (enterMomentum[ip])[0] / GeV,
+            (enterMomentum[ip])[1] / GeV, (enterMomentum[ip])[2] / GeV,
+            (enterTime[ip]) / second);
+    fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n",
+            (centerPosition[ip])[0] / cm, (centerPosition[ip])[1] / cm,
+            (centerPosition[ip])[2] / cm, (centerMomentum[ip])[0] / GeV,
+            (centerMomentum[ip])[1] / GeV, (centerMomentum[ip])[2] / GeV,
+            (centerTime[ip]) / second);
+    fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.7e\n",
+            (leavePosition[ip])[0] / cm, (leavePosition[ip])[1] / cm,
+            (leavePosition[ip])[2] / cm, (leaveMomentum[ip])[0] / GeV,
+            (leaveMomentum[ip])[1] / GeV, (leaveMomentum[ip])[2] / GeV,
+            (leaveTime[ip]) / second);
+  }
+}

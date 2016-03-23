@@ -1,0 +1,34 @@
+The HOURS simulation package consists of various subpackages
+The following are included in the present folder:
+--The package in the folder "run1_ver4" is a front end to the GEANT4 kit
+  There the particles from the generation are read, transported and the produced
+  Cherenkov photons hit the PMTs. The input and output of the program is in
+  evt file format (if the apropriate command line argument is used). The output
+  hits correspond to the photoelectrons produced by the photocathode, 
+  and the QE vs wavelength and PMT effective area vs incident angle are
+  taken into account. But TTS, PMT charge responce, Threshold considerations 
+  and Collection Efficiency are not included. This is done by the following
+  package. The package is compiled with "make -f GNUmakefile". The program 
+  is the "run1_ver4/WORK/bin/Linux-g++/KM3Sim". 
+  To run it you must have set the right path to the libraries
+  "LD_LIBRARY_PATH". An example running script is the
+  "/sps/km3net/users/tsirigot/ORCARunDense/runsim.sh" (not batch job, just interactive run)
+
+
+--The package in the folder "OmSimulation" reads the file from the previous 
+  program, takes into account Collection Efficiency, TTS, PMT charge responce, 
+  Threshold values, PMT pulse characteristics and produces hits. Each hit 
+  is a pulse with certain charge, when this pulse is above the predefined
+  threshold. The hit time is the time the rising edge of the pulse exceeds
+  the threshold. Each hit may correspond to many pes.
+  This package also includes in the output file hits that are produced by
+  K40 noise, correlated and uncorrelated. The package is compiled by just 
+  running the script "./MyCompile.sh" in the package folder. The output program 
+  is called OmSim and to run it you must have set the right path to the libraries
+  "LD_LIBRARY_PATH". An example running script is the 
+  "/sps/km3net/users/tsirigot/ORCARunDense/runsimom.sh" (not batch job, just interactive run)
+
+  Both of the above packages use the ANTARES package included in the folder 
+  "v1r12seawiet" to read and write evt files.
+  The first package uses the GEANT4 installation included in the folder 
+  "geant4.9.5.p02-install"
