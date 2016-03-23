@@ -79,3 +79,5 @@ Thumbs.db
 *.hdf5
 *.root
 *.evt
+
+.svn/*
