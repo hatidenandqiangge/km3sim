@@ -5,11 +5,6 @@
 #include "G4VUserDetectorConstruction.hh"
 #include "KM3SD.hh"
 #include "KM3StackingAction.hh"
-#include "KM3EMShowerModel.hh"  //apostolis parametrization
-KM3EMShowerModel *myEMShowerModel;
-
-#include "KM3HAShowerModel.hh"  //apostolis parametrization
-KM3HAShowerModel *myHAShowerModel;
 
 #include "globals.hh"
 #include "G4Material.hh"
@@ -42,6 +37,7 @@ KM3Detector::KM3Detector() {
   allOMs = new std::vector<OMPositions *>;
   allTowers = new std::vector<TowersPositions *>;  // new towers
 }
+
 KM3Detector::~KM3Detector() {
   // newgeant  sxp.Finalize();
   delete allCathods;
@@ -69,9 +65,6 @@ KM3Detector::~KM3Detector() {
   }
   allTowers->clear();
   delete allTowers;
-
-  delete myEMShowerModel;
-  delete myHAShowerModel;
 }
 
 void KM3Detector::FindDetectorRadius() {
@@ -108,6 +101,7 @@ void KM3Detector::SetUpVariables() {
   NUMENTRIES = -10;
   NUMENTRIES_ANGLEACC = -10;
 
+  // Mie, water etc parameters
   if ((infile = fopen(Parameter_File, "r")) == NULL) {
     G4Exception("Error open input parameter file\n", "", FatalException, "");
   } else {
@@ -361,6 +355,7 @@ void KM3Detector::SetUpVariables() {
         G4Exception("Not a keyword I can recognize\n", "", FatalException, "");
     }
     fclose(infile);
+
     for (G4int i = 0; i < 18; i++) {
       if (readvalues[i] == 0) {
         switch (i) {
@@ -676,11 +671,9 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       G4double InnerRadius =
           ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
               ->GetInnerRadius();
+      // applicable mainly to shell type cathods (EM)
       if ((CathodRadius - InnerRadius) < 1.001 * mm)
-        CathodRadius =
-            0.5 *
-            (CathodRadius +
-             InnerRadius);  // applicable mainly to shell type cathods (EM)
+        CathodRadius = 0.5 * (CathodRadius + InnerRadius);
     } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
                G4String("G4Tubs")) {
       CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
@@ -825,18 +818,18 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // detectors
   G4LogicalVolume *aLogicalVolume;
   std::vector<G4LogicalVolume *> *aLogicalStore;
-  G4String aString1("CathodVolume");
-  G4String aString2("DeadVolume");
+  G4String cathVol("CathodVolume");
+  G4String deadVol("DeadVolume");
   size_t theSize = G4LogicalVolumeStore::GetInstance()->size();
   aLogicalStore = G4LogicalVolumeStore::GetInstance();
   for (size_t i = 0; i < theSize; i++) {
     aLogicalVolume = (*aLogicalStore)[i];
 
     ////////////////////////////////////////////////////
-    //    if( (aLogicalVolume->GetName() == aString1) ||
-    //    (aLogicalVolume->GetName() == aString2) ){
-    if (((aLogicalVolume->GetName()).contains(aString1)) ||
-        ((aLogicalVolume->GetName()).contains(aString2))) {
+    //    if( (aLogicalVolume->GetName() == cathVol) ||
+    //    (aLogicalVolume->GetName() == deadVol) ){
+    if (((aLogicalVolume->GetName()).contains(cathVol)) ||
+        ((aLogicalVolume->GetName()).contains(deadVol))) {
       aLogicalVolume->SetSensitiveDetector(aMySD);
     }
   }

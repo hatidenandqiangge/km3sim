@@ -32,11 +32,15 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double highestStorey;
   G4double outerStorey;
   G4double detectorRadius;
-  G4double
-      detectorMaxz;  // this is the maximum vertical distance of the storeys
+
+  // this is the maximum vertical distance of the storeys
   // from the center plus a number of absorpion lengths
-  G4double detectorMaxRho;  // this is the maximum orizontal distance of the
+  G4double detectorMaxz;
+
+  // this is the maximum orizontal distance of the
   // storeys plus a number of absorption lengths
+  G4double detectorMaxRho;
+
   std::vector<StoreysPositions *> *allStoreys;
   std::vector<OMPositions *> *allOMs;
   std::vector<TowersPositions *> *allTowers;  // new towers
