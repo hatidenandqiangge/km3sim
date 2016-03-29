@@ -1,4 +1,3 @@
-//
 #include "KM3SD.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
@@ -16,25 +15,27 @@ KM3SD::~KM3SD() {}
 
 void KM3SD::Initialize(G4HCofThisEvent *HCE) {
   MyCollection =
-      new KM3HitsCollection(SensitiveDetectorName, collectionName[0]);
+    new KM3HitsCollection(SensitiveDetectorName, collectionName[0]);
 }
 
 G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
-  //  G4cout<< aStep->GetTrack()->GetDefinition()->GetParticleName()<<G4endl;
+  // this may have to change (do not kill every particle on the
+  // photocathod)
   if (aStep->GetTrack()->GetDefinition()->GetParticleName() !=
-      "opticalphoton")  // this may have to change (do not kiil every particle
-                        // on
-                        // the photocathod)
+      "opticalphoton")
   {
-    //    aStep->GetTrack()->SetTrackStatus(fStopAndKill);   //kill every
-    //    particle except photons that hit the cathod or dead part of OM
-    //    G4cout<<"STOPPED"<<" particle "<<
-    //    aStep->GetTrack()->GetDefinition()->GetParticleName() <<G4endl;
+    // kill every particle except photons that hit the cathod or dead
+    // part of OM
+    // aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+    // G4cout<<"STOPPED"<<" particle "<<
+    // aStep->GetTrack()->GetDefinition()->GetParticleName() <<G4endl;
     return false;
   }
 
-  // next kill photons that are incident on the back end of the pmt. The
-  // definition of deadvolume is obsolete. so the following never happens
+  // next kill photons that are incident on the back end of the pmt.
+  // The definition of deadvolume is obsolete. so the following never
+  //
+  // happens
   //  if
   //  (aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()=="DeadVolume_PV")
   //  //for newgeant  add "_PV" at the end of physical volume name
@@ -53,48 +54,46 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   }
 
   // comment about the fit,em,ha parametrizations
-  // In case that the Cathod is composed by water, there is a possibility that
-  // the photon is scatered inside the Cathod. In this case the hit is double in
-  // this Cathod. When it enters and when it leaves. In the setup with ~105000
-  // cathods this increases the hit count by 0.2% when we have 60m scaterin
-  // length and 0.6% when we have 20m scattering length. This is negligible and
-  // I
-  // dont take this into account.
+  // In case that the Cathod is composed by water, there is a
+  // possibility that the photon is scatered inside the Cathod. In this
+  // case the hit is double in this Cathod. When it enters and when it
+  // leaves. In the setup with ~105000 cathods this increases the hit
+  // count by 0.2% when we have 60m scaterin length and 0.6% when we
+  // have 20m scattering length. This is negligible and I dont take this
+  // into account.
   if (MyCollection->entries() < 10000000) {
     G4ThreeVector photonDirection = aStep->GetTrack()->GetMomentumDirection();
 
     // newmie
-    // here we disgard photons that have been scattered and are created with
-    // parametrization also in KM3Cherenkov this for parametrization running.
-    // Not
-    // anymore, since these are killed in the G4OpMie scattering process
+    // here we disgard photons that have been scattered and are
+    // created with parametrization also in KM3Cherenkov this for
+    // parametrization running. Not anymore, since these are killed in
+    // the G4OpMie scattering process
     KM3TrackInformation *info = NULL;
 
-    /////next is new cathod id finding mode/////
+    // next is new cathod id finding mode
     G4int Depth = aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
     G4int History[10];
     for (G4int idep = 0; idep < Depth; idep++) {
       History[idep] =
-          aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(Depth - 1 -
-                                                                     idep);
+        aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(Depth - 1 -
+            idep);
     }
     G4int id = myStDetector->allCathods->GetCathodId(Depth, History);
-    //////check if this photon passes after the angular acceptance//////
+    // check if this photon passes after the angular acceptance
     G4ThreeVector PMTDirection = myStDetector->allCathods->GetDirection();
     G4double CathodRadius = myStDetector->allCathods->GetCathodRadius();
     G4double CathodHeight = myStDetector->allCathods->GetCathodHeight();
     if (!AcceptAngle(photonDirection.dot(PMTDirection), CathodRadius,
-                     CathodHeight, false)) {
-      // at this point we dont kill the track if it is not accepted due to
-      // anglular acceptance this has an observable effect a few percent only
-      // when running simulation with parametrization turned off and sparce
-      // detectors. However with dense detectors ~0.04 OMs/m^3 there is a 30%
-      // effect, and 0.005OMs/m^3 a 3.5% effect, based on the covered solid
-      // angle
+          CathodHeight, false)) {
+      // at this point we dont kill the track if it is not accepted
+      // due to anglular acceptance this has an observable effect a
+      // few percent only when running simulation with parametrization
+      // turned off and sparce detectors. However with dense detectors
+      // ~0.04 OMs/m^3 there is a 30% effect, and 0.005OMs/m^3 a 3.5%
+      // effect, based on the covered solid angle
       return false;
     }
-    //    G4cout<<"Accepted"<<G4endl;
-    //    G4cout<<"----------------------------------------------------------------"<<G4endl;
 
     KM3Hit *newHit = new KM3Hit();
     newHit->SetCathodId(id);
@@ -180,20 +179,21 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     MyCollection->insert(newHit);
   }
 
-  // killing must not been done, when we have EM or HA or FIT parametrizations
-  // but it must be done for normal run, especially K40, SN and laser since
-  // coincidences play big role there
+  // killing must not been done, when we have EM or HA or FIT
+  // parametrizations but it must be done for normal run, especially
+  // K40, SN and laser since coincidences play big role there
   aStep->GetTrack()->SetTrackStatus(fStopAndKill);  // kill the detected photon
 
   return true;
 }
 // this method is used to add hits from the EM shower model
+//
 // short void KM3SD::InsertExternalHit(G4int id,G4double time,G4int
 // originalInfo,G4int angleDirection,G4int angleIncident)
 void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
-                              G4double time, G4int originalInfo,
-                              const G4ThreeVector &photonDirection) {
-  /////////calculate the photon speed at max QE to correct time
+    G4double time, G4int originalInfo,
+    const G4ThreeVector &photonDirection) {
+  // calculate the photon speed at max QE to correct time
   static G4int ooo = 0;
   if (ooo == 0) {
     ooo = 1;
@@ -201,7 +201,7 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     G4double MaxQE = -1;
     G4double PhEneAtMaxQE;
     G4MaterialPropertyVector *aPropertyVector =
-        aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
+      aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
     for (size_t i = 0; i < aPropertyVector->GetVectorLength(); i++) {
       G4double ThisQE = (*aPropertyVector)[i];
       G4double ThisPhEne = aPropertyVector->Energy(i);
@@ -212,11 +212,11 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     }
     aMaterial = G4Material::GetMaterial("Water");
     G4MaterialPropertyVector *GroupVel =
-        aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+      aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
     // coresponds to the maximum qe each time. This is the right one
     thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);
   }
-  //////////////////////////////////////////////////////////////
+
   G4ThreeVector dirPARAM(0.0, 0.0, 1.0);
   G4double startz = -600.0 * meter;
   G4ThreeVector vertexPARAM(0.0, 0.0, startz);
@@ -224,25 +224,25 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
   G4double TRes = TResidual(time, posPMT, vertexPARAM, dirPARAM);
   if (fabs(TRes) < 20.0 * ns) ArrayParam[id]++;
   if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns)) ArrayParamAll[id]++;
-  //  G4cout<<"ForFit "<<posPMT[0]/m<<" "<<posPMT[1]/m<<" "<<posPMT[2]/m<<"
-  //  "<<time<<" "<<TRes<<G4endl;
 }
 
 void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
   if (verboseLevel > 0) {
     G4int TotalNumberOfCathods = myStDetector->allCathods->GetNumberOfCathods();
     outfile = myStDetector->outfile;
+    // count for this event
     G4int NbHits = MyCollection->entries();
-    static G4int ooo = 0;                               // count total
-    ooo += NbHits;                                      // count total
-    G4cout << "Total Hits: " << ooo << G4endl;          // count total
-    G4cout << "This Event Hits: " << NbHits << G4endl;  // count for this event
+    // count total
+    static G4int ooo = 0;
+    ooo += NbHits;
+    G4cout << "Total Hits: " << ooo << G4endl;
+    G4cout << "This Event Hits: " << NbHits << G4endl;
     int i;
 
     // here we sort MyCollection according to ascending pmt number
     std::vector<KM3Hit *> *theCollectionVector = MyCollection->GetVector();
     QuickSort(0, theCollectionVector, 0, NbHits - 1);
-    //-------//from now on the hits are sorted in cathod id
+    // from now on the hits are sorted in cathod id
     // next sort according to ascending time for each cathod id
     if (NbHits > 1) {
       G4int prevCathod, currentCathod;
@@ -307,7 +307,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           break;
       }
 
-    // new
     int numphotons = 0;
     G4double firstphoton = 1.E50;
     int numpes = 0;
@@ -324,7 +323,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
         } else {
           if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition =
-                myStDetector->allCathods->GetPosition(prevcathod);
+              myStDetector->allCathods->GetPosition(prevcathod);
             DrawCathodHit(numpes, Cposition);
           }
           for (int j = prevstart; j < i; j++) {
@@ -334,7 +333,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
               G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
               G4int originalParticleNumber = originalInfo / 10 + 1;
               G4int originalTrackCreatorProcess =
-                  originalInfo - (originalParticleNumber - 1) * 10;
+                originalInfo - (originalParticleNumber - 1) * 10;
               myStDetector->TheEVTtoWrite->AddHit(
                   numhit, prevcathod, double((*MyCollection)[j]->GetMany()),
                   (*MyCollection)[j]->GetTime(), originalParticleNumber,
@@ -363,7 +362,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
               G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
               G4int originalParticleNumber = originalInfo / 10 + 1;
               G4int originalTrackCreatorProcess =
-                  originalInfo - (originalParticleNumber - 1) * 10;
+                originalInfo - (originalParticleNumber - 1) * 10;
               myStDetector->TheEVTtoWrite->AddHit(
                   numhit, (*MyCollection)[i]->GetCathodId(),
                   double((*MyCollection)[j]->GetMany()),
@@ -374,237 +373,201 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           }
         }
       }
-    }
-
-    // old
-    // int numphotons;G4double firstphoton;
-    // for(int ica=0;ica<TotalNumberOfCathods;ica++){ //for all benthos
-    //   numphotons=0;firstphoton=1.E50;
-    //   for(i=0;i<NbHits;i++){
-    //   if((*MyCollection)[i]->GetCathodId()==ica){
-    //     numphotons++;  // hit number for this benthos
-    //     if((*MyCollection)[i]->GetTime()-timefirst<firstphoton)firstphoton=(*MyCollection)[i]->GetTime()-timefirst;
-    //   }
-    //   }
-    //   if(numphotons>0){
-    //   if(myStDetector->vrmlhits){  //draw hits
-    //     G4ThreeVector Cposition=myStDetector->allCathods->GetPosition(ica);
-    //     DrawCathodHit(numphotons,Cposition);
-    //   }
-    //   fprintf(outfile,"%d %d %.7e
-    // %d\n",ica,numphotons,firstphoton*1E-9,numphotons);
-    //   for (i=0;i<NbHits;i++){
-    //     if((*MyCollection)[i]->GetCathodId()==ica)
-    //       fprintf(outfile,"%.7e %d %d %d\n",
-    //         ((*MyCollection)[i]->GetTime()-timefirst)*1E-9,
-    //         (*MyCollection)[i]->GetangleIncident(),
-    //         (*MyCollection)[i]->GetangleDirection(),
-    //         (*MyCollection)[i]->GetoriginalInfo());
-    //   }
-    //   }
-    // }
-    // old
-    if (myStDetector->vrmlhits) {
-      static G4int HCID = -1;
-      if (HCID < 0) {
-        HCID = GetCollectionID(0);
       }
-      HCE->AddHitsCollection(HCID, MyCollection);
-    } else
-      delete MyCollection;
 
-    // G4cout << "\n-------->Hits Collection: in this event they are " <<
-    // MyCollection->entries() << G4endl;
-    // for (G4int i=0;i<NbHits;i++) (*MyCollection)[i]->Print();
-  }
-}
-#else
-void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) { delete MyCollection; }
-#endif
-
-void KM3SD::MergeHits(G4int nfirst, G4int nlast, G4double MergeWindow) {
-  if (nlast - nfirst < 2) return;
-  G4int iuu, imany;
-  G4int istart = nfirst;
-  G4int istop = nfirst;
-go77:
-  istart = istop + 1;
-  for (iuu = istart + 1; iuu <= nlast; iuu++) {
-    if (((*MyCollection)[iuu - 1]->GetTime() -
-         (*MyCollection)[istart - 1]->GetTime()) > MergeWindow) {
-      istop = iuu - 1;
-      goto go78;
+      if (myStDetector->vrmlhits) {
+        static G4int HCID = -1;
+        if (HCID < 0) {
+          HCID = GetCollectionID(0);
+        }
+        HCE->AddHitsCollection(HCID, MyCollection);
+      } else
+        delete MyCollection;
+      }
     }
-  }
-  istop = iuu - 1;
+
+    void KM3SD::MergeHits(G4int nfirst, G4int nlast, G4double MergeWindow) {
+      if (nlast - nfirst < 2) return;
+      G4int iuu, imany;
+      G4int istart = nfirst;
+      G4int istop = nfirst;
+go77:
+      istart = istop + 1;
+      for (iuu = istart + 1; iuu <= nlast; iuu++) {
+        if (((*MyCollection)[iuu - 1]->GetTime() -
+              (*MyCollection)[istart - 1]->GetTime()) > MergeWindow) {
+          istop = iuu - 1;
+          goto go78;
+        }
+      }
+      istop = iuu - 1;
 go78:
-  if (istart > nlast) return;
-  imany = istop - istart + 1;
-  if (imany > 1) {
-    G4double MeanTime = 0.0;
-    for (iuu = istart; iuu <= istop; iuu++)
-      MeanTime += (*MyCollection)[iuu - 1]->GetTime();
-    MeanTime /= imany;
-    (*MyCollection)[istart - 1]->SetTime(MeanTime);
-    (*MyCollection)[istart - 1]->SetMany(imany);
-    for (iuu = istart + 1; iuu <= istop; iuu++)
-      (*MyCollection)[iuu - 1]->SetMany(0);
-  }
-  goto go77;
-}
+      if (istart > nlast) return;
+      imany = istop - istart + 1;
+      if (imany > 1) {
+        G4double MeanTime = 0.0;
+        for (iuu = istart; iuu <= istop; iuu++)
+          MeanTime += (*MyCollection)[iuu - 1]->GetTime();
+        MeanTime /= imany;
+        (*MyCollection)[istart - 1]->SetTime(MeanTime);
+        (*MyCollection)[istart - 1]->SetMany(imany);
+        for (iuu = istart + 1; iuu <= istop; iuu++)
+          (*MyCollection)[iuu - 1]->SetMany(0);
+      }
+      goto go77;
+    }
 
 #include "G4VisManager.hh"
 #include "G4Circle.hh"
 #include "G4Colour.hh"
 #include "G4VisAttributes.hh"
 
-// Hit Draw Method (colours are descibing the number of photons, blue->red)
-void KM3SD::DrawCathodHit(G4int NumberOfPhotons, G4ThreeVector pos) {
-  G4VVisManager *pVVisManager = G4VVisManager::GetConcreteInstance();
-  if (pVVisManager) {
-    G4Circle circle(pos);
-    circle.SetWorldRadius(220.0);
-    circle.SetFillStyle(G4Circle::filled);
-    G4double nphotons = G4double(NumberOfPhotons);
-    if (nphotons > 100.0) nphotons = 100.0;
-    G4double redcol = log10(G4double(nphotons)) / 2.0;
-    G4Colour colour(redcol, 0., 1.0 - redcol);
-    G4VisAttributes attribs(colour);
-    circle.SetVisAttributes(attribs);
-    pVVisManager->Draw(circle);
-  }
-}
-
-G4int KM3SD::ProcessMyCollection(KM3HitsCollection *aCollection) { return (0); }
-
-void KM3SD::clear() {}
-
-void KM3SD::PrintAll() {}
-
-G4double KM3SD::TResidual(G4double time, const G4ThreeVector &position,
-                          const G4ThreeVector &vertex,
-                          const G4ThreeVector &dir) {
-  G4double tnthc = 0.961;  // this value depends on qe and water properties
-  G4double ag, bg;
-  G4ThreeVector Hit = position - vertex;
-  ag = dir.dot(Hit);
-  Hit -= ag * dir;
-  bg = Hit.mag();
-  return time - (ag + bg * tnthc) / c_light;
-}
-
-// Quick Sort Functions for Ascending Order
-void KM3SD::QuickSort(G4int shorttype,
-                      std::vector<KM3Hit *> *theCollectionVector, G4int top,
-                      G4int bottom) {
-  // top = subscript of beginning of array
-  // bottom = subscript of end of array
-
-  G4int middle;
-  if (top < bottom) {
-    if (shorttype == 0)
-      middle = partition_CathodId(theCollectionVector, top, bottom);
-    else
-      middle = partition_Time(theCollectionVector, top, bottom);
-    QuickSort(shorttype, theCollectionVector, top,
-              middle);  // sort first section
-    QuickSort(shorttype, theCollectionVector, middle + 1,
-              bottom);  // sort second section
-  }
-  return;
-}
-
-// Function to determine the partitions
-// partitions the array and returns the middle subscript
-G4int KM3SD::partition_CathodId(std::vector<KM3Hit *> *theCollectionVector,
-                                G4int top, G4int bottom) {
-  G4int x = (*theCollectionVector)[top]->GetCathodId();
-  G4int i = top - 1;
-  G4int j = bottom + 1;
-  KM3Hit *temp;
-  do {
-    do {
-      j--;
-    } while (x < (*theCollectionVector)[j]->GetCathodId());
-
-    do {
-      i++;
-    } while (x > (*theCollectionVector)[i]->GetCathodId());
-
-    if (i < j) {
-      temp = (*theCollectionVector)[i];
-      (*theCollectionVector)[i] = (*theCollectionVector)[j];
-      (*theCollectionVector)[j] = temp;
+    // Hit Draw Method (colours are descibing the number of photons, blue->red)
+    void KM3SD::DrawCathodHit(G4int NumberOfPhotons, G4ThreeVector pos) {
+      G4VVisManager *pVVisManager = G4VVisManager::GetConcreteInstance();
+      if (pVVisManager) {
+        G4Circle circle(pos);
+        circle.SetWorldRadius(220.0);
+        circle.SetFillStyle(G4Circle::filled);
+        G4double nphotons = G4double(NumberOfPhotons);
+        if (nphotons > 100.0) nphotons = 100.0;
+        G4double redcol = log10(G4double(nphotons)) / 2.0;
+        G4Colour colour(redcol, 0., 1.0 - redcol);
+        G4VisAttributes attribs(colour);
+        circle.SetVisAttributes(attribs);
+        pVVisManager->Draw(circle);
+      }
     }
-  } while (i < j);
-  return j;  // returns middle subscript
-}
 
-// Function to determine the partitions
-// partitions the array and returns the middle subscript
-G4int KM3SD::partition_Time(std::vector<KM3Hit *> *theCollectionVector,
-                            G4int top, G4int bottom) {
-  G4double x = (*theCollectionVector)[top]->GetTime();
-  G4int i = top - 1;
-  G4int j = bottom + 1;
-  KM3Hit *temp;
-  do {
-    do {
-      j--;
-    } while (x < (*theCollectionVector)[j]->GetTime());
+    G4int KM3SD::ProcessMyCollection(KM3HitsCollection *aCollection) { return (0); }
 
-    do {
-      i++;
-    } while (x > (*theCollectionVector)[i]->GetTime());
+    void KM3SD::clear() {}
 
-    if (i < j) {
-      temp = (*theCollectionVector)[i];
-      (*theCollectionVector)[i] = (*theCollectionVector)[j];
-      (*theCollectionVector)[j] = temp;
+    void KM3SD::PrintAll() {}
+
+    G4double KM3SD::TResidual(G4double time, const G4ThreeVector &position,
+        const G4ThreeVector &vertex,
+        const G4ThreeVector &dir) {
+      G4double tnthc = 0.961;  // this value depends on qe and water properties
+      G4double ag, bg;
+      G4ThreeVector Hit = position - vertex;
+      ag = dir.dot(Hit);
+      Hit -= ag * dir;
+      bg = Hit.mag();
+      return time - (ag + bg * tnthc) / c_light;
     }
-  } while (i < j);
-  return j;  // returns middle subscript
-}
 
-// the angular acceptance is according to the MultiPMT OM (WPD Document January
-// 2011)
-// doing linear interpolation
-// if shapespherical==true then it is from parametrization and take into account
-// only the <<experimental>> angular acceptance
-// if shapespherical==false then it is not from param and take also the
-// simulated angular acceptance of the cathod shape
-G4bool KM3SD::AcceptAngle(G4double cosangle, G4double CathodRadius,
-                          G4double CathodHeight, bool shapespherical) {
-  static G4MaterialPropertyVector *Ang_Acc = NULL;
-  static G4double MinCos_Acc = -1.0;
-  static G4double MaxCos_Acc = 0.25;
-  if (Ang_Acc == NULL) {
-    G4Material *aMaterial = G4Material::GetMaterial("Cathod");
-    Ang_Acc = aMaterial->GetMaterialPropertiesTable()->GetProperty(
-        "ANGULAR_ACCEPTANCE");
-    MinCos_Acc = Ang_Acc->GetMinLowEdgeEnergy();
-    MaxCos_Acc = Ang_Acc->GetMaxLowEdgeEnergy();
-  }
+    // Quick Sort Functions for Ascending Order
+    void KM3SD::QuickSort(G4int shorttype,
+        std::vector<KM3Hit *> *theCollectionVector, G4int top,
+        G4int bottom) {
+      // top = subscript of beginning of array
+      // bottom = subscript of end of array
 
-  if (cosangle > MaxCos_Acc) return false;
-  if (cosangle < MinCos_Acc) return true;
-  G4double AngAcc = Ang_Acc->Value(cosangle);
+      G4int middle;
+      if (top < bottom) {
+        if (shorttype == 0)
+          middle = partition_CathodId(theCollectionVector, top, bottom);
+        else
+          middle = partition_Time(theCollectionVector, top, bottom);
+        QuickSort(shorttype, theCollectionVector, top,
+            middle);  // sort first section
+        QuickSort(shorttype, theCollectionVector, middle + 1,
+            bottom);  // sort second section
+      }
+      return;
+    }
 
-  // the following is the simulated angular acceptance (from the shape of the
-  // photocathod)
-  // A cylinder of radius R and height d has angular acceptance vs costh as
-  // a(x)=abs(x)+(2*d/(pi*R))*sqrt(1-x*x)
-  G4double AngularAccSim;
+    // Function to determine the partitions
+    // partitions the array and returns the middle subscript
+    G4int KM3SD::partition_CathodId(std::vector<KM3Hit *> *theCollectionVector,
+        G4int top, G4int bottom) {
+      G4int x = (*theCollectionVector)[top]->GetCathodId();
+      G4int i = top - 1;
+      G4int j = bottom + 1;
+      KM3Hit *temp;
+      do {
+        do {
+          j--;
+        } while (x < (*theCollectionVector)[j]->GetCathodId());
 
-  if (!shapespherical) {
-    AngularAccSim = fabs(cosangle) +
-                    (2.0 * CathodHeight / (pi * CathodRadius)) *
-                        sqrt(1 - cosangle * cosangle);
-    AngAcc /= AngularAccSim;
-  }
+        do {
+          i++;
+        } while (x > (*theCollectionVector)[i]->GetCathodId());
 
-  if (G4UniformRand() <= AngAcc) return true;
-  return false;
-}
+        if (i < j) {
+          temp = (*theCollectionVector)[i];
+          (*theCollectionVector)[i] = (*theCollectionVector)[j];
+          (*theCollectionVector)[j] = temp;
+        }
+      } while (i < j);
+      return j;  // returns middle subscript
+    }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+    // Function to determine the partitions
+    // partitions the array and returns the middle subscript
+    G4int KM3SD::partition_Time(std::vector<KM3Hit *> *theCollectionVector,
+        G4int top, G4int bottom) {
+      G4double x = (*theCollectionVector)[top]->GetTime();
+      G4int i = top - 1;
+      G4int j = bottom + 1;
+      KM3Hit *temp;
+      do {
+        do {
+          j--;
+        } while (x < (*theCollectionVector)[j]->GetTime());
+
+        do {
+          i++;
+        } while (x > (*theCollectionVector)[i]->GetTime());
+
+        if (i < j) {
+          temp = (*theCollectionVector)[i];
+          (*theCollectionVector)[i] = (*theCollectionVector)[j];
+          (*theCollectionVector)[j] = temp;
+        }
+      } while (i < j);
+      return j;  // returns middle subscript
+    }
+
+    // the angular acceptance is according to the MultiPMT OM (WPD Document January
+    // 2011)
+    // doing linear interpolation
+    // if shapespherical==true then it is from parametrization and take into account
+    // only the <<experimental>> angular acceptance
+    // if shapespherical==false then it is not from param and take also the
+    // simulated angular acceptance of the cathod shape
+    G4bool KM3SD::AcceptAngle(G4double cosangle, G4double CathodRadius,
+        G4double CathodHeight, bool shapespherical) {
+      static G4MaterialPropertyVector *Ang_Acc = NULL;
+      static G4double MinCos_Acc = -1.0;
+      static G4double MaxCos_Acc = 0.25;
+      if (Ang_Acc == NULL) {
+        G4Material *aMaterial = G4Material::GetMaterial("Cathod");
+        Ang_Acc = aMaterial->GetMaterialPropertiesTable()->GetProperty(
+            "ANGULAR_ACCEPTANCE");
+        MinCos_Acc = Ang_Acc->GetMinLowEdgeEnergy();
+        MaxCos_Acc = Ang_Acc->GetMaxLowEdgeEnergy();
+      }
+
+      if (cosangle > MaxCos_Acc) return false;
+      if (cosangle < MinCos_Acc) return true;
+      G4double AngAcc = Ang_Acc->Value(cosangle);
+
+      // the following is the simulated angular acceptance (from the shape of the
+      // photocathod)
+      // A cylinder of radius R and height d has angular acceptance vs costh as
+      // a(x)=abs(x)+(2*d/(pi*R))*sqrt(1-x*x)
+      G4double AngularAccSim;
+
+      if (!shapespherical) {
+        AngularAccSim = fabs(cosangle) +
+          (2.0 * CathodHeight / (pi * CathodRadius)) *
+          sqrt(1 - cosangle * cosangle);
+        AngAcc /= AngularAccSim;
+      }
+
+      if (G4UniformRand() <= AngAcc) return true;
+      return false;
+    }
+
