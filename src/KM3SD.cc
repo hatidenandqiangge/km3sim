@@ -84,14 +84,17 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     G4ThreeVector PMTDirection = myStDetector->allCathods->GetDirection();
     G4double CathodRadius = myStDetector->allCathods->GetCathodRadius();
     G4double CathodHeight = myStDetector->allCathods->GetCathodHeight();
-    if (!AcceptAngle(photonDirection.dot(PMTDirection), CathodRadius,
-          CathodHeight, false)) {
+    if not AcceptAngle(photonDirection.dot(PMTDirection), CathodRadius,
+          CathodHeight, false) {
       // at this point we dont kill the track if it is not accepted
       // due to anglular acceptance this has an observable effect a
       // few percent only when running simulation with parametrization
       // turned off and sparce detectors. However with dense detectors
       // ~0.04 OMs/m^3 there is a 30% effect, and 0.005OMs/m^3 a 3.5%
       // effect, based on the covered solid angle
+      // ORCA spacing = 9m vert, 23m horiz
+      // ORCA DOMS = 7 * 10e-5 / m**3
+      // ORCA PMTS = ORCA DOMS * 31 = 0.002 / m**3
       return false;
     }
 

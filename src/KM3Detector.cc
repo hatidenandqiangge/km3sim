@@ -139,18 +139,17 @@ void KM3Detector::SetUpVariables() {
       if (thename == String0) {
         readvalues[0] = 1;
         fscanf(infile, "%s\n", expression);
+        // this should be the detector depth at the center of the
+        // detector. It is used to calculate the seawater density using
+        // the compressibility of the sea water (see below)
         detectorDepth = fCalc.evaluate(expression);
-      }  // this should be the detector depth at the center of the detector. It
-      // is used to calculate
-      // the seawater density using the compressibility of the sea water (see
-      // below)
-      else if (thename == String1) {
+      } else if (thename == String1) {
         readvalues[1] = 1;
         fscanf(infile, "%s\n", expression);
+        // this is the position of the bottom of the sea relative to detector
+        // center
         bottomPosition = fCalc.evaluate(expression);
-      }  // this is the position of the bottom of the sea relative to detector
-      // center
-      else if (thename == String2) {
+      } else if (thename == String2) {
         readvalues[2] = 1;
         fscanf(infile, "%s", expression);
         NUMENTRIES = (G4int)fCalc.evaluate(expression);
@@ -329,9 +328,9 @@ void KM3Detector::SetUpVariables() {
       } else if (thename == String15) {
         readvalues[15] = 1;
         fscanf(infile, "%s\n", expression);
+        // Mie model as of mie phase factors file
         MieModel = fCalc.evaluate(expression);
-      }  // Mie model as of mie phase factors file
-      else if (thename == String16) {
+      } else if (thename == String16) {
         readvalues[16] = 1;
         fscanf(infile, "%s", expression);
         NUMENTRIES_ANGLEACC = (G4int)fCalc.evaluate(expression);
@@ -649,13 +648,11 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   // static in order to load the cathods (Cathods)
   static std::vector<G4int> *aCathodsIDs;
 
-  //  G4cout <<Depth<<" "<<aPVolume->GetCopyNo()<<"
-  //  "<<aPVolume->GetName()<<G4endl; //tempotest
   Hist[Depth] = aPVolume->GetCopyNo();
   Depth++;
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue();
 
-  G4String pvName = aPVolume->GetName()
+  G4String pvName = aPVolume->GetName();
 
   //  for newgeant add "_PV" at the end of physical volume name
   //  if(pvName == "CathodVolume_PV"){
