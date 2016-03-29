@@ -1,3 +1,4 @@
+V5
 The OM simulation part runs as:
 
 ./OmSim $inputfile null null k40_multiple_hits PmtPositionsAndDirections_info $k40 $outputfile $runnumber hit_raw

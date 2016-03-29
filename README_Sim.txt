@@ -1,3 +1,4 @@
+V5
 The GEANT4 simulation part runs as:
 ./KM3Sim novrml $runnumber $output_evt_file $GDML_geometry_file $INPUT_Parameters_file null null ANTARES_EVT_FORMAT $input_evt_file
 The arguments (except the self explaining) are:
