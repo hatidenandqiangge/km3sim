@@ -417,28 +417,6 @@ go78:
       goto go77;
     }
 
-#include "G4VisManager.hh"
-#include "G4Circle.hh"
-#include "G4Colour.hh"
-#include "G4VisAttributes.hh"
-
-    // Hit Draw Method (colours are descibing the number of photons, blue->red)
-    void KM3SD::DrawCathodHit(G4int NumberOfPhotons, G4ThreeVector pos) {
-      G4VVisManager *pVVisManager = G4VVisManager::GetConcreteInstance();
-      if (pVVisManager) {
-        G4Circle circle(pos);
-        circle.SetWorldRadius(220.0);
-        circle.SetFillStyle(G4Circle::filled);
-        G4double nphotons = G4double(NumberOfPhotons);
-        if (nphotons > 100.0) nphotons = 100.0;
-        G4double redcol = log10(G4double(nphotons)) / 2.0;
-        G4Colour colour(redcol, 0., 1.0 - redcol);
-        G4VisAttributes attribs(colour);
-        circle.SetVisAttributes(attribs);
-        pVVisManager->Draw(circle);
-      }
-    }
-
     G4int KM3SD::ProcessMyCollection(KM3HitsCollection *aCollection) { return (0); }
 
     void KM3SD::clear() {}
