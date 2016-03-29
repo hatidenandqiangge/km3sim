@@ -6,7 +6,8 @@ KM3Cathods::~KM3Cathods() {
   for (size_t i = 0; i < theCathods.size(); i++) {
     theCathods[i]->Tree->clear();
     delete theCathods[i]->Tree;
-    free(theCathods[i]);
+    //free(theCathods[i]);
+    delete theCathods[i];
   }
   theCathods.clear();
 }

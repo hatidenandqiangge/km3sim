@@ -45,7 +45,8 @@ KM3Detector::~KM3Detector() {
   for (size_t i = 0; i < allOMs->size(); i++) {
     (*allOMs)[i]->CathodsIDs->clear();
     delete (*allOMs)[i]->CathodsIDs;
-    free((*allOMs)[i]);
+    //free((*allOMs)[i]);
+    delete (*allOMs)[i]);
   }
   allOMs->clear();
   delete allOMs;
@@ -53,7 +54,8 @@ KM3Detector::~KM3Detector() {
   for (size_t i = 0; i < allStoreys->size(); i++) {
     (*allStoreys)[i]->BenthosIDs->clear();
     delete (*allStoreys)[i]->BenthosIDs;
-    free((*allStoreys)[i]);
+    //free((*allStoreys)[i]);
+    delete (*allStoreys)[i];
   }
   allStoreys->clear();
   delete allStoreys;
@@ -61,7 +63,8 @@ KM3Detector::~KM3Detector() {
   for (size_t i = 0; i < allTowers->size(); i++) {
     (*allTowers)[i]->BenthosIDs->clear();
     delete (*allTowers)[i]->BenthosIDs;
-    free((*allTowers)[i]);
+    //free((*allTowers)[i]);
+    delete (*allTowers)[i];
   }
   allTowers->clear();
   delete allTowers;
