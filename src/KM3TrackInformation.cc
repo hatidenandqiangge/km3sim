@@ -13,29 +13,14 @@ KM3TrackInformation::KM3TrackInformation() {
   EmittedAsScattered = true;  // newmie
 }
 
-KM3TrackInformation::~KM3TrackInformation() {
-#ifdef G4MYLASER_PARAMETERIZATION
-  ScatteringPositions->clear();
-  ScatteringAngles->clear();
-  delete ScatteringPositions;
-  delete ScatteringAngles;
-#endif
-  ;
-}
+KM3TrackInformation::~KM3TrackInformation() { ; }
 
 KM3TrackInformation::KM3TrackInformation(const G4Track *aTrack) {
-#ifndef G4MYLASER_PARAMETERIZATION
   originalTrackCreatorProcess = aTrack->GetCreatorProcess()->GetProcessName();
-#endif
   originalparticleName = aTrack->GetDefinition()->GetParticleName();
   originalEnergy = aTrack->GetTotalEnergy();
   originalParentID = aTrack->GetParentID();
   EmittedAsScattered = false;  // newmie
-#ifdef G4MYLASER_PARAMETERIZATION
-  ScatteringPositions = new std::vector<G4ThreeVector>;
-  ScatteringAngles = new std::vector<double>;
-  KeepScatteringPosition(aTrack->GetPosition(), 1.0);
-#endif
 }
 void KM3TrackInformation::SetMoreInformation(const G4Track *aTrack) {
   originalTrackCreatorProcess = aTrack->GetCreatorProcess()->GetProcessName();

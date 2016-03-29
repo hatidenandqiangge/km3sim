@@ -1,26 +1,3 @@
-//
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
-//
-
 #include "KM3SteppingAction.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
@@ -45,19 +22,6 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
   G4ThreeVector x0;
   G4ThreeVector p0;
   G4double distanceRho, direction;
-  // tempo for range and energy dependance
-  //   if(aStep->GetTrack()->GetParentID()==0){  //only the primary particle
-  //     static G4int thePosPrev=-1000.0;
-  //     G4double
-  //     thePos=(aStep->GetTrack()->GetPosition()-G4ThreeVector(10.0*m,10.0*m,19.0*km)).mag()/m;
-  //     if( (thePos-thePosPrev >= 1.0) || (thePos<thePosPrev) ){
-  //       G4double kinene=(aStep->GetTrack()->GetMomentum()).mag()/GeV;
-  //       printf("FER %.4e %.4e\n",kinene,thePos);
-  //       thePosPrev=thePos;
-  //     }
-  //     return;
-  //   }
-  ///////////////////////////////////////
 
   if (aStep->GetTrack()->GetParentID() == 0) {  // only the primary particle
     if (aStep->GetTrack()->GetDefinition() ==
@@ -66,12 +30,6 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
             G4MuonMinus::MuonMinusDefinition()) {
       p0 = aStep->GetTrack()->GetMomentumDirection();
       x0 = aStep->GetTrack()->GetPosition();
-#ifdef G4MYFIT_PARAMETERIZATION
-      if (x0[2] > 280.0 * meter) {
-        aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-        return;
-      }
-#endif
 // here we keep the energy of the muon every 10 meters (approximately)
 // only if the first primary is a muon
 #ifdef G4MYMUON_KEEPENERGY
@@ -236,9 +194,6 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
         if (conti) {
           G4ThreeVector PointOnMiddle = 0.5 * (PointOnTop + PointOnBottom);
-#ifdef G4MYFIT_PARAMETERIZATION
-          PointOnMiddle = G4ThreeVector(0.0, 0.0, -160.0 * m);
-#endif
           // before G4ThreeVector PointOnMiddle = PointOnTop -
           // (PointOnTop.dot(PointOnBottom-PointOnTop)/(PointOnBottom-PointOnTop).mag2())*(PointOnBottom-PointOnTop);
           G4double DistToEnter, DistToCenter, DistToLeave;

@@ -1,16 +1,3 @@
-// This code implementation is the intellectual property of
-// the GEANT4 collaboration.
-//
-// By copying, distributing or modifying the Program (or any work
-// based on the Program) you indicate your acceptance of this statement,
-// and all its terms.
-//
-// $Id: ExN02PhysicsList.hh,v 1.7 2000/12/04 16:24:05 maire Exp $
-// GEANT4 tag $Name: geant4-03-00 $
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
 #ifndef KM3Physics_h
 #define KM3Physics_h 1
 
@@ -18,8 +5,6 @@
 #include "globals.hh"
 #include "KM3Detector.hh"
 #include "KM3Cherenkov.hh"
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 class KM3Physics : public G4VUserPhysicsList {
  public:
