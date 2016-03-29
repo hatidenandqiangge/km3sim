@@ -34,8 +34,8 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
 
   // next kill photons that are incident on the back end of the pmt.
   // The definition of deadvolume is obsolete. so the following never
-  //
   // happens
+  //
   //  if
   //  (aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()=="DeadVolume_PV")
   //  //for newgeant  add "_PV" at the end of physical volume name
@@ -508,13 +508,12 @@ go78:
       return j;  // returns middle subscript
     }
 
-    // the angular acceptance is according to the MultiPMT OM (WPD Document January
-    // 2011)
-    // doing linear interpolation
-    // if shapespherical==true then it is from parametrization and take into account
-    // only the <<experimental>> angular acceptance
-    // if shapespherical==false then it is not from param and take also the
-    // simulated angular acceptance of the cathod shape
+    // the angular acceptance is according to the MultiPMT OM (WPD
+    // Document January 2011) doing linear interpolation
+    // if shapespherical==true then it is from parametrization and take
+    // into account only the <<experimental>> angular acceptance
+    // if shapespherical==false then it is not from param and take also
+    // the simulated angular acceptance of the cathod shape
     G4bool KM3SD::AcceptAngle(G4double cosangle, G4double CathodRadius,
         G4double CathodHeight, bool shapespherical) {
       static G4MaterialPropertyVector *Ang_Acc = NULL;
