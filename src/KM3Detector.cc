@@ -693,7 +693,8 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   }
   // for newgeant add "_PV" at the end of physical volume name
   if pvName.contains("OMVolume") {
-    OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
+    //OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
+    OMPositions *aOM = new OMPositions;
     aOM->position =
       AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     aCathodsIDs = new std::vector<G4int>;
@@ -738,8 +739,8 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   }
   // for newgeant add "_PV" at the end of physical volume name
   if pvName.contains("StoreyVolume") {
-    StoreysPositions *aStorey =
-      (StoreysPositions *)malloc(sizeof(StoreysPositions));
+    //StoreysPositions *aStorey = (StoreysPositions *)malloc(sizeof(StoreysPositions));
+    StoreysPositions *aStorey = new StoreysPositions;
     aStorey->position =
       AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     aBenthosIDs = new std::vector<G4int>;
@@ -750,8 +751,8 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   // new towers
   //for newgeant add "_PV" at the end of physical volume name
   if pvName.contains("TowerVolume") {
-    TowersPositions *aTower =
-      (TowersPositions *)malloc(sizeof(TowersPositions));
+    //TowersPositions *aTower = (TowersPositions *)malloc(sizeof(TowersPositions));
+    TowersPositions *aTower = new TowersPositions;
     aTower->position =
       AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     aTowerBenthosIDs = new std::vector<G4int>;
