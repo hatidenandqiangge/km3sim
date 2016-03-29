@@ -652,7 +652,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   Depth++;
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue();
 
-  pvName = aPVolume->GetName()
+  G4String pvName = aPVolume->GetName()
 
   //  for newgeant add "_PV" at the end of physical volume name
   //  if(pvName == "CathodVolume_PV"){
@@ -660,12 +660,13 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     G4ThreeVector Position = AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
     G4Transform3D trans(RotationMatr, Position);
-    // estimate cathod radius///////////////////////////////
+    // estimate cathod radius
     G4double CathodRadius = 0.0;
-    G4double CathodHeight = -1.0 * mm;  // set default to begative, since it is
-    // not applicable to spherical cathods
-    if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        G4String("G4Sphere")) {
+    // set default to negative, since it is not applicable to spherical
+    // cathods
+    G4double CathodHeight = -1.0 * mm;
+    G4String solidName = aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType()
+    if solidName == G4String("G4Sphere") {
       CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
         ->GetOuterRadius();
       G4double InnerRadius =
@@ -674,22 +675,19 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       // applicable mainly to shell type cathods (EM)
       if ((CathodRadius - InnerRadius) < 1.001 * mm)
         CathodRadius = 0.5 * (CathodRadius + InnerRadius);
-    } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        G4String("G4Tubs")) {
+    }
+    if solidName == G4String("G4Tubs") {
+      // applicable to thin tube cathods (normal run)
       CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();  // applicable to thin tube cathods
-      // (normal run)
+        ->GetOuterRadius();
       CathodHeight = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
         ->GetZHalfLength();
-      CathodHeight *= 2.0;  // full height
+      // correct to full height
+      CathodHeight *= 2.0;
     }
-    ///////////////////////////////////////////
     allCathods->addCathod(trans, Position, Direction, CathodRadius,
         CathodHeight, Depth - 1);
     for (G4int i = 1; i < Depth; i++) allCathods->addToTree(Hist[i]);
-    // G4cout << Depth <<" "<<Hist[0]<<" "<<Hist[1]<<" "<<Hist[2]<<"
-    // "<<Hist[3]<<" "<<Hist[4]<<" "<<Hist[5]<<G4endl; //tempotest
-    // G4cout << Position <<" "<<Direction<<G4endl; //tempotest
     aCathodsIDs->push_back(Cathods);
     Cathods++;
   }
@@ -700,10 +698,10 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     aCathodsIDs = new std::vector<G4int>;
     aOM->CathodsIDs = aCathodsIDs;
-    // if OM is sphere then set the outer radius as radius,
-    // if it is tubs then set the proper radius
-    // else set the geometrical sum of the extend on the three axis
-    //(maximum extend. Exact only for Boxes)
+    // if OM is sphere then set the outer radius as radius, if it is
+    // tubs then set the proper radius else set the geometrical sum of
+    // the extend on the three axis (maximum extend. Exact only for
+    // Boxes)
     if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
         G4String("G4Sphere")) {
       aOM->radius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
@@ -716,8 +714,10 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
         ->GetOuterRadius();
       aOM->radius = sqrt(zLength * zLength + oRadius * oRadius);
     } else {
-      G4VoxelLimits voxelLimits;          // Defaults to "infinite" limits.
-      G4AffineTransform affineTransform;  // no transform
+      // Defaults to "infinite" limits.
+      G4VoxelLimits voxelLimits;
+      // no transform
+      G4AffineTransform affineTransform;
       G4double xmin, xmax, ymin, ymax, zmin, zmax;
       aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
           kXAxis, voxelLimits, affineTransform, xmin, xmax);
@@ -732,7 +732,8 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     }
     allOMs->push_back(aOM);
     aBenthosIDs->push_back(OMs);
-    aTowerBenthosIDs->push_back(OMs);  // new towers
+    // new towers
+    aTowerBenthosIDs->push_back(OMs);
     OMs++;
   }
   // for newgeant add "_PV" at the end of physical volume name
@@ -746,8 +747,9 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     allStoreys->push_back(aStorey);
     Storeys++;
   }
-  if pvName.contains("TowerVolume") {  // new towers //for newgeant  add "_PV"
-    // at the end of physical volume name
+  // new towers
+  //for newgeant add "_PV" at the end of physical volume name
+  if pvName.contains("TowerVolume") {
     TowersPositions *aTower =
       (TowersPositions *)malloc(sizeof(TowersPositions));
     aTower->position =
@@ -822,7 +824,6 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   for (size_t i = 0; i < theSize; i++) {
     aLogicalVolume = (*aLogicalStore)[i];
 
-    ////////////////////////////////////////////////////
     //    if( (aLogicalVolume->GetName() == cathVol) ||
     //    (aLogicalVolume->GetName() == deadVol) ){
     if (((aLogicalVolume->GetName()).contains(cathVol)) ||
