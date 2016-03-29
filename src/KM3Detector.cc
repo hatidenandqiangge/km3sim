@@ -652,9 +652,11 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   Depth++;
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue();
 
+  pvName = aPVolume->GetName()
+
   //  for newgeant add "_PV" at the end of physical volume name
-  //  if(aPVolume->GetName() == "CathodVolume_PV"){
-  if ((aPVolume->GetName()).contains("CathodVolume")) {
+  //  if(pvName == "CathodVolume_PV"){
+  if pvName.contains("CathodVolume") {
     G4ThreeVector Position = AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
     G4Transform3D trans(RotationMatr, Position);
@@ -692,7 +694,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     Cathods++;
   }
   // for newgeant add "_PV" at the end of physical volume name
-  if ((aPVolume->GetName()).contains("OMVolume")) {
+  if pvName.contains("OMVolume") {
     OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
     aOM->position =
       AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
@@ -734,7 +736,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     OMs++;
   }
   // for newgeant add "_PV" at the end of physical volume name
-  if ((aPVolume->GetName()).contains("StoreyVolume")) {
+  if pvName.contains("StoreyVolume") {
     StoreysPositions *aStorey =
       (StoreysPositions *)malloc(sizeof(StoreysPositions));
     aStorey->position =
@@ -744,7 +746,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     allStoreys->push_back(aStorey);
     Storeys++;
   }
-  if ((aPVolume->GetName()).contains("TowerVolume")) {  // new towers //for newgeant  add "_PV"
+  if pvName.contains("TowerVolume") {  // new towers //for newgeant  add "_PV"
     // at the end of physical volume name
     TowersPositions *aTower =
       (TowersPositions *)malloc(sizeof(TowersPositions));
@@ -764,7 +766,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     aPVolume->GetLogicalVolume()->GetDaughter(i)->SetCopyNo(i);
     TotalPMTEntities(aPVolume->GetLogicalVolume()->GetDaughter(i));
   }
-  if not ((aPVolume->GetName()).contains("CathodVolume")) {
+  if not pvName.contains("CathodVolume") {
     AffineTrans = tempoaffine.Inverse() * AffineTrans;
   }
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue().inverse();
