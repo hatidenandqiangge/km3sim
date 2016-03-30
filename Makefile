@@ -3,6 +3,18 @@
 # GNUmakefile for examples module.  Gabriele Cosmo, 06/04/98.
 # --------------------------------------------------------------
 
+G4 = geant4.10.02
+
+ifndef G4INSTALL
+G4INSTALL = /sps/km3net/users/tsirigot/HOURS/${G4}/geant4make.sh
+endif
+
+.PHONY: all
+all: lib bin
+
+G4INCLUDE = $(G4INSTALL)/../../../include/Geant4
+G4LIB = $(G4INSTALL)/../../../lib64/Geant4-9.6.2
+
 name := km3sim
 G4TARGET := $(name)
 G4EXLIB := true
@@ -72,16 +84,5 @@ CPPFLAGS += -DG4ENABLE_MIE
 
 # print header with cathod information
 # CPPFLAGS += -DG4PRINT_HEADER
-
-ifndef G4INSTALL
-G4INSTALL = /sps/km3net/users/tsirigot/HOURS/geant4.9.6.p02-install/share/Geant4-9.6.2/geant4make
-endif
-
-.PHONY: all
-all: lib bin
-
-G4INCLUDE = $(G4INSTALL)/../../../include/Geant4
-G4LIB = $(G4INSTALL)/../../../lib64/Geant4-9.6.2
-
 
 include $(G4INSTALL)/config/binmake.gmk

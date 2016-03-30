@@ -58,9 +58,7 @@ class KM3Cherenkov : public G4VProcess {
 
   //  no operation in  AtRestDoIt and  AlongStepDoIt
   virtual G4double AlongStepGetPhysicalInteractionLength(const G4Track &,
-                                                         G4double, G4double,
-                                                         G4double &,
-                                                         G4GPILSelection *) {
+      G4double, G4double, G4double &, G4GPILSelection *) {
     return -1.0;
   };
 
@@ -103,9 +101,9 @@ class KM3Cherenkov : public G4VProcess {
 #ifdef G4JUST_COUNT_PHOTONS
   long double Count_Photons;
   long double Posit_Photons_Mean;
-  long double
-      Posit_Photons_Histo[3002];  // 20 meters every 1cm from -10m to 20m
-                                  // , and 2 for underflow and overflow
+  // 20 meters every 1cm from -10m to 20m,
+  // and 2 for underflow and overflow
+  long double Posit_Photons_Histo[3002];
 #endif
 
   void BuildThePhysicsTable();
@@ -115,8 +113,8 @@ class KM3Cherenkov : public G4VProcess {
                                      G4MaterialPropertyVector *Rindex) const;
 
  protected:
-  //  A Physics Table can be either a cross-sections table or an energy table
-  //  (or can be used for other specific purposes).
+  // A Physics Table can be either a cross-sections table or an energy table
+  // (or can be used for other specific purposes).
   G4PhysicsTable *thePhysicsTable;
 
  private:
