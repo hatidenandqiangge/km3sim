@@ -58,7 +58,9 @@ class KM3Cherenkov : public G4VProcess {
 
   //  no operation in  AtRestDoIt and  AlongStepDoIt
   virtual G4double AlongStepGetPhysicalInteractionLength(const G4Track &,
-      G4double, G4double, G4double &, G4GPILSelection *) {
+                                                         G4double, G4double,
+                                                         G4double &,
+                                                         G4GPILSelection *) {
     return -1.0;
   };
 
