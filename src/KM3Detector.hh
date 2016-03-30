@@ -58,6 +58,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
   void ConstructMaterials(void);
   G4int TotalPMTEntities(const G4VPhysicalVolume *) const;
   void SetUpVariables(void);
+  void ReadPMTPositions(const std::string &detx_file_name);
   // newgeant  void sxpInitialize(void);
 
  private:
@@ -86,5 +87,11 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double MieModel;
   G4double COSANGLES[100];
   G4double ACCEPTANCE[100];
+
+  int global_det_id_;
+  int n_doms_;
+
+}
+
 };
 #endif  // KM3Detector_h
