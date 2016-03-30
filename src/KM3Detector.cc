@@ -25,7 +25,7 @@
 #include "G4RegionStore.hh"
 #include "G4VoxelLimits.hh"  // newgeant
 #include "G4Processor/GDMLProcessor.h"
-#include "G4GDMLParser.hh"  //newgeant
+#include "G4GDMLParser.hh"  // newgeant
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4GeometryManager.hh"
@@ -353,8 +353,9 @@ void KM3Detector::SetUpVariables() {
         }
         fscanf(infile, "%s\n", expression);
         ACCEPTANCE[NUMENTRIES_ANGLEACC - 1] = fCalc.evaluate(expression);
-      } else
+      } else {
         G4Exception("Not a keyword I can recognize\n", "", FatalException, "");
+      }
     }
     fclose(infile);
 
@@ -500,11 +501,10 @@ void KM3Detector::ConstructMaterials() {
   abundanceCl *= weightCl;
   abundanceSO4 *= (weightS + 4 * weightO);
   abundanceHCO3 *= (weightH + weightC + 3 * weightO);
+  // the composites of sea water
   G4double abundanceH2O =
       1.0 - (abundanceNa + abundanceMg + abundanceCa + abundanceK +
              abundanceCl + abundanceSO4 + abundanceHCO3);
-  //------------------the composites of sea
-  // water------------------------------------
   // if the material is not used to fill a specific logical volume the density
   // is not used
   G4Material *H2O = new G4Material("H2O", 1.0 * g / cm3, 2);
@@ -573,22 +573,16 @@ void KM3Detector::ConstructMaterials() {
   Gell->AddElement(elementSi, 1);
 
   // AIR
-  // -----------------------------------------------------------------------------
   G4Material *Air = new G4Material("Air", 1.29e-03 * g / cm3, 2);
   Air->AddElement(elementN, .7);
   Air->AddElement(elementO, .3);
 
   // CATHOD
-  // -------------------------------------------------------------------------------
   G4Material *Cathod =
       new G4Material("Cathod", 22, 47.867 * g / mole, 4.507 * g / cm3,
                      kStateSolid, 287.15 * kelvin, 1.0 * atmosphere);
 
-  // G4cout<<*(G4Material::GetMaterialTable())<<G4endl;
-
-  // ------------------------------------------------------------------------------------------------
   // Set OPTICAL PROPERTIES (read from file) of materials
-  // ////////////////////////////////////////////////////////////////
 
   // WATER
   G4MaterialPropertiesTable *Properties_Water = new G4MaterialPropertiesTable();
@@ -655,7 +649,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   G4String pvName = aPVolume->GetName();
 
   //  for newgeant add "_PV" at the end of physical volume name
-  //  if(pvName == "CathodVolume_PV"){
+  //  if(pvName == "CathodVolume_PV")
   if
     pvName.contains("CathodVolume") {
       G4ThreeVector Position =
@@ -668,18 +662,18 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       // cathods
       G4double CathodHeight = -1.0 * mm;
       G4String solidName =
-          aPVolume->GetLogicalVolume()
-              ->GetSolid()
-              ->GetEntityType() if solidName == G4String("G4Sphere") {
-        CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-                           ->GetOuterRadius();
-        G4double InnerRadius =
-            ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-                ->GetInnerRadius();
-        // applicable mainly to shell type cathods (EM)
-        if ((CathodRadius - InnerRadius) < 1.001 * mm)
-          CathodRadius = 0.5 * (CathodRadius + InnerRadius);
-      }
+          aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType();
+      if
+        solidName == G4String("G4Sphere") {
+          CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
+                             ->GetOuterRadius();
+          G4double InnerRadius =
+              ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
+                  ->GetInnerRadius();
+          // applicable mainly to shell type cathods (EM)
+          if ((CathodRadius - InnerRadius) < 1.001 * mm)
+            CathodRadius = 0.5 * (CathodRadius + InnerRadius);
+        }
       if
         solidName == G4String("G4Tubs") {
           // applicable to thin tube cathods (normal run)
@@ -797,8 +791,11 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // newgeant fWorld =  (G4VPhysicalVolume
   // *)GDMLProcessor::GetInstance()->GetWorldVolume();
-  G4GDMLParser parser;                                    // newgeant
-  parser.Read(Geometry_File);                             // newgeant
+  G4GDMLParser parser;         // newgeant
+  parser.Read(Geometry_File);  // newgeant
+  // TODO:
+  //  - Get PMT positions from .detx
+  //  - put them into phys volumes
   fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume();  // newgeant
   if (fWorld == 0)
     G4Exception(
