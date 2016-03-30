@@ -1,10 +1,10 @@
-#include "KM3SD.hh"
-#include "G4HCofThisEvent.hh"
-#include "G4Step.hh"
-#include "G4ThreeVector.hh"
-#include "G4SDManager.hh"
-#include "G4ios.hh"
-#include "KM3TrackInformation.hh"
+#include "KM3SD.h"
+#include "G4HCofThisEvent.h"
+#include "G4Step.h"
+#include "G4ThreeVector.h"
+#include "G4SDManager.h"
+#include "G4ios.h"
+#include "KM3TrackInformation.h"
 
 KM3SD::KM3SD(G4String name) : G4VSensitiveDetector(name) {
   G4String HCname;

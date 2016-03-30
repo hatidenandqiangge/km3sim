@@ -5,20 +5,20 @@
 
 #include "docopt.h"
 
-#include "G4RunManager.hh"
-#include "G4UImanager.hh"
-#include "G4UIterminal.hh"
-#include "G4UItcsh.hh"
-#include "G4UnitsTable.hh"
+#include "G4RunManager.h"
+#include "G4UImanager.h"
+#include "G4UIterminal.h"
+#include "G4UItcsh.h"
+#include "G4UnitsTable.h"
 
 #include "KM3Sim.h"
-#include "KM3Physics.hh"
-#include "KM3PrimaryGeneratorAction.hh"
-#include "KM3StackingAction.hh"
-#include "KM3TrackingAction.hh"
-#include "KM3SteppingAction.hh"
-#include "KM3EventAction.hh"
-#include "KM3Detector.hh"
+#include "KM3Physics.h"
+#include "KM3PrimaryGeneratorAction.h"
+#include "KM3StackingAction.h"
+#include "KM3TrackingAction.h"
+#include "KM3SteppingAction.h"
+#include "KM3EventAction.h"
+#include "KM3Detector.h"
 /** How to make a simple main:
  *
  * new G4Runmanager

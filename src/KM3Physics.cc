@@ -1,66 +1,66 @@
-#include "globals.hh"
-#include "KM3Physics.hh"
+#include "globals.h"
+#include "KM3Physics.h"
 
-#include "G4UserSpecialCuts.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleWithCuts.hh"
-#include "G4ProcessManager.hh"
-#include "G4ProcessVector.hh"
-#include "G4ParticleTypes.hh"
-#include "G4ParticleTable.hh"
-#include "G4Material.hh"
-#include "G4ios.hh"
+#include "G4UserSpecialCuts.h"
+#include "G4ParticleDefinition.h"
+#include "G4ParticleWithCuts.h"
+#include "G4ProcessManager.h"
+#include "G4ProcessVector.h"
+#include "G4ParticleTypes.h"
+#include "G4ParticleTable.h"
+#include "G4Material.h"
+#include "G4ios.h"
 
-#include "G4LeptonConstructor.hh"
-#include "G4BosonConstructor.hh"
-#include "G4BaryonConstructor.hh"
-#include "G4MesonConstructor.hh"
-#include "G4ShortLivedConstructor.hh"
-#include "G4IonConstructor.hh"
+#include "G4LeptonConstructor.h"
+#include "G4BosonConstructor.h"
+#include "G4BaryonConstructor.h"
+#include "G4MesonConstructor.h"
+#include "G4ShortLivedConstructor.h"
+#include "G4IonConstructor.h"
 
-#include "G4ComptonScattering.hh"
-#include "G4GammaConversion.hh"
-//#include "G4GammaConversionToMuons.hh"
-#include "G4PhotoElectricEffect.hh"
+#include "G4ComptonScattering.h"
+#include "G4GammaConversion.h"
+//#include "G4GammaConversionToMuons.h"
+#include "G4PhotoElectricEffect.h"
 
-// newgeant #include "G4MultipleScattering.hh" //in version 4.9.3.p02 geant4
+// newgeant #include "G4MultipleScattering.h" //in version 4.9.3.p02 geant4
 // threatens than G4MultipleScattering class will be removed in next releases,
 // so the next ones are assigned for e+-, mu+-, hadrons and ions, respectively
-#include "G4eMultipleScattering.hh"
-#include "G4MuMultipleScattering.hh"
-#include "G4hMultipleScattering.hh"
+#include "G4eMultipleScattering.h"
+#include "G4MuMultipleScattering.h"
+#include "G4hMultipleScattering.h"
 
-#include "G4eIonisation.hh"
-#include "G4eBremsstrahlung.hh"
-#include "G4eplusAnnihilation.hh"
-#include "G4MuIonisation.hh"
-#include "G4MuBremsstrahlung.hh"
-#include "G4MuPairProduction.hh"
-#include "G4MuonMinusCaptureAtRest.hh"
-#include "G4MuonNuclearProcess.hh"  //transition to 4.9.6
-#include "G4MuonVDNuclearModel.hh"  //transition to 4.9.6
-#include "G4hBremsstrahlung.hh"
-#include "G4hPairProduction.hh"
-#include "G4HadronicProcessStore.hh"
-#include "G4HadronElasticPhysics.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT.hh"
-#include "G4AlphaInelasticProcess.hh"
-#include "G4LEAlphaInelastic.hh"
-#include "G4DeuteronInelasticProcess.hh"
-#include "G4LEDeuteronInelastic.hh"
-#include "G4TritonInelasticProcess.hh"
-#include "G4LETritonInelastic.hh"
-#include "G4PionMinusAbsorptionAtRest.hh"
-#include "G4KaonMinusAbsorption.hh"
-//#include "G4AnnihiToMuPair.hh"
-#include "G4hIonisation.hh"
+#include "G4eIonisation.h"
+#include "G4eBremsstrahlung.h"
+#include "G4eplusAnnihilation.h"
+#include "G4MuIonisation.h"
+#include "G4MuBremsstrahlung.h"
+#include "G4MuPairProduction.h"
+#include "G4MuonMinusCaptureAtRest.h"
+#include "G4MuonNuclearProcess.h"  //transition to 4.9.6
+#include "G4MuonVDNuclearModel.h"  //transition to 4.9.6
+#include "G4hBremsstrahlung.h"
+#include "G4hPairProduction.h"
+#include "G4HadronicProcessStore.h"
+#include "G4HadronElasticPhysics.h"
+#include "HadronPhysicsQGSP_FTFP_BERT.h"
+#include "G4AlphaInelasticProcess.h"
+#include "G4LEAlphaInelastic.h"
+#include "G4DeuteronInelasticProcess.h"
+#include "G4LEDeuteronInelastic.h"
+#include "G4TritonInelasticProcess.h"
+#include "G4LETritonInelastic.h"
+#include "G4PionMinusAbsorptionAtRest.h"
+#include "G4KaonMinusAbsorption.h"
+//#include "G4AnnihiToMuPair.h"
+#include "G4hIonisation.h"
 
-#include "G4OpAbsorption.hh"
-#include "G4OpMie.hh"
-#include "G4Decay.hh"
-#include "G4RadioactiveDecay.hh"
-#include "G4IonTable.hh"
-#include "G4Ions.hh"
+#include "G4OpAbsorption.h"
+#include "G4OpMie.h"
+#include "G4Decay.h"
+#include "G4RadioactiveDecay.h"
+#include "G4IonTable.h"
+#include "G4Ions.h"
 
 KM3Physics::KM3Physics() : G4VUserPhysicsList() {
   defaultCutValue = 0.5 * mm;
@@ -192,7 +192,7 @@ void KM3Physics::ConstructEM() {
       pmanager->SetProcessOrdering(theeminusMultipleScattering, idxAlongStep,
                                    1);
       pmanager->SetProcessOrdering(theeminusIonisation, idxAlongStep, 2);
-      // KM3Cherenkov.hh:
+      // KM3Cherenkov.h:
       // set ordering for PostStepDoIt
       pmanager->SetProcessOrdering(theeminusMultipleScattering, idxPostStep, 1);
       pmanager->SetProcessOrdering(theeminusIonisation, idxPostStep, 2);

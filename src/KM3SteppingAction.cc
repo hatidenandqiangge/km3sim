@@ -1,7 +1,7 @@
-#include "KM3SteppingAction.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4Step.hh"
+#include "KM3SteppingAction.h"
+#include "G4ParticleDefinition.h"
+#include "G4ParticleTypes.h"
+#include "G4Step.h"
 
 KM3SteppingAction::KM3SteppingAction() {
   P7[0] = 0.14709;

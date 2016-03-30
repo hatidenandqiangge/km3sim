@@ -1,17 +1,17 @@
-#include "KM3StackingAction.hh"
-#include "G4ios.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4Track.hh"
-#include "G4UnitsTable.hh"
-#include "G4VProcess.hh"
+#include "KM3StackingAction.h"
+#include "G4ios.h"
+#include "G4ParticleDefinition.h"
+#include "G4ParticleTypes.h"
+#include "G4Track.h"
+#include "G4UnitsTable.h"
+#include "G4VProcess.h"
 #include <math.h>
-#include "G4StackManager.hh"
+#include "G4StackManager.h"
 // the following was added to see what initial hadrons can give muons
-//#include "KM3TrackInformation.hh"
+//#include "KM3TrackInformation.h"
 //#ifdef G4MYHAMUONS_PARAMETERIZATION
-#include "G4RunManager.hh"
-#include "KM3PrimaryGeneratorAction.hh"
+#include "G4RunManager.h"
+#include "KM3PrimaryGeneratorAction.h"
 //#endif
 
 KM3StackingAction::KM3StackingAction() { ; }

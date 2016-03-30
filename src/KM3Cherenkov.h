@@ -3,21 +3,21 @@
 
 #include <CLHEP/Units/SystemOfUnits.h>
 
-#include "globals.hh"
-#include "templates.hh"
-#include "Randomize.hh"
-#include "G4ThreeVector.hh"
-#include "G4ParticleMomentum.hh"
-#include "G4Step.hh"
-#include "G4VProcess.hh"
-#include "G4OpticalPhoton.hh"
-#include "G4DynamicParticle.hh"
-#include "G4Material.hh"
-#include "G4PhysicsTable.hh"
-#include "G4MaterialPropertyVector.hh"
-#include "G4MaterialPropertiesTable.hh"
-#include "G4PhysicsOrderedFreeVector.hh"
-#include "KM3Detector.hh"
+#include "globals.h"
+#include "templates.h"
+#include "Randomize.h"
+#include "G4ThreeVector.h"
+#include "G4ParticleMomentum.h"
+#include "G4Step.h"
+#include "G4VProcess.h"
+#include "G4OpticalPhoton.h"
+#include "G4DynamicParticle.h"
+#include "G4Material.h"
+#include "G4PhysicsTable.h"
+#include "G4MaterialPropertyVector.h"
+#include "G4MaterialPropertiesTable.h"
+#include "G4PhysicsOrderedFreeVector.h"
+#include "KM3Detector.h"
 
 class KM3Cherenkov : public G4VProcess {
  public:

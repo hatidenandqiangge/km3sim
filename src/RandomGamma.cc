@@ -1,6 +1,6 @@
 // Adapted from RNGAMA function of the KERNLIB
 // Shoot at random according to the gamma distribution.
-#include "RandomGamma.hh"
+#include "RandomGamma.h"
 #include <CLHEP/Random/Randomize.h>
 
 double RandomGamma(double p) {

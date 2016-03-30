@@ -2,8 +2,8 @@
 #define HAVertexMuons_h 1
 
 #include <vector>
-#include "globals.hh"
-#include "G4ThreeVector.hh"
+#include "globals.h"
+#include "G4ThreeVector.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>

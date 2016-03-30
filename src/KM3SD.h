@@ -1,12 +1,12 @@
 #ifndef KM3SD_h
 #define KM3SD_h 1
 
-#include "G4VSensitiveDetector.hh"
-#include "KM3Hit.hh"
+#include "G4VSensitiveDetector.h"
+#include "KM3Hit.h"
 #include <stdio.h>
-#include "KM3Detector.hh"
-#include "Randomize.hh"
-#include "G4MaterialPropertiesTable.hh"
+#include "KM3Detector.h"
+#include "Randomize.h"
+#include "G4MaterialPropertiesTable.h"
 
 class G4Step;
 class G4HCofThisEvent;

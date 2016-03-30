@@ -3,14 +3,14 @@
 #include "KM3Definitions.h"
 #include <stdio.h>
 #include <vector>
-#include "KM3Cathods.hh"
-#include "KM3PrimaryGeneratorAction.hh"
+#include "KM3Cathods.h"
+#include "KM3PrimaryGeneratorAction.h"
 
-#include "G4VUserDetectorConstruction.hh"
+#include "G4VUserDetectorConstruction.h"
 // newgeant #include "Saxana/SAXProcessor.h"
 // newgeant #include "Saxana/ProcessingConfigurator.h"
 
-#include "HOURSevtWRITE.hh"
+#include "HOURSevtWRITE.h"
 
 class G4VPhysicalVolume;
 

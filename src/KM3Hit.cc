@@ -1,11 +1,11 @@
-#include "KM3Hit.hh"
-#include "G4UnitsTable.hh"
-#include "G4VisManager.hh"
-#include "G4Circle.hh"
-#include "G4Colour.hh"
-#include "G4VisAttributes.hh"
-#include "G4Transform3D.hh"
-#include "G4LogicalVolume.hh"
+#include "KM3Hit.h"
+#include "G4UnitsTable.h"
+#include "G4VisManager.h"
+#include "G4Circle.h"
+#include "G4Colour.h"
+#include "G4VisAttributes.h"
+#include "G4Transform3D.h"
+#include "G4LogicalVolume.h"
 
 G4Allocator<KM3Hit> KM3HitAllocator;
 

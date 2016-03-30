@@ -1,9 +1,9 @@
 #ifndef KM3TrackingAction_h
 #define KM3TrackingAction_h 1
 
-#include "G4UserTrackingAction.hh"
-#include "HOURSevtWRITE.hh"
-#include "G4Types.hh"
+#include "G4UserTrackingAction.h"
+#include "HOURSevtWRITE.h"
+#include "G4Types.h"
 
 class KM3TrackingAction : public G4UserTrackingAction {
  public:

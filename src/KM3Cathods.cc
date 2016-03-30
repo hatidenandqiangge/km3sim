@@ -1,4 +1,4 @@
-#include "KM3Cathods.hh"
+#include "KM3Cathods.h"
 
 // map cathod ID to the following
 // 6 cathod params: x, y, z, dx, dy, dz

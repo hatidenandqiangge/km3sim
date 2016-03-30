@@ -1,5 +1,5 @@
-#include "KM3EMDeltaFlux.hh"
-#include "Randomize.hh"
+#include "KM3EMDeltaFlux.h"
+#include "Randomize.h"
 
 KM3EMDeltaFlux::KM3EMDeltaFlux(char *infileParam, G4double QEmax,
                                G4double TotCathodArea) {

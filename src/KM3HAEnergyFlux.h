@@ -2,11 +2,11 @@
 #define KM3HAEnergyFlux_h 1
 
 #include <vector>
-#include "globals.hh"
+#include "globals.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "KM3EMDistanceFlux.hh"
+#include "KM3EMDistanceFlux.h"
 
 class KM3HAEnergyFlux {
  public:
