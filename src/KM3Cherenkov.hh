@@ -53,7 +53,7 @@ class KM3Cherenkov : public G4VProcess {
   // uniformly azimuth w.r.t. the particle direction. The parameters are then
   // transformed into the Master Reference System, and they are added to the
   // particle change.
-//
+  //
   G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
 
   //  no operation in  AtRestDoIt and  AlongStepDoIt

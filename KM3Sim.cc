@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
   ParamParticle = atoi(argv[12]);
 }
 else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
-    (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
-    (argv[8][6] == 'A') && (argv[8][7] == 'M') && (argv[8][8] == 'u') &&
-    (argv[8][9] == 'o') && (argv[8][10] == 'n') && (argv[8][11] == 's') &&
-    (argv[8][12] == '\0')) {
+         (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'H') &&
+         (argv[8][6] == 'A') && (argv[8][7] == 'M') && (argv[8][8] == 'u') &&
+         (argv[8][9] == 'o') && (argv[8][10] == 'n') && (argv[8][11] == 's') &&
+         (argv[8][12] == '\0')) {
   useHEPEvt = true;
   useANTARESformat = false;
   fileParticles = argv[9];
@@ -76,8 +76,8 @@ else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
   }
 }
 else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
-    (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'F') &&
-    (argv[8][6] == 'i') && (argv[8][7] == 't') && (argv[8][8] == '\0')) {
+         (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'F') &&
+         (argv[8][6] == 'i') && (argv[8][7] == 't') && (argv[8][8] == '\0')) {
   useHEPEvt = false;
   useANTARESformat = false;
   if (argv[9] == NULL) {
@@ -93,8 +93,8 @@ else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
   ParamNumber = atoi(argv[11]);
 }
 else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
-    (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'E') &&
-    (argv[8][6] == 'M') && (argv[8][7] == '\0')) {
+         (argv[8][3] == 'a') && (argv[8][4] == 'm') && (argv[8][5] == 'E') &&
+         (argv[8][6] == 'M') && (argv[8][7] == '\0')) {
   useHEPEvt = false;
   useANTARESformat = false;
   if ((outfilePar = fopen(argv[9], "w")) == NULL) {
@@ -106,12 +106,12 @@ else if ((argv[8][0] == 'P') && (argv[8][1] == 'a') && (argv[8][2] == 'r') &&
   ParamParticle = atoi(argv[12]);
 }
 else if ((argv[8][0] == 'A') && (argv[8][1] == 'N') && (argv[8][2] == 'T') &&
-    (argv[8][3] == 'A') && (argv[8][4] == 'R') && (argv[8][5] == 'E') &&
-    (argv[8][6] == 'S') && (argv[8][7] == '_') && (argv[8][8] == 'E') &&
-    (argv[8][9] == 'V') && (argv[8][10] == 'T') && (argv[8][11] == '_') &&
-    (argv[8][12] == 'F') && (argv[8][13] == 'O') && (argv[8][14] == 'R') &&
-    (argv[8][15] == 'M') && (argv[8][16] == 'A') && (argv[8][17] == 'T') &&
-    (argv[8][18] == '\0')) {
+         (argv[8][3] == 'A') && (argv[8][4] == 'R') && (argv[8][5] == 'E') &&
+         (argv[8][6] == 'S') && (argv[8][7] == '_') && (argv[8][8] == 'E') &&
+         (argv[8][9] == 'V') && (argv[8][10] == 'T') && (argv[8][11] == '_') &&
+         (argv[8][12] == 'F') && (argv[8][13] == 'O') && (argv[8][14] == 'R') &&
+         (argv[8][15] == 'M') && (argv[8][16] == 'A') && (argv[8][17] == 'T') &&
+         (argv[8][18] == '\0')) {
   useHEPEvt = true;
   useANTARESformat = true;
   fileParticles = argv[9];
@@ -124,8 +124,8 @@ else {
 #ifdef G4MYHAMUONS_PARAMETERIZATION
 if (fileParamHAmuons == NULL) {
   G4cout << "G4MYHA_PARAMETERIZATION preprocessor flag must be combined with "
-    "ParamHA 7th command line argument"
-    << G4endl;
+            "ParamHA 7th command line argument"
+         << G4endl;
   return 1;
 }
 #endif
@@ -156,7 +156,7 @@ Mydet->EMParametrization_FILE = EMParametrization_FILE;
 Mydet->HAParametrization_FILE = HAParametrization_FILE;
 Mydet->outfilePar = outfilePar;
 #if defined(G4MYEM_PARAMETERIZATION) || \
-  defined(G4MYHA_PARAMETERIZATION)  // newha
+    defined(G4MYHA_PARAMETERIZATION)  // newha
 std::vector<long double> *myPhotonsTime = new std::vector<long double>;
 std::vector<long double> *myPhotonsNumber = new std::vector<long double>;
 std::vector<long double> *myCumPhotons = new std::vector<long double>;
@@ -206,7 +206,7 @@ Mydet->myPhotonsTh3 = myPhotonsTh3;
 G4VisManager *visManager = new G4VisExecutive;
 visManager->Initialize();
 G4TrajectoryDrawByParticleID *model =
-new G4TrajectoryDrawByParticleID("KM3TrajectoryModel");
+    new G4TrajectoryDrawByParticleID("KM3TrajectoryModel");
 model->SetDefault(G4Colour(1.0, 1.0, 1.0, 0.0));  // transparent white
 model->Set("mu-", "red");                         // assign red to mu-
 model->Set("mu+", "red");                         // also to mu+
@@ -217,7 +217,7 @@ model->Set("mu+", "red");                         // also to mu+
 visManager->RegisterModel(model);
 visManager->SelectTrajectoryModel(model->Name());
 G4TrajectoryParticleFilter *modelFilter =
-new G4TrajectoryParticleFilter("KM3TrajectoryFilterModel");
+    new G4TrajectoryParticleFilter("KM3TrajectoryFilterModel");
 modelFilter->Add("mu-");  // show the mu- trajectories
 modelFilter->Add("mu+");  // also the mu+
 //  modelFilter->Add("e+");
@@ -244,7 +244,7 @@ KM3TrackingAction *myTracking = new KM3TrackingAction;
 myTracking->TheEVTtoWrite = TheEVTtoWrite;
 myTracking->useANTARESformat = useANTARESformat;
 myGeneratorAction->myTracking =
-myTracking;  // link between generator and tracking (to provide number of
+    myTracking;  // link between generator and tracking (to provide number of
 // initial particles to trackingAction
 myGeneratorAction->Initialize();
 runManager->SetUserAction(myGeneratorAction);
@@ -255,7 +255,7 @@ event_action->outfile = savefile;
 event_action->TheEVTtoWrite = TheEVTtoWrite;
 event_action->useANTARESformat = useANTARESformat;
 #if !defined(G4MYEM_PARAMETERIZATION) && \
-  !defined(G4MYHA_PARAMETERIZATION)            // newha
+    !defined(G4MYHA_PARAMETERIZATION)            // newha
 myGeneratorAction->event_action = event_action;  // generator knows event to
 // set the number of initial
 // particles
@@ -266,9 +266,9 @@ Mydet->event_action = event_action;  // KM3SD must know the momentum of the
 // detector
 #endif
 #if defined(G4MYEM_PARAMETERIZATION) || \
-  defined(G4MYHA_PARAMETERIZATION)  // newha
+    defined(G4MYHA_PARAMETERIZATION)  // newha
 event_action->MyGenerator =
-myGeneratorAction;  // event action knows generator for EM param purposes
+    myGeneratorAction;  // event action knows generator for EM param purposes
 event_action->MyStDetector = Mydet;
 event_action->myPhotonsNumber = myPhotonsNumber;
 event_action->myCumPhotons = myCumPhotons;
@@ -285,7 +285,7 @@ KM3SteppingAction *myStepping = new KM3SteppingAction;
 myStacking->SetDetector(Mydet);
 #ifdef G4MYHAMUONS_PARAMETERIZATION
 std::ofstream *outMuonHAFile =
-new std::ofstream(fileParamHAmuons, std::ios::out | std::ios::binary);
+    new std::ofstream(fileParamHAmuons, std::ios::out | std::ios::binary);
 myGeneratorAction->outMuonHAFile = outMuonHAFile;
 myStacking->outMuonHAFile = outMuonHAFile;
 #endif
@@ -358,24 +358,24 @@ runManager->BeamOn(ParamNumber);
 #ifndef G4MYFIT_PARAMETERIZATION
 #ifndef G4MYEM_PARAMETERIZATION
 #if (defined(G4MYHA_PARAMETERIZATION) &&       \
-    defined(G4MYHAMUONS_PARAMETERIZATION)) || \
-!defined(G4MYHA_PARAMETERIZATION)
+     defined(G4MYHAMUONS_PARAMETERIZATION)) || \
+    !defined(G4MYHA_PARAMETERIZATION)
 runManager->BeamOn(myGeneratorAction->nevents);
 #endif
 #endif
 #endif
 
 #if (defined(G4MYEM_PARAMETERIZATION) &&    \
-    !defined(G4MYK40_PARAMETERIZATION)) || \
-defined(G4MYHA_PARAMETERIZATION)
+     !defined(G4MYK40_PARAMETERIZATION)) || \
+    defined(G4MYHA_PARAMETERIZATION)
 for (G4int i = 0; i < VertexDistAngleBins; i++) {
   fprintf(outfilePar, "%.20Le %.20Le %.20Le\n", (*myCumNorma)[i],
-      (*myCumPhotons)[i], (*myCumPhotonsRms)[i]);
+          (*myCumPhotons)[i], (*myCumPhotonsRms)[i]);
   G4int kstart = i * OMSolidAngleBins;
   G4int kstop = kstart + OMSolidAngleBins;
   for (G4int k = kstart; k < kstop; k++)
     fprintf(outfilePar, "%.20Le %.20Le %.20Le\n", (*myPhotonsTh2)[k],
-        (*myPhotonsTh3)[k], (*myPhotonsTh2Th3Num)[k]);
+            (*myPhotonsTh3)[k], (*myPhotonsTh2Th3Num)[k]);
   G4int jstart = i * TimeSolidAngleBins * TimeBins;
   G4int jstop = jstart + TimeSolidAngleBins * TimeBins;
   for (G4int j = jstart; j < jstop; j++)
@@ -392,24 +392,24 @@ if (visual && visuale) {
 // job termination
 if (!useANTARESformat)
   fclose(savefile);
-  else
+else
   delete TheEVTtoWrite;
 #ifdef G4MYFIT_PARAMETERIZATION
-  fclose(outfilePar);
+fclose(outfilePar);
 #endif
 #if defined(G4MYEM_PARAMETERIZATION) || \
     defined(G4MYHA_PARAMETERIZATION)  // newha
-  fclose(outfilePar);
+fclose(outfilePar);
 #endif
 
 #ifdef G4MYHAMUONS_PARAMETERIZATION
-  outMuonHAFile->close();
+outMuonHAFile->close();
 #endif
 
 #ifdef G4VIS_USE
-  // Visualization, if you choose to have it!
-  delete visManager;
+// Visualization, if you choose to have it!
+delete visManager;
 #endif
-  delete runManager;
-  return 0;
-  }
+delete runManager;
+return 0;
+}
