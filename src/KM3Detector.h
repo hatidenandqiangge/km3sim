@@ -3,6 +3,7 @@
 #include "KM3Definitions.h"
 #include <stdio.h>
 #include <vector>
+#include <string>
 #include "KM3Cathods.h"
 #include "KM3PrimaryGeneratorAction.h"
 
