@@ -1,5 +1,11 @@
 #include "KM3Cathods.hh"
 
+// map cathod ID to the following
+// 6 cathod params: x, y, z, dx, dy, dz
+// rest is global for all cathods
+// or can be deduced from those 6
+// std::map<int, std::array<float, 6>> cathod_dict_;
+
 KM3Cathods::KM3Cathods() { NumOfCathods = 0; }
 
 KM3Cathods::~KM3Cathods() {

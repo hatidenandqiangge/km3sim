@@ -6,12 +6,13 @@
 #include "KM3Cathods.hh"
 #include "KM3PrimaryGeneratorAction.hh"
 
-#include "HOURSevtWRITE.hh"
-
-class G4VPhysicalVolume;
 #include "G4VUserDetectorConstruction.hh"
 // newgeant #include "Saxana/SAXProcessor.h"
 // newgeant #include "Saxana/ProcessingConfigurator.h"
+
+#include "HOURSevtWRITE.hh"
+
+class G4VPhysicalVolume;
 
 class KM3Detector : public G4VUserDetectorConstruction {
  public:
@@ -32,6 +33,8 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double highestStorey;
   G4double outerStorey;
   G4double detectorRadius;
+
+  void ReadPMTPositions(const std::string &detx_file_name);
 
   // this is the maximum vertical distance of the storeys
   // from the center plus a number of absorpion lengths
@@ -58,7 +61,6 @@ class KM3Detector : public G4VUserDetectorConstruction {
   void ConstructMaterials(void);
   G4int TotalPMTEntities(const G4VPhysicalVolume *) const;
   void SetUpVariables(void);
-  void ReadPMTPositions(const std::string &detx_file_name);
   // newgeant  void sxpInitialize(void);
 
  private:
@@ -90,8 +92,5 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
   int global_det_id_;
   int n_doms_;
-
 }
-
-};
 #endif  // KM3Detector_h
