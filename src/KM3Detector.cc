@@ -911,3 +911,39 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // return the physical World
   return fWorld;
 }
+}
+
+void KM3Detector::ReadDetector(const std::string &detx_filename) {
+  // Parse according to
+  // http://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx.29
+  std::ifstream infile(detx_filename);
+
+  std::string line;
+  std::getline(infile, line);
+  std::isstringstream iss(line);
+  int global_det_id, n_doms;
+  iss >> global_det_id >> n_doms;
+
+  global_det_id_ = global_det_id;
+  n_doms_ = n_doms;
+
+  for (int dom = 0; dom < n_doms; dom++) {
+    std::getline(infile, line);
+    std::isstringstream iss(line);
+    int dom_id, line_id, floor_id, n_pmts;
+    iss >> dom_id >> line_id >> floor_id >> n_pmts;
+
+    for (int pmt = 0; pmt < n_pmts; pmt++) {
+      std::getline(infile, line);
+      std::isstringstream iss(line);
+      int pmt_id_global;
+      float x, y, z, dx, dy, dz, t0;
+      iss >> pmt_id_global >> x >> y >> z >> dx >> dy >> dz >> t0;
+    }
+  }
+}
+
+/*
+ * allCathods->addCathod(trans, Position, Direction, CathodRadius,
+ * CathodHeight, Depth - 1);
+ */
