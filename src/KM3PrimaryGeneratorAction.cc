@@ -26,32 +26,40 @@ void KM3PrimaryGeneratorAction::Initialize() {
 // that covers almost everything, except exotic particles (monopoles etc)
 void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   static G4int ievent = 0;
-  G4int idneu;     // type of neutrino interacting (PDG Code)
-  G4int idtarget;  // type of target if neutrino interaction (PDG Code)
-  G4double xneu, yneu, zneu;  // neutrino vertex (cm) if neutrino interaction
-  G4double pxneu, pyneu,
-      pzneu;               // neutrino momentum (GeV/c) if neutrino interaction
-  G4double xx0, yy0, zz0;  // Vertex of injected or produced particles (in cm)
-  G4double pxx0, pyy0,
-      pzz0;     // Momentum of injected or produced particles (in GeV/c)
-  G4double t0;  // initial time of injected particles(ns)
+
+  // type of neutrino interacting (PDG Code)
+  G4int idneu;
+  // type of target if neutrino interaction (PDG Code)
+  G4int idtarget;
+  // neutrino vertex (cm) if neutrino interaction
+  G4double xneu, yneu, zneu;
+  // neutrino momentum (GeV/c) if neutrino interaction
+  G4double pxneu, pyneu, pzneu;
+  // Vertex of injected or produced particles (in cm)
+  G4double xx0, yy0, zz0;
+  // Momentum of injected or produced particles (in GeV/c)
+  G4double pxx0, pyy0, pzz0;
+  // initial time of injected particles(ns)
+  G4double t0;
+
   ievent++;
   event_action->Initialize();
   if (!useHEPEvt) {
-    idtarget = 0;  // the target id is not relevant in case of injected
-    // particles.
-    idneu = 0;  // neither is the neutrino id
+    // the target id is not relevant in case of injected particles.
+    idtarget = 0;
+    // neither is the neutrino id
+    idneu = 0;
     xneu = 0.0;
     yneu = 0.0;
-    zneu = 0.0;  // or the neutrino interaction vertex
+    // or the neutrino interaction vertex
+    zneu = 0.0;
     pxneu = 0.0;
     pyneu = 0.0;
-    pzneu = 0.0;  // or the neutrino momentum
+    // or the neutrino momentum
+    pzneu = 0.0;
     antaresHEPEvt->ReadEvent();
     numberofParticles = antaresHEPEvt->GetNumberOfParticles();
 
-    // old code
-    // ///////////////////////////////////////////////////////////////////////////////////////
     EventWeight = 1.0;
     for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
       // define the particle object and properties from the particle PDG code
@@ -76,11 +84,10 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     }
   }
 
-// laser beam
 #ifdef G4MYLASER_PARAMETERIZATION
   if (!useHEPEvt) {
-    /// at first initialize the pointers to Rindex,Q_E, glass and gell
-    /// transparencies////
+    // at first initialize the pointers to Rindex,Q_E, glass and gell
+    // transparencies
     static G4MaterialPropertyVector *QECathod = NULL;
     if (QECathod == NULL) {
       const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
@@ -92,8 +99,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         }
       }
     }
-    /// end of
-    /// initialization//////////////////////////////////////////////////////
     // input: number of photons, wavelength, laser position
     // the DOM is located at (0,0,0).
     G4int Num_Laser_Photons = 100000;
@@ -108,13 +113,16 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       fscanf(LaserData, "%lf %lf %lf %lf %lf %lf\n", &LaserX, &LaserY, &LaserZ,
              &LaserDX, &LaserDY, &LaserDZ);
       fclose(LaserData);
-      position[0] = LaserX * m;      // laser position x
-      position[1] = LaserY * m;      // laser position y
-      position[2] = LaserZ * m;      // laser position z
-      direction[0] = LaserDX;        // photon direction x
-      direction[1] = LaserDY;        // photon direction y
-      direction[2] = LaserDZ;        // photon direction z
-      direction = direction.unit();  // normalize the direction vector
+      // laser pos
+      position[0] = LaserX * m;
+      position[1] = LaserY * m;
+      position[2] = LaserZ * m;
+      // photon direction
+      direction[0] = LaserDX;
+      direction[1] = LaserDY;
+      direction[2] = LaserDZ;
+      // normalize the direction vector
+      direction = direction.unit();
       fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", LaserX, LaserY,
               LaserZ, LaserDX, LaserDY, LaserDZ, Wavelength_Laser_Photons / nm);
     }
@@ -123,9 +131,9 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         G4OpticalPhoton::OpticalPhotonDefinition();
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, 0.0);
     numberofParticles = 0;
-    for (G4int ip = 0; ip < Num_Laser_Photons;
-         ip++) {  // Num_Laser_Photons is the number of photns before the
+      // Num_Laser_Photons is the number of photns before the
       // relative QE and transparencies
+    for (G4int ip = 0; ip < Num_Laser_Photons; ip++) {
       G4double qeProb = QECathod->Value(photonEnergy);
       if (G4UniformRand() < qeProb) {
         numberofParticles++;
@@ -150,17 +158,16 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         initialParticle->SetPolarization(sx, sy, sz);
         vertex->SetPrimary(initialParticle);
       }
-      ////////////////////////////////////////////////////////////////////////////
     }
     anEvent->AddPrimaryVertex(vertex);
     G4cout << "Generating one laser pulse " << ievent << " Number of photons "
            << numberofParticles << G4endl;
   }
-#endif
-  // laser beam
+#endif // G4MYLASER_PARAMETERIZATION
 
   else {
-    t0 = 0.0;  // starting particle time is common in neutrino interaction
+    // starting particle time is common in neutrino interaction
+    t0 = 0.0;
     antaresHEPEvt->ReadEvent();
     antaresHEPEvt->GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu,
                                    pyneu, pzneu, t0);
