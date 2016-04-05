@@ -2,11 +2,11 @@
 #define KM3EMDirectFlux_h 1
 
 #include <vector>
-#include "globals.hh"
+#include "globals.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "KM3EMAngularFlux.hh"
+#include "KM3EMAngularFlux.h"
 
 class KM3EMDirectFlux {
  public:

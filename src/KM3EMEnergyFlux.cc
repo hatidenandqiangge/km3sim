@@ -1,5 +1,5 @@
-#include "KM3EMEnergyFlux.hh"
-#include "Randomize.hh"
+#include "KM3EMEnergyFlux.h"
+#include "Randomize.h"
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
 

@@ -1,13 +1,13 @@
 #ifndef HOURSevtREAD_h
 #define HOURSevtREAD_h
 
-#include "io_gcc.hh"
+#include "io_gcc.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <math.h>
 // following is for hepevt interface
-#include "G4Event.hh"
+#include "G4Event.h"
 //////////////////////////////////
 using namespace std;
 

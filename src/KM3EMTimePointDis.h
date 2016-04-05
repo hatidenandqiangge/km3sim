@@ -2,11 +2,11 @@
 #define KM3EMTimePointDis_h 1
 
 #include <vector>
-#include "globals.hh"
+#include "globals.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "G4ExceptionHandler.hh"
+#include "G4ExceptionHandler.h"
 
 struct onePE {
   G4double time;

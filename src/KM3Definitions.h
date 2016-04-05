@@ -1,5 +1,5 @@
-#include "G4Types.hh"
-#include "G4ThreeVector.hh"
+#include "G4Types.h"
+#include "G4ThreeVector.h"
 #include <vector>
 struct OMPositions {
   G4ThreeVector position;

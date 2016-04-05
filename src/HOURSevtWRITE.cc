@@ -1,4 +1,4 @@
-#include "HOURSevtWRITE.hh"
+#include "HOURSevtWRITE.h"
 
 HOURSevtWRITE::HOURSevtWRITE(char *infilechar, char *outfilechar) {
   infile.open(infilechar, ifstream::in);

@@ -1,7 +1,7 @@
 #ifndef HOURSevtWRITE_h
 #define HOURSevtWRITE_h
 
-#include "io_gcc.hh"
+#include "io_gcc.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>

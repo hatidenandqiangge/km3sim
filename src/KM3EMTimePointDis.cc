@@ -1,5 +1,5 @@
-#include "KM3EMTimePointDis.hh"
-#include "Randomize.hh"
+#include "KM3EMTimePointDis.h"
+#include "Randomize.h"
 
 KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   TimeSolidAngleBins = 52;

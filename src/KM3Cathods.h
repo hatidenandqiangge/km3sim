@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <stdio.h>
-#include "globals.hh"
-#include "G4ThreeVector.hh"
-#include "G4Transform3D.hh"
+#include "globals.h"
+#include "G4ThreeVector.h"
+#include "G4Transform3D.h"
 
 struct Cathod {
   G4ThreeVector Position;

@@ -1,8 +1,8 @@
-#include "KM3EventAction.hh"
-#include "G4Event.hh"
-#include "G4EventManager.hh"
-#include "G4ParticleTable.hh"
-#include "globals.hh"
+#include "KM3EventAction.h"
+#include "G4Event.h"
+#include "G4EventManager.h"
+#include "G4ParticleTable.h"
+#include "globals.h"
 
 void KM3EventAction::BeginOfEventAction(const G4Event *) {
   if (!(G4ParticleTable::GetParticleTable()->GetReadiness())) {
