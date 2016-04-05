@@ -23,9 +23,10 @@
 //#include "G4GammaConversionToMuons.hh"
 #include "G4PhotoElectricEffect.hh"
 
-// newgeant #include "G4MultipleScattering.hh" //in version 4.9.3.p02 geant4
-// threatens than G4MultipleScattering class will be removed in next releases,
-// so the next ones are assigned for e+-, mu+-, hadrons and ions, respectively
+// newgeant #include "G4MultipleScattering.hh"
+// in version 4.9.3.p02 geant4 threatens than G4MultipleScattering class
+// will be removed in next releases, so the next ones are assigned for
+// e+-, mu+-, hadrons and ions, respectively
 #include "G4eMultipleScattering.hh"
 #include "G4MuMultipleScattering.hh"
 #include "G4hMultipleScattering.hh"
@@ -93,8 +94,9 @@ void KM3Physics::ConstructProcess() {
   AddTransportation();
   AddParameterisation();
   ConstructEM();
-  ConstructHA();  // construct hadronic processes only in case of Pythia input
-                  // (for apparent reasons)
+  // construct hadronic processes only in case of Pythia input
+  // (for apparent reasons)
+  ConstructHA();
   ConstructGeneral();
   ConstructOP();
 
@@ -371,16 +373,14 @@ void KM3Physics::ConstructHA() {
   theQGSP_FTFP_BERT->SetVerboseLevel(0);
   theQGSP_FTFP_BERT->ConstructProcess();
 
-  // put elastic and inelastic models max energy to 100PeV only for barions and
-  // mesons.
-  // since I dont want to dublicate the QGSP_FTFP_BERT code here and since at
-  // this moment
-  // I don't have access to HadronicProcessStore, the only way to change the
-  // upper limit of the
-  // high energy models of many barions and mesons is to access the Process
-  // through the particle manager
-  // and access the highest energy interaction model of this process through the
-  // the G4EnergyRangeManager
+  // put elastic and inelastic models max energy to 100PeV only
+  // for barions and mesons. since I dont want to dublicate the
+  // QGSP_FTFP_BERT code here and since at this moment I don't have
+  // access to HadronicProcessStore, the only way to change the upper
+  // limit of the high energy models of many barions and mesons is to
+  // access the Process through the particle manager and access the
+  // highest energy interaction model of this process through the the
+  // G4EnergyRangeManager
   theParticleIterator->reset();
   while ((*theParticleIterator)()) {
     G4ParticleDefinition *particle = theParticleIterator->value();

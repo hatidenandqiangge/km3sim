@@ -51,7 +51,6 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     numberofParticles = antaresHEPEvt->GetNumberOfParticles();
 
     // old code
-    // ///////////////////////////////////////////////////////////////////////////////////////
     EventWeight = 1.0;
     for (G4int ipart = 0; ipart < numberofParticles; ipart++) {
       // define the particle object and properties from the particle PDG code
@@ -79,8 +78,8 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 // laser beam
 #ifdef G4MYLASER_PARAMETERIZATION
   if (!useHEPEvt) {
-    /// at first initialize the pointers to Rindex,Q_E, glass and gell
-    /// transparencies////
+    // at first initialize the pointers to Rindex,Q_E, glass and gell
+    // transparencies////
     static G4MaterialPropertyVector *QECathod = NULL;
     if (QECathod == NULL) {
       const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
@@ -92,8 +91,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         }
       }
     }
-    /// end of
-    /// initialization//////////////////////////////////////////////////////
+    // end of initialization
     // input: number of photons, wavelength, laser position
     // the DOM is located at (0,0,0).
     G4int Num_Laser_Photons = 100000;
@@ -150,14 +148,12 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
         initialParticle->SetPolarization(sx, sy, sz);
         vertex->SetPrimary(initialParticle);
       }
-      ////////////////////////////////////////////////////////////////////////////
     }
     anEvent->AddPrimaryVertex(vertex);
     G4cout << "Generating one laser pulse " << ievent << " Number of photons "
            << numberofParticles << G4endl;
   }
-#endif
-  // laser beam
+#endif  // laser beam
 
   else {
     t0 = 0.0;  // starting particle time is common in neutrino interaction
