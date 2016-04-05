@@ -103,7 +103,6 @@ int main(int argc, char *argv[]) {
   G4bool useANTARESformat = true;
   char *fileParticles;
   char *filePythiaParticles;
-  FILE *outfilePar;
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
@@ -121,7 +120,6 @@ int main(int argc, char *argv[]) {
   KM3Detector *Mydet = new KM3Detector;
   Mydet->Geometry_File = Geometry_File;
   Mydet->Parameter_File = Parameter_File;
-  Mydet->outfilePar = outfilePar;
   runManager->SetUserInitialization(Mydet);
 
   KM3Physics *MyPhys = new KM3Physics;

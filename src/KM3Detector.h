@@ -22,7 +22,6 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
  public:
   FILE *outfile;
-  FILE *outfilePar;
   G4bool useANTARESformat;
   HOURSevtWRITE *TheEVTtoWrite;
 
