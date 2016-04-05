@@ -1,7 +1,7 @@
 #include "EvtIO.h"
 
 EvtIO::EvtIO(char *infilechar, char *outfilechar) {
-  infile.open(infilechar, ifstream::in);
+  infile.open(infilechar, std::ifstream::in);
   evt = new event();
 
   // the following is to find if it is neutrino events
@@ -23,9 +23,9 @@ EvtIO::EvtIO(char *infilechar, char *outfilechar) {
   }
   // position to the beggining of the file
   infile.clear();
-  infile.seekg(0, ios::beg);
+  infile.seekg(0, std::ios::beg);
 
-  outfile.open(outfilechar, ofstream::out);
+  outfile.open(outfilechar, std::ofstream::out);
   RunHeaderIsRead = false;
   RunHeaderIsWrite = false;
 }
@@ -34,6 +34,10 @@ EvtIO::~EvtIO() {
   delete evt;
   infile.close();
   outfile.close();
+}
+
+int EvtIO::GetNumberOfEvents() {
+  return nevents;
 }
 
 void EvtIO::ReadRunHeader() {
@@ -54,7 +58,7 @@ void EvtIO::ReadEvent() {
   // use earthlepton or not
   if (isneutrinoevent && !hasbundleinfo) {
     evt->ndat("neutrino");
-    string NeutrinoInfo = evt->next("neutrino");
+    std::string NeutrinoInfo = evt->next("neutrino");
     GetArgs(NeutrinoInfo, argnumber, args);
     double xneu, yneu, zneu;
     xneu = args[1];
@@ -64,7 +68,7 @@ void EvtIO::ReadEvent() {
     if (NumberOfPart > 1) {
       double xx0, yy0, zz0;
       for (int ipart = 0; ipart < NumberOfPart; ipart++) {
-        string ParticleInfo = evt->next("track_in");
+        std::string ParticleInfo = evt->next("track_in");
         GetArgs(ParticleInfo, argnumber, args);
         xx0 = args[1];
         yy0 = args[2];
@@ -82,7 +86,7 @@ void EvtIO::ReadEvent() {
     NumberOfParticles = evt->ndat("track_in");
   int icount = 0;
   for (int ip = 0; ip < NumberOfParticles; ip++) {
-    string ParticleInfo;
+    std::string ParticleInfo;
     if (UseEarthLepton)
       ParticleInfo = evt->next("track_earthlepton");
     else
@@ -97,18 +101,18 @@ void EvtIO::ReadEvent() {
   }
 }
 
-void EvtIO::GetArgs(string &chd, int &argnumber, double *args) {
-  string subchd = chd;
+void EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
+  std::string subchd = chd;
   size_t length = subchd.length();
   size_t start, stop;
   argnumber = 0;
   while (length > 0) {
     start = 0;
     stop = subchd.find_first_of(" ");
-    if (stop != string::npos) {
+    if (stop != std::string::npos) {
       args[argnumber] = atof((subchd.substr(start, stop - start)).data());
       start = subchd.find_first_not_of(" ", stop);
-      if (start != string::npos) {
+      if (start != std::string::npos) {
         subchd = subchd.substr(start, length);
         length = subchd.length();
       } else {
@@ -126,7 +130,7 @@ void EvtIO::WriteEvent() { evt->write(outfile); }
 
 void EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
                            int npepure, double ttpure, int creatorProcess) {
-  string dt("hit");
+  std::string dt("hit");
   char buffer[256];
   int Gid;
   if (trackid <= NumberOfParticles) {
@@ -140,15 +144,15 @@ void EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
   PMTid++;  // in the evt file the numbering of pmts starts from 1
   sprintf(buffer, "%8d %6d %6.2f %10.2f %4d %4d %3d %10.2f %4d", id, PMTid, pe,
           t, Gid, trackid, npepure, ttpure, creatorProcess);
-  string dw(buffer);
+  std::string dw(buffer);
   evt->taga(dt, dw);
 }
 
 void EvtIO::AddNumberOfHits(int hitnumber) {
-  string dt("total_hits");
+  std::string dt("total_hits");
   char buffer[256];
   sprintf(buffer, "%8d", hitnumber);
-  string dw(buffer);
+  std::string dw(buffer);
   evt->taga(dt, dw);
 }
 
@@ -156,7 +160,7 @@ void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
                                         double posx, double posy, double posz,
                                         double momx, double momy, double momz,
                                         double mom, double time) {
-  string dt("muonaddi_info");
+  std::string dt("muonaddi_info");
   char buffer[256];
   tracknumber =
       ParticlesIdNumber[tracknumber -
@@ -165,21 +169,21 @@ void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
           "%4d %2d %8.2f %8.2f %8.2f %10.6f %10.6f %10.6f %12.6e %10.2f",
           tracknumber, positionnumber, posx, posy, posz, momx, momy, momz, mom,
           time);
-  string dw(buffer);
+  std::string dw(buffer);
   evt->taga(dt, dw);
 }
 
 void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
                                         double posx, double posy, double posz,
                                         double time) {
-  string dt("muonaddi_info");
+  std::string dt("muonaddi_info");
   char buffer[256];
   tracknumber =
       ParticlesIdNumber[tracknumber -
                         1];  // convert from geant track id to input track id
   sprintf(buffer, "%4d %2d %8.2f %8.2f %8.2f %10.2f", tracknumber,
           positionnumber, posx, posy, posz, time);
-  string dw(buffer);
+  std::string dw(buffer);
   evt->taga(dt, dw);
 }
 
@@ -194,20 +198,20 @@ void EvtIO::AddMuonDecaySecondaries(int trackID, int parentID,
   parentID =
       ParticlesIdNumber[parentID -
                         1];  // convert from geant track id to input track id
-  string dt("muon_decay");
+  std::string dt("muon_decay");
   char buffer[256];
   sprintf(
       buffer,
       "%6d %6d %10.3f %10.3f %10.3f %12.8f %12.8f %12.8f %12.6f %10.2f %10d",
       trackID, parentID, posx, posy, posz, dx, dy, dz, energy, time, idPDG);
-  string dw(buffer);
+  std::string dw(buffer);
   evt->taga(dt, dw);
 }
 
 #ifdef G4MYMUON_KEEPENERGY
-void EvtIO::AddMuonEnergyInfo(const vector<double> &info) {
+void EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
   if (info.size() == 0) return;
-  string dt("muonenergy_info");
+  std::string dt("muonenergy_info");
   char buffer[256];
   int NumberOfTags = int((info.size() - 1) / 10.0) + 1;
   for (int itag = 0; itag < NumberOfTags; itag++) {

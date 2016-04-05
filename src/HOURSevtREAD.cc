@@ -1,7 +1,7 @@
 #include "HOURSevtREAD.h"
 
 HOURSevtREAD::HOURSevtREAD(char *infilechar) {
-  infile.open(infilechar, ifstream::in);
+  infile.open(infilechar, std::ifstream::in);
   evt = new event();
   // read header
   int ierr = evt->read(infile);
@@ -16,7 +16,7 @@ HOURSevtREAD::HOURSevtREAD(char *infilechar) {
   }
   // position to the beggining of the file
   infile.clear();
-  infile.seekg(0, ios::beg);
+  infile.seekg(0, std::ios::beg);
 
   // read header again
   ierr = evt->read(infile);
@@ -278,7 +278,7 @@ double HOURSevtREAD::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
 void HOURSevtREAD::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
                                    double &zz0, double &pxx0, double &pyy0,
                                    double &pzz0, double &t0) {
-  string ParticleInfo;
+  std::string ParticleInfo;
   if (UseEarthLepton)
     ParticleInfo = evt->next("track_earthlepton");
   else
@@ -338,7 +338,7 @@ void HOURSevtREAD::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
   pzneu = 0.0;
   if (!isneutrinoevent) return;
   evt->ndat("neutrino");
-  string NeutrinoInfo = evt->next("neutrino");
+  std::string NeutrinoInfo = evt->next("neutrino");
   double args[100];
   int argnumber;
   GetArgs(NeutrinoInfo, argnumber, args);
@@ -370,18 +370,19 @@ void HOURSevtREAD::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
   }
 }
 
-void HOURSevtREAD::GetArgs(string &chd, int &argnumber, double *args) {
-  string subchd = chd;
+// exactly as in EvtIO
+void HOURSevtREAD::GetArgs(std::string &chd, int &argnumber, double *args) {
+  std::string subchd = chd;
   size_t length = subchd.length();
   size_t start, stop;
   argnumber = 0;
   while (length > 0) {
     start = 0;
     stop = subchd.find_first_of(" ");
-    if (stop != string::npos) {
+    if (stop != std::string::npos) {
       args[argnumber] = atof((subchd.substr(start, stop - start)).data());
       start = subchd.find_first_not_of(" ", stop);
-      if (start != string::npos) {
+      if (start != std::string::npos) {
         subchd = subchd.substr(start, length);
         length = subchd.length();
       } else {
@@ -397,17 +398,11 @@ void HOURSevtREAD::GetArgs(string &chd, int &argnumber, double *args) {
 
 bool HOURSevtREAD::IsNeutrinoEvent(void) { return isneutrinoevent; }
 
-// following is for hepevt interface
-#include "G4PrimaryVertex.h"
-#include "G4PrimaryParticle.h"
-//#include "G4ThreeVector.h"
 
-//////////////////////////////////
 
 void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
   if (isneutrinoevent && hasbundleinfo) {
-    // first read the information of the neutrino
-    // vertex////////////////////////////////
+    // first read the information of the neutrino vertex
     int idneu, idtarget;
     double xneu, yneu, zneu, pxneu, pyneu, pzneu, t0;
     GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu, pyneu, pzneu, t0);
@@ -438,9 +433,7 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
     }
     // Put the vertex to G4Event object
     anEvent->AddPrimaryVertex(vertex);
-    //////////////////////////////////////////////////////////////////////////////////
-    // next load the information from the bundle
-    // muons/////////////////////////////////
+    // next load the information from the bundle muons
     NHEP = GetNumberOfParticles();
     ReadNeutrinoVertexParticles = false;
     for (int IHEP = 0; IHEP < NHEP; IHEP++) {
