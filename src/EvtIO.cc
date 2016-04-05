@@ -36,6 +36,10 @@ EvtIO::~EvtIO() {
   outfile.close();
 }
 
+int EvtIO::GetNumberOfEvents() {
+  return nevents;
+}
+
 void EvtIO::ReadRunHeader() {
   if (!RunHeaderIsRead) evt->read(infile);
   RunHeaderIsRead = true;

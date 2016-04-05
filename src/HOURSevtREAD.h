@@ -10,6 +10,9 @@
 #include <vector>
 // following is for hepevt interface
 #include "G4Event.h"
+#include "G4PrimaryVertex.h"
+#include "G4PrimaryParticle.h"
+//#include "G4ThreeVector.h"
 
 class HOURSevtREAD {
  public:

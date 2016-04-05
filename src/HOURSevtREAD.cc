@@ -397,10 +397,6 @@ void HOURSevtREAD::GetArgs(std::string &chd, int &argnumber, double *args) {
 
 bool HOURSevtREAD::IsNeutrinoEvent(void) { return isneutrinoevent; }
 
-// following is for hepevt interface
-#include "G4PrimaryVertex.h"
-#include "G4PrimaryParticle.h"
-//#include "G4ThreeVector.h"
 
 
 void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
@@ -436,9 +432,7 @@ void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
     }
     // Put the vertex to G4Event object
     anEvent->AddPrimaryVertex(vertex);
-    //////////////////////////////////////////////////////////////////////////////////
-    // next load the information from the bundle
-    // muons/////////////////////////////////
+    // next load the information from the bundle muons
     NHEP = GetNumberOfParticles();
     ReadNeutrinoVertexParticles = false;
     for (int IHEP = 0; IHEP < NHEP; IHEP++) {

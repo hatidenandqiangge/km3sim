@@ -2,12 +2,20 @@
 #define EvtIO_h
 
 #include "io_gcc.h"
-#include <iostream>
-#include <fstream>
 #include <stdlib.h>
 #include <math.h>
-#include <vector>
+
+#include <iostream>
+#include <fstream>
 #include <string>
+#include <vector>
+
+// following is for hepevt interface
+#include "G4Event.h"
+#include "G4PrimaryVertex.h"
+#include "G4PrimaryParticle.h"
+//#include "G4ThreeVector.h"
+
 
 class EvtIO {
  public:
@@ -31,9 +39,23 @@ class EvtIO {
                                double posy, double posz, double dx, double dy,
                                double dz, double energy, double time,
                                int idPDG);
+
 #ifdef G4MYMUON_KEEPENERGY
   void AddMuonEnergyInfo(const std::vector<double> &info);
 #endif
+
+	// taken from reader
+  int GetNumberOfEvents();
+  void ReadEvent(void);   // possible duplication
+  void GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu, double &yneu,
+                       double &zneu, double &pxneu, double &pyneu,
+                       double &pzneu, double &t0);
+  int GetNumberOfParticles();
+  void GetParticleInfo(int &idbeam, double &xx0, double &yy0, double &zz0,
+                       double &pxx0, double &pyy0, double &pzz0, double &t0);
+  bool IsNeutrinoEvent(void);
+
+  void GeneratePrimaryVertex(G4Event *anEvent);
 
  private:
   event *evt;
@@ -47,5 +69,18 @@ class EvtIO {
   bool hasbundleinfo;
   void GetArgs(string &chd, int &argnumber, double *args);
   int NumberOfParticles;
+
+  // taken from reader
+  int nevents;
+  int ICONPDG[174];
+  double PDGMADD[174];
+  void Initialize(void);
+  int ConvertHEPToPDG(int hepcode);
+  void GetArgs(string &chd, int &argnumber, double *args);
+  double GetParticleMass(int hepcode);
+  bool UseEarthLepton;
+  bool isneutrinoevent;
+  bool hasbundleinfo;
+  bool ReadNeutrinoVertexParticles;
 };
 #endif
