@@ -1,9 +1,6 @@
 #ifndef HOURSevtREAD_h
 #define HOURSevtREAD_h
 
-// IS DEPRECATED
-// IO IS HAPPENING IN
-// EvtIO
 
 #include "io_gcc.h"
 #include <iostream>
@@ -12,7 +9,7 @@
 #include <math.h>
 // following is for hepevt interface
 #include "G4Event.h"
-//////////////////////////////////
+
 using namespace std;
 
 class HOURSevtREAD {
@@ -36,7 +33,7 @@ class HOURSevtREAD {
  private:
   event *evt;
   int nevents;
-  ifstream infile;
+  std::ifstream infile;
   int ICONPDG[174];
   double PDGMASS[174];
   void Initialize(void);

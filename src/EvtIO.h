@@ -38,8 +38,8 @@ class EvtIO {
 
  private:
   event *evt;
-  ifstream infile;
-  ofstream outfile;
+  std::ifstream infile;
+  std::ofstream outfile;
   bool RunHeaderIsRead;
   bool RunHeaderIsWrite;
   int ParticlesHEPNumber[210000];
