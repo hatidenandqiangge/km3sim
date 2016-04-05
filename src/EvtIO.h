@@ -1,5 +1,4 @@
-#ifndef EvtIO_h
-#define EvtIO_h
+#ifndef EvtIO_h #define EvtIO_h
 
 #include "io_gcc.h"
 #include <stdlib.h>
@@ -76,11 +75,8 @@ class EvtIO {
   double PDGMADD[174];
   void Initialize(void);
   int ConvertHEPToPDG(int hepcode);
-  void GetArgs(string &chd, int &argnumber, double *args);
   double GetParticleMass(int hepcode);
   bool UseEarthLepton;
-  bool isneutrinoevent;
-  bool hasbundleinfo;
   bool ReadNeutrinoVertexParticles;
 };
 #endif

@@ -370,6 +370,7 @@ void HOURSevtREAD::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
   }
 }
 
+// exactly as in EvtIO
 void HOURSevtREAD::GetArgs(std::string &chd, int &argnumber, double *args) {
   std::string subchd = chd;
   size_t length = subchd.length();
