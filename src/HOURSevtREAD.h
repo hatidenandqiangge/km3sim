@@ -1,6 +1,10 @@
 #ifndef HOURSevtREAD_h
 #define HOURSevtREAD_h
 
+// IS DEPRECATED
+// IO IS HAPPENING IN
+// HOURSevtWRITE
+
 #include "io_gcc.h"
 #include <iostream>
 #include <fstream>

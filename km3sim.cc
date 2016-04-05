@@ -94,26 +94,26 @@ int main(int argc, char *argv[]) {
   for (auto const &arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
   }
-  G4long myseed = atol(argv[2]);
-  G4cout << myseed << G4endl;
+
+  G4long myseed = atol(args["--seed"]);
   CLHEP::HepRandom::setTheSeed(myseed);
 
-  char *Geometry_File = argv[4];
-  char *Parameter_File = argv[5];
-  G4bool useHEPEvt;
-  G4bool useANTARESformat = true;
+  std::string Geometry_File = args["-d"];
+  std::string Parameter_File = args["-i"];
   char *fileParticles;
   char *filePythiaParticles;
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
 
-  useHEPEvt = true;
-  useANTARESformat = true;
+  G4bool useHEPEvt = true;
+  G4bool useANTARESformat = true;
+  // argv[9] = ???
   fileParticles = argv[9];
 
   FILE *savefile;
   HOURSevtWRITE *TheEVTtoWrite;
+  // hoursevetwrite(infile, outfile)
   TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
 
   G4RunManager *runManager = new G4RunManager;
