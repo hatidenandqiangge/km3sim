@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <vector>
-
-using namespace std;
+#include <string>
 
 class EvtIO {
  public:
@@ -33,7 +32,7 @@ class EvtIO {
                                double dz, double energy, double time,
                                int idPDG);
 #ifdef G4MYMUON_KEEPENERGY
-  void AddMuonEnergyInfo(const vector<double> &info);
+  void AddMuonEnergyInfo(const std::vector<double> &info);
 #endif
 
  private:

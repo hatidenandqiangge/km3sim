@@ -402,12 +402,10 @@ bool HOURSevtREAD::IsNeutrinoEvent(void) { return isneutrinoevent; }
 #include "G4PrimaryParticle.h"
 //#include "G4ThreeVector.h"
 
-//////////////////////////////////
 
 void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
   if (isneutrinoevent && hasbundleinfo) {
-    // first read the information of the neutrino
-    // vertex////////////////////////////////
+    // first read the information of the neutrino vertex
     int idneu, idtarget;
     double xneu, yneu, zneu, pxneu, pyneu, pzneu, t0;
     GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu, pyneu, pzneu, t0);

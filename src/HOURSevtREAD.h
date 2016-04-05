@@ -1,16 +1,15 @@
 #ifndef HOURSevtREAD_h
 #define HOURSevtREAD_h
 
-
 #include "io_gcc.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <math.h>
+#include <string>
+#include <vector>
 // following is for hepevt interface
 #include "G4Event.h"
-
-using namespace std;
 
 class HOURSevtREAD {
  public:
