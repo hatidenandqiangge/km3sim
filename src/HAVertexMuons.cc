@@ -1,4 +1,4 @@
-#include "HAVertexMuons.hh"
+#include "HAVertexMuons.h"
 
 HAVertexMuons::HAVertexMuons(char *MuonsFile, char *MuonsIndexFile) {
   // first open the index file

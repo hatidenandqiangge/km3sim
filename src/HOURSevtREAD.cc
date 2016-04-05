@@ -1,4 +1,4 @@
-#include "HOURSevtREAD.hh"
+#include "HOURSevtREAD.h"
 
 HOURSevtREAD::HOURSevtREAD(char *infilechar) {
   infile.open(infilechar, ifstream::in);
@@ -398,9 +398,9 @@ void HOURSevtREAD::GetArgs(string &chd, int &argnumber, double *args) {
 bool HOURSevtREAD::IsNeutrinoEvent(void) { return isneutrinoevent; }
 
 // following is for hepevt interface
-#include "G4PrimaryVertex.hh"
-#include "G4PrimaryParticle.hh"
-//#include "G4ThreeVector.hh"
+#include "G4PrimaryVertex.h"
+#include "G4PrimaryParticle.h"
+//#include "G4ThreeVector.h"
 
 //////////////////////////////////
 

@@ -1,7 +1,7 @@
-#include "KM3SteppingAction.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4Step.hh"
+#include "KM3SteppingAction.h"
+#include "G4ParticleDefinition.h"
+#include "G4ParticleTypes.h"
+#include "G4Step.h"
 
 KM3SteppingAction::KM3SteppingAction() {
   P7[0] = 0.14709;
@@ -25,18 +25,18 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   if (aStep->GetTrack()->GetParentID() == 0) {  // only the primary particle
     if (aStep->GetTrack()->GetDefinition() ==
-            G4MuonPlus::MuonPlusDefinition() ||
+        G4MuonPlus::MuonPlusDefinition() ||
         aStep->GetTrack()->GetDefinition() ==
-            G4MuonMinus::MuonMinusDefinition()) {
+        G4MuonMinus::MuonMinusDefinition()) {
       p0 = aStep->GetTrack()->GetMomentumDirection();
       x0 = aStep->GetTrack()->GetPosition();
-// here we keep the energy of the muon every 10 meters (approximately)
-// only if the first primary is a muon
+      // here we keep the energy of the muon every 10 meters (approximately)
+      // only if the first primary is a muon
 #ifdef G4MYMUON_KEEPENERGY
       if (aStep->GetTrack()->GetTrackID() == 1) {
         G4ThreeVector StartPosition = aStep->GetTrack()->GetVertexPosition();
         G4ThreeVector StartDirection =
-            aStep->GetTrack()->GetVertexMomentumDirection();
+          aStep->GetTrack()->GetVertexMomentumDirection();
         G4double DistanceCovered = (x0 - StartPosition).dot(StartDirection);
         G4int iDist = int(DistanceCovered / (10.0 * m));
         G4int iSlots = event_action->EnergyAtPosition.size();
@@ -61,20 +61,19 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
           event_action->stopTime[MuonSlot] = aStep->GetTrack()->GetGlobalTime();
         }
       }
-      //////////////new/ here kill muons that have not enough energy to reach
-      /// the can////////////////////////////
+      // here kill muons that have not enough energy to reach the can
       // first check if it is inside the can
       G4double RRR2 =
-          myStDetector->detectorMaxRho * myStDetector->detectorMaxRho;
+        myStDetector->detectorMaxRho * myStDetector->detectorMaxRho;
       G4double rxy2 = x0[0] * x0[0] + x0[1] * x0[1];
       if ((rxy2 > RRR2) || (x0[2] < myStDetector->bottomPosition) ||
           (x0[2] >
            myStDetector->detectorMaxz)) {  // if it is not inside the can
         G4double Tbottom = (myStDetector->bottomPosition - x0[2]) / p0[2];
         G4double Xbottom =
-            x0[0] + Tbottom * p0[0] - myStDetector->detectorCenter[0];
+          x0[0] + Tbottom * p0[0] - myStDetector->detectorCenter[0];
         G4double Ybottom =
-            x0[1] + Tbottom * p0[1] - myStDetector->detectorCenter[1];
+          x0[1] + Tbottom * p0[1] - myStDetector->detectorCenter[1];
         G4double dRhoBottom = Xbottom * Xbottom + Ybottom * Ybottom;
         if ((dRhoBottom > RRR2) || (Tbottom < 0)) Tbottom = 1.0e21;
 
@@ -117,11 +116,10 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
           return;
         }
       }  // if not inside detector
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      // new here we report the points when the muon goes in the detector
-      // (smaller can by 50 meters on the bottom and 150m on top and
-      // sides)//////////////////
+      // new here we report the points when the muon goes in the
+      // detector (smaller can by 50 meters on the bottom and 150m on
+      // top and sides)
       // first be sure that this muon is registered in Event Action
       G4int MuonSlot = event_action->GetSlot(aStep->GetTrack()->GetTrackID());
       if (MuonSlot >= 0) {
@@ -135,9 +133,9 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
         G4ThreeVector PointOnTop = x0 + DistToTop * p0;
         G4ThreeVector PointOnBottom = x0 + DistToBottom * p0;
         G4double HorDistTop2 =
-            PointOnTop[0] * PointOnTop[0] + PointOnTop[1] * PointOnTop[1];
+          PointOnTop[0] * PointOnTop[0] + PointOnTop[1] * PointOnTop[1];
         G4double HorDistBottom2 = PointOnBottom[0] * PointOnBottom[0] +
-                                  PointOnBottom[1] * PointOnBottom[1];
+          PointOnBottom[1] * PointOnBottom[1];
 
         G4bool conti = true;
         if ((HorDistTop2 > RRR2) || (HorDistBottom2 > RRR2)) {
@@ -157,8 +155,8 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
                 ((sidez1 > PointOnTop[2]) && (sidez2 > PointOnTop[2]))) {
               conti = false;
             } else if (((sidez1 > PointOnBottom[2]) &&
-                        (sidez2 > PointOnBottom[2])) &&
-                       ((sidez1 < PointOnTop[2]) && (sidez2 < PointOnTop[2]))) {
+                  (sidez2 > PointOnBottom[2])) &&
+                ((sidez1 < PointOnTop[2]) && (sidez2 < PointOnTop[2]))) {
               if (sidez1 < sidez2) {
                 DistToTop = SideDist2;
                 PointOnTop = x0 + DistToTop * p0;
@@ -171,7 +169,7 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
                 PointOnBottom = x0 + DistToBottom * p0;
               }
             } else if ((PointOnBottom[2] < sidez1) &&
-                       (sidez1 < PointOnTop[2])) {
+                (sidez1 < PointOnTop[2])) {
               if (HorDistTop2 > RRR2) {
                 DistToTop = SideDist1;
                 PointOnTop = x0 + DistToTop * p0;
@@ -214,10 +212,10 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
           }
           if ((DistToCenter < 5.0 * m) && (DistToCenter > -5.0 * m)) {
             event_action->centerMomentum[MuonSlot] =
-                aStep->GetTrack()->GetMomentum().mag();
+              aStep->GetTrack()->GetMomentum().mag();
             event_action->centerPosition[MuonSlot] = x0;
             event_action->centerTime[MuonSlot] =
-                aStep->GetTrack()->GetGlobalTime();
+              aStep->GetTrack()->GetGlobalTime();
           }
 
           if ((DistToEnter < -20.0 * m) && (DistToEnter > -30.0 * m)) {
@@ -228,10 +226,10 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
           }
           if ((DistToEnter < 5.0 * m) && (DistToEnter > -5.0 * m)) {
             event_action->enterMomentum[MuonSlot] =
-                aStep->GetTrack()->GetMomentum().mag();
+              aStep->GetTrack()->GetMomentum().mag();
             event_action->enterPosition[MuonSlot] = x0;
             event_action->enterTime[MuonSlot] =
-                aStep->GetTrack()->GetGlobalTime();
+              aStep->GetTrack()->GetGlobalTime();
           }
 
           if ((DistToLeave < -20.0 * m) && (DistToLeave > -30.0 * m)) {
@@ -242,16 +240,16 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
           }
           if ((DistToLeave < 5.0 * m) && (DistToLeave > -5.0 * m)) {
             event_action->leaveMomentum[MuonSlot] =
-                aStep->GetTrack()->GetMomentum().mag();
+              aStep->GetTrack()->GetMomentum().mag();
             event_action->leavePosition[MuonSlot] = x0;
             event_action->leaveTime[MuonSlot] =
-                aStep->GetTrack()->GetGlobalTime();
+              aStep->GetTrack()->GetGlobalTime();
           }
         }
       }
 
-      ////////here kill only muons that are leaving the can. All other particles
-      /// are already killed if outside the can
+      // here kill only muons that are leaving the can. All other
+      // particles are already killed if outside the can
       G4ThreeVector distanceV;
       distanceV = x0 - myStDetector->detectorCenter;
       if ((x0[2] < myStDetector->bottomPosition) &&
@@ -266,15 +264,15 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
       }
       direction = p0[0] * distanceV[0] + p0[1] * distanceV[1];
       distanceRho =
-          sqrt(distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1]);
+        sqrt(distanceV[0] * distanceV[0] + distanceV[1] * distanceV[1]);
       if ((distanceRho > myStDetector->detectorMaxRho) &&
           (direction > 0)) {  // goes away while outside the can
         aStep->GetTrack()->SetTrackStatus(fStopAndKill);
         return;
       }
 
-    }  // if muon
-  }    // if initial particle
+    }   // if muon
+  }   // if initial particle
 }
 
 G4double KM3SteppingAction::MuonRange(G4double KineticEnergy) {

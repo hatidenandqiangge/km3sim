@@ -2,11 +2,11 @@
 #define KM3EMAngularFlux_h 1
 
 #include <vector>
-#include "globals.hh"
+#include "globals.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "KM3EMTimePointDis.hh"
+#include "KM3EMTimePointDis.h"
 
 class KM3EMAngularFlux {
  public:

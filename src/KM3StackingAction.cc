@@ -1,24 +1,23 @@
-#include "KM3StackingAction.hh"
-#include "G4ios.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4Track.hh"
-#include "G4UnitsTable.hh"
-#include "G4VProcess.hh"
+#include "KM3StackingAction.h"
+#include "G4ios.h"
+#include "G4ParticleDefinition.h"
+#include "G4ParticleTypes.h"
+#include "G4Track.h"
+#include "G4UnitsTable.h"
+#include "G4VProcess.h"
 #include <math.h>
-#include "G4StackManager.hh"
+#include "G4StackManager.h"
 // the following was added to see what initial hadrons can give muons
-//#include "KM3TrackInformation.hh"
+//#include "KM3TrackInformation.h"
 //#ifdef G4MYHAMUONS_PARAMETERIZATION
-#include "G4RunManager.hh"
-#include "KM3PrimaryGeneratorAction.hh"
+#include "G4RunManager.h"
+#include "KM3PrimaryGeneratorAction.h"
 //#endif
 
 KM3StackingAction::KM3StackingAction() { ; }
 
 KM3StackingAction::~KM3StackingAction() { ; }
 
-//#############################################################################
 G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
     const G4Track *aTrack) {
   static KM3PrimaryGeneratorAction *aGeneAction =
@@ -37,16 +36,13 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
       (aTrack->GetTrackStatus() == fKillTrackAndSecondaries))
     return fKill;
 
-  //----------------------------------------------------------------------------------------
-
+  // first check that is not a photon to save time
   if (aTrack->GetDefinition() !=
-      G4OpticalPhoton::OpticalPhotonDefinition()) {  // first check that is not
-    // a
-    // photon to save time
+      G4OpticalPhoton::OpticalPhotonDefinition()) {
     kineticEnergy = aTrack->GetKineticEnergy();
 
-    // threshold for electron cerenkov production (not applicable for positron
-    // due to anihhilation
+    // threshold for electron cerenkov production (not applicable for
+    // positron due to anihhilation
     if ((aTrack->GetDefinition()->GetParticleName() == "e-") &&
         (kineticEnergy < 240 * keV))
       return fKill;
@@ -71,16 +67,19 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
           (x0[2] > MyStDetector->detectorMaxz))
         return fKill;
       return fUrgent;
-    } else {  // if it is a muon kill it only if is not going to cross the can
-
+    } else {
+      // if it is a muon kill it only if is not going to cross the can
       p0 = aTrack->GetMomentumDirection();
       if ((x0[2] < MyStDetector->bottomPosition) && (p0[2] < 0))
-        return fKill;  // goes down while below the can
+        // goes down while below the can
+        return fKill;
       if ((x0[2] > MyStDetector->detectorMaxz) && (p0[2] > 0))
-        return fKill;  // goes up while above the can
+        // goes up while above the can
+        return fKill;
       direction = p0[0] * distanceV[0] + p0[1] * distanceV[1];
       if ((distanceRho2 > detectorMaxRho2) && (direction > 0))
-        return fKill;  // goes away while outside the can
+        // goes away while outside the can
+        return fKill;
 
       // first check if it is inside the can
       G4double rxy2 = x0[0] * x0[0] + x0[1] * x0[1];

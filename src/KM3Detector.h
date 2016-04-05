@@ -3,15 +3,17 @@
 #include "KM3Definitions.h"
 #include <stdio.h>
 #include <vector>
-#include "KM3Cathods.hh"
-#include "KM3PrimaryGeneratorAction.hh"
+#include <string>
+#include "KM3Cathods.h"
+#include "KM3PrimaryGeneratorAction.h"
 
-#include "HOURSevtWRITE.hh"
-
-class G4VPhysicalVolume;
-#include "G4VUserDetectorConstruction.hh"
+#include "G4VUserDetectorConstruction.h"
 // newgeant #include "Saxana/SAXProcessor.h"
 // newgeant #include "Saxana/ProcessingConfigurator.h"
+
+#include "EvtIO.h"
+
+class G4VPhysicalVolume;
 
 class KM3Detector : public G4VUserDetectorConstruction {
  public:
@@ -20,9 +22,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
  public:
   FILE *outfile;
-  FILE *outfilePar;
-  G4bool useANTARESformat;
-  HOURSevtWRITE *TheEVTtoWrite;
+  EvtIO *TheEVTtoWrite;
 
   G4VPhysicalVolume *Construct();
   G4double Quantum_Efficiency;
@@ -32,6 +32,8 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double highestStorey;
   G4double outerStorey;
   G4double detectorRadius;
+
+  void ReadPMTPositions(const std::string &detx_file_name);
 
   // this is the maximum vertical distance of the storeys
   // from the center plus a number of absorpion lengths
@@ -86,5 +88,8 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double MieModel;
   G4double COSANGLES[100];
   G4double ACCEPTANCE[100];
-};
+
+  int global_det_id_;
+  int n_doms_;
+}
 #endif  // KM3Detector_h

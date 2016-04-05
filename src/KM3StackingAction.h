@@ -1,11 +1,11 @@
 #ifndef KM3StackingAction_H
 #define KM3StackingAction_H 1
 
-#include "globals.hh"
-#include "G4UserStackingAction.hh"
-#include "KM3Detector.hh"
-#include "KM3Cherenkov.hh"
-#include "KM3EMDeltaFlux.hh"
+#include "globals.h"
+#include "G4UserStackingAction.h"
+#include "KM3Detector.h"
+#include "KM3Cherenkov.h"
+#include "KM3EMDeltaFlux.h"
 
 class KM3StackingAction : public G4UserStackingAction {
  public:

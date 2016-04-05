@@ -1,34 +1,34 @@
-#include "KM3Detector.hh"
+#include "KM3Detector.h"
 
-#include "G4UnitsTable.hh"
+#include "G4UnitsTable.h"
 
-#include "G4VUserDetectorConstruction.hh"
-#include "KM3SD.hh"
-#include "KM3StackingAction.hh"
+#include "G4VUserDetectorConstruction.h"
+#include "KM3SD.h"
+#include "KM3StackingAction.h"
 
-#include "globals.hh"
-#include "G4Material.hh"
-#include "G4MaterialTable.hh"
-#include "G4Element.hh"
-#include "G4ElementTable.hh"
-#include "G4Box.hh"
-#include "G4Sphere.hh"
-#include "G4Tubs.hh"
-#include "G4LogicalVolume.hh"
-#include "G4ThreeVector.hh"
-#include "G4PVPlacement.hh"
-#include "G4PVReplica.hh"
-#include "G4SDManager.hh"
-#include "G4VisAttributes.hh"
-#include "G4Colour.hh"
-#include "G4UserLimits.hh"
-#include "G4RegionStore.hh"
-#include "G4VoxelLimits.hh"  // newgeant
+#include "globals.h"
+#include "G4Material.h"
+#include "G4MaterialTable.h"
+#include "G4Element.h"
+#include "G4ElementTable.h"
+#include "G4Box.h"
+#include "G4Sphere.h"
+#include "G4Tubs.h"
+#include "G4LogicalVolume.h"
+#include "G4ThreeVector.h"
+#include "G4PVPlacement.h"
+#include "G4PVReplica.h"
+#include "G4SDManager.h"
+#include "G4VisAttributes.h"
+#include "G4Colour.h"
+#include "G4UserLimits.h"
+#include "G4RegionStore.h"
+#include "G4VoxelLimits.h"  // newgeant
 #include "G4Processor/GDMLProcessor.h"
-#include "G4GDMLParser.hh"  //newgeant
-#include "G4LogicalVolumeStore.hh"
-#include "G4PhysicalVolumeStore.hh"
-#include "G4GeometryManager.hh"
+#include "G4GDMLParser.h"  // newgeant
+#include "G4LogicalVolumeStore.h"
+#include "G4PhysicalVolumeStore.h"
+#include "G4GeometryManager.h"
 #include "CLHEP/Evaluator/Evaluator.h"
 
 KM3Detector::KM3Detector() {
@@ -45,7 +45,7 @@ KM3Detector::~KM3Detector() {
   for (size_t i = 0; i < allOMs->size(); i++) {
     (*allOMs)[i]->CathodsIDs->clear();
     delete (*allOMs)[i]->CathodsIDs;
-    //free((*allOMs)[i]);
+    // free((*allOMs)[i]);
     delete (*allOMs)[i]);
   }
   allOMs->clear();
@@ -54,7 +54,7 @@ KM3Detector::~KM3Detector() {
   for (size_t i = 0; i < allStoreys->size(); i++) {
     (*allStoreys)[i]->BenthosIDs->clear();
     delete (*allStoreys)[i]->BenthosIDs;
-    //free((*allStoreys)[i]);
+    // free((*allStoreys)[i]);
     delete (*allStoreys)[i];
   }
   allStoreys->clear();
@@ -63,7 +63,7 @@ KM3Detector::~KM3Detector() {
   for (size_t i = 0; i < allTowers->size(); i++) {
     (*allTowers)[i]->BenthosIDs->clear();
     delete (*allTowers)[i]->BenthosIDs;
-    //free((*allTowers)[i]);
+    // free((*allTowers)[i]);
     delete (*allTowers)[i];
   }
   allTowers->clear();
@@ -93,9 +93,9 @@ void KM3Detector::FindDetectorRadius() {
   bottomPosition += lowestStorey;
   detectorMaxz = highestStorey + MaxAbsDist;
   G4cout << "Detector radius (m) and bottom position (m) " << detectorRadius / m
-    << " " << bottomPosition / m << G4endl;
+         << " " << bottomPosition / m << G4endl;
   MyGenerator->PutFromDetector(detectorCenter, detectorMaxRho, detectorMaxz,
-      bottomPosition);
+                               bottomPosition);
 }
 
 void KM3Detector::SetUpVariables() {
@@ -159,7 +159,7 @@ void KM3Detector::SetUpVariables() {
         }
         fscanf(infile, "%s\n", expression);
         PPCKOV[NUMENTRIES - 1] =
-          h_Planck * c_light / fCalc.evaluate(expression);
+            h_Planck * c_light / fCalc.evaluate(expression);
       } else if (thename == String3) {
         readvalues[3] = 1;
         if (NUMENTRIES < 0)
@@ -191,7 +191,7 @@ void KM3Detector::SetUpVariables() {
         }
         fscanf(infile, "%s\n", expression);
         ABSORPTION_WATER[NUMENTRIES - 1] =
-          Water_Transparency / fCalc.evaluate(expression);
+            Water_Transparency / fCalc.evaluate(expression);
       } else if (thename == String5) {
         readvalues[5] = 1;
         if (NUMENTRIES < 0)
@@ -353,8 +353,9 @@ void KM3Detector::SetUpVariables() {
         }
         fscanf(infile, "%s\n", expression);
         ACCEPTANCE[NUMENTRIES_ANGLEACC - 1] = fCalc.evaluate(expression);
-      } else
+      } else {
         G4Exception("Not a keyword I can recognize\n", "", FatalException, "");
+      }
     }
     fclose(infile);
 
@@ -456,7 +457,7 @@ void KM3Detector::ConstructMaterials() {
 
   // Earths Crust
   G4Material *Crust = new G4Material("Crust", 2.6 * g / cm3, 8, kStateSolid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                     287.15 * kelvin, 1.0 * atmosphere);
   Crust->AddElement(elementO, 0.481);
   Crust->AddElement(elementSi, 0.277);
   Crust->AddElement(elementAl, 0.081);
@@ -500,11 +501,10 @@ void KM3Detector::ConstructMaterials() {
   abundanceCl *= weightCl;
   abundanceSO4 *= (weightS + 4 * weightO);
   abundanceHCO3 *= (weightH + weightC + 3 * weightO);
+  // the composites of sea water
   G4double abundanceH2O =
-    1.0 - (abundanceNa + abundanceMg + abundanceCa + abundanceK +
-        abundanceCl + abundanceSO4 + abundanceHCO3);
-  //------------------the composites of sea
-  // water------------------------------------
+      1.0 - (abundanceNa + abundanceMg + abundanceCa + abundanceK +
+             abundanceCl + abundanceSO4 + abundanceHCO3);
   // if the material is not used to fill a specific logical volume the density
   // is not used
   G4Material *H2O = new G4Material("H2O", 1.0 * g / cm3, 2);
@@ -524,11 +524,11 @@ void KM3Detector::ConstructMaterials() {
   G4double gravity = 9.8 * m / (s * s);
   G4double surfaceDensity = 1.029 * g / cm3;
   G4double seawaterDensity =
-    surfaceDensity *
-    exp(gravity * surfaceDensity * Compressibility * detectorDepth);
+      surfaceDensity *
+      exp(gravity * surfaceDensity * Compressibility * detectorDepth);
   //-----------------------------------------------------------------
   G4Material *Water = new G4Material("Water", seawaterDensity, 8, kStateLiquid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                     287.15 * kelvin, 1.0 * atmosphere);
   Water->AddMaterial(H2O, abundanceH2O);
   Water->AddMaterial(SO4, abundanceSO4);
   Water->AddMaterial(HCO3, abundanceHCO3);
@@ -555,7 +555,7 @@ void KM3Detector::ConstructMaterials() {
   materialAl2O3->AddElement(elementAl, 2);
   materialAl2O3->AddElement(elementO, 3);
   G4Material *Glass = new G4Material("Glass", 2.23 * g / cm3, 4, kStateSolid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                     287.15 * kelvin, 1.0 * atmosphere);
   Glass->AddMaterial(materialSiO2, 0.806);
   Glass->AddMaterial(materialB2O3, 0.130);
   Glass->AddMaterial(materialNa2O, 0.040);
@@ -566,35 +566,29 @@ void KM3Detector::ConstructMaterials() {
   // (http://www.wackersilicones.com/documents/techdatasheets/silgel612.pdf)
   // Polydimethylsiloxane polymeres -- (C2H6OSi)n
   G4Material *Gell = new G4Material("Gell", 0.97 * g / cm3, 4, kStateSolid,
-      287.15 * kelvin, 1.0 * atmosphere);
+                                    287.15 * kelvin, 1.0 * atmosphere);
   Gell->AddElement(elementC, 2);
   Gell->AddElement(elementH, 6);
   Gell->AddElement(elementO, 1);
   Gell->AddElement(elementSi, 1);
 
   // AIR
-  // -----------------------------------------------------------------------------
   G4Material *Air = new G4Material("Air", 1.29e-03 * g / cm3, 2);
   Air->AddElement(elementN, .7);
   Air->AddElement(elementO, .3);
 
   // CATHOD
-  // -------------------------------------------------------------------------------
   G4Material *Cathod =
-    new G4Material("Cathod", 22, 47.867 * g / mole, 4.507 * g / cm3,
-        kStateSolid, 287.15 * kelvin, 1.0 * atmosphere);
+      new G4Material("Cathod", 22, 47.867 * g / mole, 4.507 * g / cm3,
+                     kStateSolid, 287.15 * kelvin, 1.0 * atmosphere);
 
-  // G4cout<<*(G4Material::GetMaterialTable())<<G4endl;
-
-  // ------------------------------------------------------------------------------------------------
   // Set OPTICAL PROPERTIES (read from file) of materials
-  // ////////////////////////////////////////////////////////////////
 
   // WATER
   G4MaterialPropertiesTable *Properties_Water = new G4MaterialPropertiesTable();
   Properties_Water->AddProperty("RINDEX", PPCKOV, RINDEX_WATER, NUMENTRIES);
   Properties_Water->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_WATER,
-      NUMENTRIES);
+                                NUMENTRIES);
   Properties_Water->AddProperty("MIELENGTH", PPCKOV, SCATTER_WATER, NUMENTRIES);
   Properties_Water->AddConstProperty("MIEPHASE", MieModel);
   Water->SetMaterialPropertiesTable(Properties_Water);
@@ -602,14 +596,14 @@ void KM3Detector::ConstructMaterials() {
   // GLASS    -----------------------------------------------------------
   G4MaterialPropertiesTable *Properties_Glass = new G4MaterialPropertiesTable();
   Properties_Glass->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_GLASS,
-      NUMENTRIES);
+                                NUMENTRIES);
   Properties_Glass->AddProperty("RINDEX", PPCKOV, RINDEX_GLASS, NUMENTRIES);
   Glass->SetMaterialPropertiesTable(Properties_Glass);
 
   // GELL      -----------------------------------------------------------
   G4MaterialPropertiesTable *Properties_Gell = new G4MaterialPropertiesTable();
   Properties_Gell->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_GELL,
-      NUMENTRIES);
+                               NUMENTRIES);
   Properties_Gell->AddProperty("RINDEX", PPCKOV, RINDEX_GELL, NUMENTRIES);
   Gell->SetMaterialPropertiesTable(Properties_Gell);
 
@@ -624,11 +618,11 @@ void KM3Detector::ConstructMaterials() {
   // CATHOD       ----------------------------------------------------------
   G4MaterialPropertiesTable *Properties_Cath = new G4MaterialPropertiesTable();
   Properties_Cath->AddProperty("ABSLENGTH", PPCKOV, ABSORPTION_CATH,
-      NUMENTRIES);
+                               NUMENTRIES);
   Properties_Cath->AddProperty("RINDEX", PPCKOV, RINDEX_CATH, NUMENTRIES);
   Properties_Cath->AddProperty("Q_EFF", PPCKOV, Q_EFF, NUMENTRIES);
   Properties_Cath->AddProperty("ANGULAR_ACCEPTANCE", COSANGLES, ACCEPTANCE,
-      NUMENTRIES_ANGLEACC);
+                               NUMENTRIES_ANGLEACC);
   Cathod->SetMaterialPropertiesTable(Properties_Cath);
 }
 
@@ -655,113 +649,123 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   G4String pvName = aPVolume->GetName();
 
   //  for newgeant add "_PV" at the end of physical volume name
-  //  if(pvName == "CathodVolume_PV"){
-  if pvName.contains("CathodVolume") {
-    G4ThreeVector Position = AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-    G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
-    G4Transform3D trans(RotationMatr, Position);
-    // estimate cathod radius
-    G4double CathodRadius = 0.0;
-    // set default to negative, since it is not applicable to spherical
-    // cathods
-    G4double CathodHeight = -1.0 * mm;
-    G4String solidName = aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType()
-    if solidName == G4String("G4Sphere") {
-      CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-      G4double InnerRadius =
-        ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetInnerRadius();
-      // applicable mainly to shell type cathods (EM)
-      if ((CathodRadius - InnerRadius) < 1.001 * mm)
-        CathodRadius = 0.5 * (CathodRadius + InnerRadius);
+  //  if(pvName == "CathodVolume_PV")
+  if
+    pvName.contains("CathodVolume") {
+      G4ThreeVector Position =
+          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
+      G4Transform3D trans(RotationMatr, Position);
+      // estimate cathod radius
+      G4double CathodRadius = 0.0;
+      // set default to negative, since it is not applicable to spherical
+      // cathods
+      G4double CathodHeight = -1.0 * mm;
+      G4String solidName =
+          aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType();
+      if
+        solidName == G4String("G4Sphere") {
+          CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
+                             ->GetOuterRadius();
+          G4double InnerRadius =
+              ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
+                  ->GetInnerRadius();
+          // applicable mainly to shell type cathods (EM)
+          if ((CathodRadius - InnerRadius) < 1.001 * mm)
+            CathodRadius = 0.5 * (CathodRadius + InnerRadius);
+        }
+      if
+        solidName == G4String("G4Tubs") {
+          // applicable to thin tube cathods (normal run)
+          CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+                             ->GetOuterRadius();
+          CathodHeight = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+                             ->GetZHalfLength();
+          // correct to full height
+          CathodHeight *= 2.0;
+        }
+      allCathods->addCathod(trans, Position, Direction, CathodRadius,
+                            CathodHeight, Depth - 1);
+      for (G4int i = 1; i < Depth; i++) allCathods->addToTree(Hist[i]);
+      aCathodsIDs->push_back(Cathods);
+      Cathods++;
     }
-    if solidName == G4String("G4Tubs") {
-      // applicable to thin tube cathods (normal run)
-      CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-      CathodHeight = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetZHalfLength();
-      // correct to full height
-      CathodHeight *= 2.0;
-    }
-    allCathods->addCathod(trans, Position, Direction, CathodRadius,
-        CathodHeight, Depth - 1);
-    for (G4int i = 1; i < Depth; i++) allCathods->addToTree(Hist[i]);
-    aCathodsIDs->push_back(Cathods);
-    Cathods++;
-  }
   // for newgeant add "_PV" at the end of physical volume name
-  if pvName.contains("OMVolume") {
-    //OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
-    OMPositions *aOM = new OMPositions;
-    aOM->position =
-      AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-    aCathodsIDs = new std::vector<G4int>;
-    aOM->CathodsIDs = aCathodsIDs;
-    // if OM is sphere then set the outer radius as radius, if it is
-    // tubs then set the proper radius else set the geometrical sum of
-    // the extend on the three axis (maximum extend. Exact only for
-    // Boxes)
-    if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        G4String("G4Sphere")) {
-      aOM->radius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-    } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        G4String("G4Tubs")) {
-      G4double zLength = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetZHalfLength();
-      G4double oRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-      aOM->radius = sqrt(zLength * zLength + oRadius * oRadius);
-    } else {
-      // Defaults to "infinite" limits.
-      G4VoxelLimits voxelLimits;
-      // no transform
-      G4AffineTransform affineTransform;
-      G4double xmin, xmax, ymin, ymax, zmin, zmax;
-      aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
-          kXAxis, voxelLimits, affineTransform, xmin, xmax);
-      aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
-          kYAxis, voxelLimits, affineTransform, ymin, ymax);
-      aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
-          kZAxis, voxelLimits, affineTransform, zmin, zmax);
-      xmax = fmax(fabs(xmax), fabs(xmin));
-      ymax = fmax(fabs(ymax), fabs(ymin));
-      zmax = fmax(fabs(zmax), fabs(zmin));
-      aOM->radius = sqrt(xmax * xmax + ymax * ymax + zmax * zmax);
+  if
+    pvName.contains("OMVolume") {
+      // OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
+      OMPositions *aOM = new OMPositions;
+      aOM->position =
+          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      aCathodsIDs = new std::vector<G4int>;
+      aOM->CathodsIDs = aCathodsIDs;
+      // if OM is sphere then set the outer radius as radius, if it is
+      // tubs then set the proper radius else set the geometrical sum of
+      // the extend on the three axis (maximum extend. Exact only for
+      // Boxes)
+      if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
+          G4String("G4Sphere")) {
+        aOM->radius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
+                          ->GetOuterRadius();
+      } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
+                 G4String("G4Tubs")) {
+        G4double zLength = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+                               ->GetZHalfLength();
+        G4double oRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
+                               ->GetOuterRadius();
+        aOM->radius = sqrt(zLength * zLength + oRadius * oRadius);
+      } else {
+        // Defaults to "infinite" limits.
+        G4VoxelLimits voxelLimits;
+        // no transform
+        G4AffineTransform affineTransform;
+        G4double xmin, xmax, ymin, ymax, zmin, zmax;
+        aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
+            kXAxis, voxelLimits, affineTransform, xmin, xmax);
+        aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
+            kYAxis, voxelLimits, affineTransform, ymin, ymax);
+        aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
+            kZAxis, voxelLimits, affineTransform, zmin, zmax);
+        xmax = fmax(fabs(xmax), fabs(xmin));
+        ymax = fmax(fabs(ymax), fabs(ymin));
+        zmax = fmax(fabs(zmax), fabs(zmin));
+        aOM->radius = sqrt(xmax * xmax + ymax * ymax + zmax * zmax);
+      }
+      allOMs->push_back(aOM);
+      aBenthosIDs->push_back(OMs);
+      // new towers
+      aTowerBenthosIDs->push_back(OMs);
+      OMs++;
     }
-    allOMs->push_back(aOM);
-    aBenthosIDs->push_back(OMs);
-    // new towers
-    aTowerBenthosIDs->push_back(OMs);
-    OMs++;
-  }
   // for newgeant add "_PV" at the end of physical volume name
-  if pvName.contains("StoreyVolume") {
-    //StoreysPositions *aStorey = (StoreysPositions *)malloc(sizeof(StoreysPositions));
-    StoreysPositions *aStorey = new StoreysPositions;
-    aStorey->position =
-      AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-    aBenthosIDs = new std::vector<G4int>;
-    aStorey->BenthosIDs = aBenthosIDs;
-    allStoreys->push_back(aStorey);
-    Storeys++;
-  }
+  if
+    pvName.contains("StoreyVolume") {
+      // StoreysPositions *aStorey = (StoreysPositions
+      // *)malloc(sizeof(StoreysPositions));
+      StoreysPositions *aStorey = new StoreysPositions;
+      aStorey->position =
+          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      aBenthosIDs = new std::vector<G4int>;
+      aStorey->BenthosIDs = aBenthosIDs;
+      allStoreys->push_back(aStorey);
+      Storeys++;
+    }
   // new towers
-  //for newgeant add "_PV" at the end of physical volume name
-  if pvName.contains("TowerVolume") {
-    //TowersPositions *aTower = (TowersPositions *)malloc(sizeof(TowersPositions));
-    TowersPositions *aTower = new TowersPositions;
-    aTower->position =
-      AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-    aTowerBenthosIDs = new std::vector<G4int>;
-    aTower->BenthosIDs = aTowerBenthosIDs;
-    allTowers->push_back(aTower);
-    Towers++;
-  }
+  // for newgeant add "_PV" at the end of physical volume name
+  if
+    pvName.contains("TowerVolume") {
+      // TowersPositions *aTower = (TowersPositions
+      // *)malloc(sizeof(TowersPositions));
+      TowersPositions *aTower = new TowersPositions;
+      aTower->position =
+          AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      aTowerBenthosIDs = new std::vector<G4int>;
+      aTower->BenthosIDs = aTowerBenthosIDs;
+      allTowers->push_back(aTower);
+      Towers++;
+    }
   G4AffineTransform tempoaffine(aPVolume->GetObjectRotationValue().inverse(),
-      aPVolume->GetObjectTranslation());
+                                aPVolume->GetObjectTranslation());
   AffineTrans = tempoaffine * AffineTrans;
   for (G4int i = 0; i < aPVolume->GetLogicalVolume()->GetNoDaughters(); i++) {
     // the following is to fix new GDML that does not apply a copyNumber to
@@ -769,9 +773,10 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     aPVolume->GetLogicalVolume()->GetDaughter(i)->SetCopyNo(i);
     TotalPMTEntities(aPVolume->GetLogicalVolume()->GetDaughter(i));
   }
-  if not pvName.contains("CathodVolume") {
-    AffineTrans = tempoaffine.Inverse() * AffineTrans;
-  }
+  if
+    not pvName.contains("CathodVolume") {
+      AffineTrans = tempoaffine.Inverse() * AffineTrans;
+    }
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue().inverse();
   Depth--;
   return Cathods;
@@ -786,8 +791,11 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // newgeant fWorld =  (G4VPhysicalVolume
   // *)GDMLProcessor::GetInstance()->GetWorldVolume();
-  G4GDMLParser parser;                                    // newgeant
-  parser.Read(Geometry_File);                             // newgeant
+  G4GDMLParser parser;         // newgeant
+  parser.Read(Geometry_File);  // newgeant
+  // TODO:
+  //  - Get PMT positions from .detx
+  //  - put them into phys volumes
   fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume();  // newgeant
   if (fWorld == 0)
     G4Exception(
@@ -848,7 +856,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // fully adjustable benthos and storey linked list
   G4cout << "Total World Volume Entities= "
-    << fWorld->GetLogicalVolume()->TotalVolumeEntities() << G4endl;
+         << fWorld->GetLogicalVolume()->TotalVolumeEntities() << G4endl;
 
   // Next find from OM positions and radius in each store the storey radius
   for (size_t istorey = 0; istorey < allStoreys->size(); istorey++) {
@@ -890,8 +898,8 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // find the total photocathod area on a OM
   G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
   TotCathodArea =
-    CaPerOM * pi * allCathods->GetCathodRadius(0) *
-    allCathods->GetCathodRadius(0);  // this is valid only if at simulation
+      CaPerOM * pi * allCathods->GetCathodRadius(0) *
+      allCathods->GetCathodRadius(0);  // this is valid only if at simulation
   // level (not EM or HA param) all cathods
   // have the same radius. Easy to change to
   // account for a detector with varius
@@ -899,4 +907,40 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // return the physical World
   return fWorld;
+}
+}
+
+void KM3Detector::ReadDetector(const std::string &detx_filename) {
+  // Parse according to
+  // http://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx.29
+  std::ifstream infile(detx_filename);
+
+  std::string line;
+  std::getline(infile, line);
+  std::isstringstream iss(line);
+  int global_det_id, n_doms;
+  iss >> global_det_id >> n_doms;
+
+  global_det_id_ = global_det_id;
+  n_doms_ = n_doms;
+
+  for (int dom = 0; dom < n_doms; dom++) {
+    std::getline(infile, line);
+    std::isstringstream iss(line);
+    int dom_id, line_id, floor_id, n_pmts;
+    iss >> dom_id >> line_id >> floor_id >> n_pmts;
+
+    for (int pmt = 0; pmt < n_pmts; pmt++) {
+      std::getline(infile, line);
+      std::isstringstream iss(line);
+      int pmt_id_global;
+      float x, y, z, dx, dy, dz, t0;
+      iss >> pmt_id_global >> x >> y >> z >> dx >> dy >> dz >> t0;
+    }
   }
+}
+
+/*
+ * allCathods->addCathod(trans, Position, Direction, CathodRadius,
+ * CathodHeight, Depth - 1);
+ */

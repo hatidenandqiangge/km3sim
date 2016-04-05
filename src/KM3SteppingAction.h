@@ -1,9 +1,9 @@
 #ifndef KM3SteppingAction_h
 #define KM3SteppingAction_h 1
 
-#include "G4UserSteppingAction.hh"
-#include "KM3Detector.hh"
-#include "KM3EventAction.hh"
+#include "G4UserSteppingAction.h"
+#include "KM3Detector.h"
+#include "KM3EventAction.h"
 
 class KM3SteppingAction : public G4UserSteppingAction {
  public:

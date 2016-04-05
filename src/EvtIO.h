@@ -1,7 +1,7 @@
-#ifndef HOURSevtWRITE_h
-#define HOURSevtWRITE_h
+#ifndef EvtIO_h
+#define EvtIO_h
 
-#include "io_gcc.hh"
+#include "io_gcc.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -10,10 +10,10 @@
 
 using namespace std;
 
-class HOURSevtWRITE {
+class EvtIO {
  public:
-  HOURSevtWRITE(char *infile, char *outfile);
-  ~HOURSevtWRITE();
+  EvtIO(char *infile, char *outfile);
+  ~EvtIO();
 
  public:
   void ReadRunHeader();

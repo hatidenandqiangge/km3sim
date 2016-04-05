@@ -1,5 +1,5 @@
-#include "KM3EMDistanceFlux.hh"
-#include "Randomize.hh"
+#include "KM3EMDistanceFlux.h"
+#include "Randomize.h"
 
 KM3EMDistanceFlux::KM3EMDistanceFlux(std::ifstream &infile) {
   VertexDistanceBins = 40;

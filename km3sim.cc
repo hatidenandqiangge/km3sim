@@ -5,20 +5,20 @@
 
 #include "docopt.h"
 
-#include "G4RunManager.hh"
-#include "G4UImanager.hh"
-#include "G4UIterminal.hh"
-#include "G4UItcsh.hh"
-#include "G4UnitsTable.hh"
+#include "G4RunManager.h"
+#include "G4UImanager.h"
+#include "G4UIterminal.h"
+#include "G4UItcsh.h"
+#include "G4UnitsTable.h"
 
 #include "KM3Sim.h"
-#include "KM3Physics.hh"
-#include "KM3PrimaryGeneratorAction.hh"
-#include "KM3StackingAction.hh"
-#include "KM3TrackingAction.hh"
-#include "KM3SteppingAction.hh"
-#include "KM3EventAction.hh"
-#include "KM3Detector.hh"
+#include "KM3Physics.h"
+#include "KM3PrimaryGeneratorAction.h"
+#include "KM3StackingAction.h"
+#include "KM3TrackingAction.h"
+#include "KM3SteppingAction.h"
+#include "KM3EventAction.h"
+#include "KM3Detector.h"
 /** How to make a simple main:
  *
  * new G4Runmanager
@@ -70,7 +70,7 @@
  */
 
 static const char USAGE[] =
-R"(km3sim.
+    R"(km3sim.
 
   Usage:
     km3sim [--seed=<sd>] (-i PARAMS) (-d DETECTOR) (-o OUTFILE)
@@ -78,8 +78,9 @@ R"(km3sim.
     km3sim --version
 
   Options:
-    -i PARAMS         File with physics (seawater etc.) input parameters.
+    -p PARAMS         File with physics (seawater etc.) input parameters.
     -d DETECTOR       File with detector geometry.
+    -i INFILE         File to read events from.
     -o OUTFILE        File to write events to.
     -h --help         Show this screen.
     --seed=<sd>       Set the RNG seed [default: 42].
@@ -89,39 +90,44 @@ R"(km3sim.
 
 int main(int argc, char *argv[]) {
   str::map<std::string, doctopt::value> args =
-    doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "km3sim v0.1");
+      doctop::docopt(USAGE, {argv + 1, argv + argc}, true);
+
   for (auto const &arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
   }
-  G4long myseed = atol(argv[2]);
-  G4cout << myseed << G4endl;
+
+  G4long myseed = atol(args["--seed"]);
   CLHEP::HepRandom::setTheSeed(myseed);
 
-  char *Geometry_File = argv[4];
-  char *Parameter_File = argv[5];
-  G4bool useHEPEvt;
-  G4bool useANTARESformat = true;
-  char *fileParticles;
-  char *filePythiaParticles;
-  FILE *outfilePar;
+  std::string Geometry_File = args["-d"];
+  std::string Parameter_File = args["-p"];
+  std::string infile_evt = args["-i"];
+  std::string outfile_evt = args["-o"];
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
 
-  useHEPEvt = true;
-  useANTARESformat = true;
-  fileParticles = argv[9];
+  // sole remaining IO method
+  G4bool useHEPEvt = true;
 
-  FILE *savefile;
-  HOURSevtWRITE *TheEVTtoWrite;
-  TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
+  // argv[3] = old evt outfile
+  // argv[9] = old evt infile
+
+  // ALL IO should happen through EvtIO class
+  // Other interfaces (savefile, outfile, etc.) are
+  // for pythia IO and/or parametrization stuff
+  // Usage:
+  // EvtIO(infile, outfile)
+  // EvtIO->ReadRunHeader()
+  // EvtIO->WriteRunHeader()
+  // EvtIO->WriteEvent()
+  EvtIO TheEVTtoWrite = new EvtIO(infile_evt, outfile_evt);
 
   G4RunManager *runManager = new G4RunManager;
 
   KM3Detector *Mydet = new KM3Detector;
   Mydet->Geometry_File = Geometry_File;
   Mydet->Parameter_File = Parameter_File;
-  Mydet->outfilePar = outfilePar;
   runManager->SetUserInitialization(Mydet);
 
   KM3Physics *MyPhys = new KM3Physics;
@@ -130,18 +136,14 @@ int main(int argc, char *argv[]) {
 
   runManager->SetNumberOfEventsToBeStored(0);
   KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
-  myGeneratorAction->fileParticles = fileParticles;
-  myGeneratorAction->filePythiaParticles = filePythiaParticles;
+  myGeneratorAction->infile_evt = infile_evt;
   myGeneratorAction->idbeam = ParamParticle;
-  myGeneratorAction->outfile = savefile;
   myGeneratorAction->ParamEnergy = ParamEnergy;
-  myGeneratorAction->useANTARESformat = useANTARESformat;
   myGeneratorAction->useHEPEvt = useHEPEvt;
   Mydet->MyGenerator = myGeneratorAction;
 
   KM3TrackingAction *myTracking = new KM3TrackingAction;
   myTracking->TheEVTtoWrite = TheEVTtoWrite;
-  myTracking->useANTARESformat = useANTARESformat;
   // link between generator and tracking (to provide number of
   // initial particles to trackingAction
   myGeneratorAction->myTracking = myTracking;
@@ -149,16 +151,12 @@ int main(int argc, char *argv[]) {
   runManager->SetUserAction(myGeneratorAction);
 
   KM3EventAction *event_action = new KM3EventAction;
-  event_action->outfile = savefile;
   event_action->TheEVTtoWrite = TheEVTtoWrite;
-  event_action->useANTARESformat = useANTARESformat;
   myGeneratorAction->event_action = event_action;
   // generator knows event to set the number of initial particles
   runManager->SetUserAction(event_action);
 
-  Mydet->outfile = savefile;
   Mydet->TheEVTtoWrite = TheEVTtoWrite;
-  Mydet->useANTARESformat = useANTARESformat;
 
   KM3StackingAction *myStacking = new KM3StackingAction;
   KM3SteppingAction *myStepping = new KM3SteppingAction;

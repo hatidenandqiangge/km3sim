@@ -1,10 +1,10 @@
 #ifndef KM3TrackInformation_h
 #define KM3TrackInformation_h 1
 
-#include "globals.hh"
-#include "G4Track.hh"
-#include "G4Allocator.hh"
-#include "G4VUserTrackInformation.hh"
+#include "globals.h"
+#include "G4Track.h"
+#include "G4Allocator.h"
+#include "G4VUserTrackInformation.h"
 
 class KM3TrackInformation : public G4VUserTrackInformation {
  public:

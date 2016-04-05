@@ -1,20 +1,20 @@
 #ifndef KM3PrimaryGeneratorAction_h
 #define KM3PrimaryGeneratorAction_h 1
 
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "KM3TrackingAction.hh"
-#include "G4ThreeVector.hh"
-#include "KM3EventAction.hh"
+#include "G4VUserPrimaryGeneratorAction.h"
+#include "KM3TrackingAction.h"
+#include "G4ThreeVector.h"
+#include "KM3EventAction.h"
 
 #include <stdio.h>
-#include "globals.hh"
+#include "globals.h"
 
-#include "HAVertexMuons.hh"
+#include "HAVertexMuons.h"
 
 class G4Event;
 class G4VPrimaryGenerator;
 
-#include "HOURSevtREAD.hh"
+#include "HOURSevtREAD.h"
 
 class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
  public:
@@ -23,15 +23,12 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
  public:
   int nevents;
-  FILE *outfile;
-  FILE *infile;
-  char *filePythiaParticles;
-  char *fileParticles;
+  FILE *outfile_evt;
+  char *infile_evt;
   G4int numberofParticles;
   void GeneratePrimaries(G4Event *anEvent);
   void Initialize(void);
   G4bool useHEPEvt;
-  G4bool useANTARESformat;
   KM3TrackingAction *myTracking;
   KM3EventAction *event_action;
   G4double ParamEnergy;

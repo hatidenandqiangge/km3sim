@@ -1,4 +1,10 @@
-#include "KM3Cathods.hh"
+#include "KM3Cathods.h"
+
+// map cathod ID to the following
+// 6 cathod params: x, y, z, dx, dy, dz
+// rest is global for all cathods
+// or can be deduced from those 6
+// std::map<int, std::array<float, 6>> cathod_dict_;
 
 KM3Cathods::KM3Cathods() { NumOfCathods = 0; }
 
@@ -6,7 +12,7 @@ KM3Cathods::~KM3Cathods() {
   for (size_t i = 0; i < theCathods.size(); i++) {
     theCathods[i]->Tree->clear();
     delete theCathods[i]->Tree;
-    //free(theCathods[i]);
+    // free(theCathods[i]);
     delete theCathods[i];
   }
   theCathods.clear();
@@ -15,7 +21,7 @@ KM3Cathods::~KM3Cathods() {
 void KM3Cathods::addCathod(const G4Transform3D &trans, const G4ThreeVector &Pos,
                            const G4ThreeVector &Dir, const G4double Radius,
                            const G4double Height, const G4int Dep) {
-  //Cathod *aCathod = (Cathod *)malloc(sizeof(Cathod));
+  // Cathod *aCathod = (Cathod *)malloc(sizeof(Cathod));
   Cathod *aCathod = new Cathod;
   aCathod->trans = trans;
   aCathod->Position = Pos;

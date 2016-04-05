@@ -1,10 +1,10 @@
 #ifndef KM3Physics_h
 #define KM3Physics_h 1
 
-#include "G4VUserPhysicsList.hh"
-#include "globals.hh"
-#include "KM3Detector.hh"
-#include "KM3Cherenkov.hh"
+#include "G4VUserPhysicsList.h"
+#include "globals.h"
+#include "KM3Detector.h"
+#include "KM3Cherenkov.h"
 
 class KM3Physics : public G4VUserPhysicsList {
  public:

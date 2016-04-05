@@ -2,11 +2,11 @@
 #define KM3EventAction_h 1
 #include "stdio.h"
 #include <vector>
-#include "G4Types.hh"
-#include "G4UserEventAction.hh"
-#include "G4ThreeVector.hh"
+#include "G4Types.h"
+#include "G4UserEventAction.h"
+#include "G4ThreeVector.h"
 
-#include "HOURSevtWRITE.hh"
+#include "EvtIO.h"
 
 class G4EventManager;
 class G4Event;
@@ -58,11 +58,9 @@ class KM3EventAction : public G4UserEventAction {
 #ifdef G4MYMUON_KEEPENERGY
   std::vector<G4double> EnergyAtPosition;
 #endif
-  G4bool useANTARESformat;
-  HOURSevtWRITE *TheEVTtoWrite;
+  EvtIO *TheEVTtoWrite;
 
  public:
-  FILE *outfile;
   inline void AddPrimaryNumber(G4int);
   inline G4int GetSlot(G4int);
   inline void Initialize(void) { numofMuons = 0; }
