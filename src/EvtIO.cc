@@ -1,6 +1,6 @@
-#include "HOURSevtWRITE.h"
+#include "EvtIO.h"
 
-HOURSevtWRITE::HOURSevtWRITE(char *infilechar, char *outfilechar) {
+EvtIO::EvtIO(char *infilechar, char *outfilechar) {
   infile.open(infilechar, ifstream::in);
   evt = new event();
 
@@ -24,30 +24,29 @@ HOURSevtWRITE::HOURSevtWRITE(char *infilechar, char *outfilechar) {
   // position to the beggining of the file
   infile.clear();
   infile.seekg(0, ios::beg);
-  ////////////////////////////////////////////////////
 
   outfile.open(outfilechar, ofstream::out);
   RunHeaderIsRead = false;
   RunHeaderIsWrite = false;
 }
 
-HOURSevtWRITE::~HOURSevtWRITE() {
+EvtIO::~EvtIO() {
   delete evt;
   infile.close();
   outfile.close();
 }
 
-void HOURSevtWRITE::ReadRunHeader() {
+void EvtIO::ReadRunHeader() {
   if (!RunHeaderIsRead) evt->read(infile);
   RunHeaderIsRead = true;
 }
 
-void HOURSevtWRITE::WriteRunHeader() {
+void EvtIO::WriteRunHeader() {
   if (!RunHeaderIsWrite) evt->write(outfile);
   RunHeaderIsWrite = true;
 }
 
-void HOURSevtWRITE::ReadEvent() {
+void EvtIO::ReadEvent() {
   evt->read(infile);
   double args[100];
   int argnumber;
@@ -98,7 +97,7 @@ void HOURSevtWRITE::ReadEvent() {
   }
 }
 
-void HOURSevtWRITE::GetArgs(string &chd, int &argnumber, double *args) {
+void EvtIO::GetArgs(string &chd, int &argnumber, double *args) {
   string subchd = chd;
   size_t length = subchd.length();
   size_t start, stop;
@@ -123,9 +122,9 @@ void HOURSevtWRITE::GetArgs(string &chd, int &argnumber, double *args) {
   }
 }
 
-void HOURSevtWRITE::WriteEvent() { evt->write(outfile); }
+void EvtIO::WriteEvent() { evt->write(outfile); }
 
-void HOURSevtWRITE::AddHit(int id, int PMTid, double pe, double t, int trackid,
+void EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
                            int npepure, double ttpure, int creatorProcess) {
   string dt("hit");
   char buffer[256];
@@ -145,7 +144,7 @@ void HOURSevtWRITE::AddHit(int id, int PMTid, double pe, double t, int trackid,
   evt->taga(dt, dw);
 }
 
-void HOURSevtWRITE::AddNumberOfHits(int hitnumber) {
+void EvtIO::AddNumberOfHits(int hitnumber) {
   string dt("total_hits");
   char buffer[256];
   sprintf(buffer, "%8d", hitnumber);
@@ -153,7 +152,7 @@ void HOURSevtWRITE::AddNumberOfHits(int hitnumber) {
   evt->taga(dt, dw);
 }
 
-void HOURSevtWRITE::AddMuonPositionInfo(int tracknumber, int positionnumber,
+void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
                                         double posx, double posy, double posz,
                                         double momx, double momy, double momz,
                                         double mom, double time) {
@@ -170,7 +169,7 @@ void HOURSevtWRITE::AddMuonPositionInfo(int tracknumber, int positionnumber,
   evt->taga(dt, dw);
 }
 
-void HOURSevtWRITE::AddMuonPositionInfo(int tracknumber, int positionnumber,
+void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
                                         double posx, double posy, double posz,
                                         double time) {
   string dt("muonaddi_info");
@@ -184,7 +183,7 @@ void HOURSevtWRITE::AddMuonPositionInfo(int tracknumber, int positionnumber,
   evt->taga(dt, dw);
 }
 
-void HOURSevtWRITE::AddMuonDecaySecondaries(int trackID, int parentID,
+void EvtIO::AddMuonDecaySecondaries(int trackID, int parentID,
                                             double posx, double posy,
                                             double posz, double dx, double dy,
                                             double dz, double energy,
@@ -206,7 +205,7 @@ void HOURSevtWRITE::AddMuonDecaySecondaries(int trackID, int parentID,
 }
 
 #ifdef G4MYMUON_KEEPENERGY
-void HOURSevtWRITE::AddMuonEnergyInfo(const vector<double> &info) {
+void EvtIO::AddMuonEnergyInfo(const vector<double> &info) {
   if (info.size() == 0) return;
   string dt("muonenergy_info");
   char buffer[256];

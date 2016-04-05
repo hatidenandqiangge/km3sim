@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
 
   std::string Geometry_File = args["-d"];
   std::string Parameter_File = args["-i"];
-  char *fileParticles;
+  char *infile_evt;
   char *filePythiaParticles;
   G4double ParamEnergy;
   G4int ParamNumber;
@@ -109,12 +109,12 @@ int main(int argc, char *argv[]) {
   G4bool useHEPEvt = true;
   G4bool useANTARESformat = true;
   // argv[9] = ???
-  fileParticles = argv[9];
+  infile_evt = argv[9];
 
   FILE *savefile;
-  HOURSevtWRITE *TheEVTtoWrite;
-  // hoursevetwrite(infile, outfile)
-  TheEVTtoWrite = new HOURSevtWRITE(fileParticles, argv[3]);
+  EvtIO *TheEVTtoWrite;
+  // EvtIOe(infile, outfile)
+  TheEVTtoWrite = new EvtIO(infile_evt, argv[3]);
 
   G4RunManager *runManager = new G4RunManager;
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 
   runManager->SetNumberOfEventsToBeStored(0);
   KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
-  myGeneratorAction->fileParticles = fileParticles;
+  myGeneratorAction->infile_evt = infile_evt;
   myGeneratorAction->filePythiaParticles = filePythiaParticles;
   myGeneratorAction->idbeam = ParamParticle;
   myGeneratorAction->outfile = savefile;

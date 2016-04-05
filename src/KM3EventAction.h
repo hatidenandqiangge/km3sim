@@ -6,7 +6,7 @@
 #include "G4UserEventAction.h"
 #include "G4ThreeVector.h"
 
-#include "HOURSevtWRITE.h"
+#include "EvtIO.h"
 
 class G4EventManager;
 class G4Event;
@@ -59,7 +59,7 @@ class KM3EventAction : public G4UserEventAction {
   std::vector<G4double> EnergyAtPosition;
 #endif
   G4bool useANTARESformat;
-  HOURSevtWRITE *TheEVTtoWrite;
+  EvtIO *TheEVTtoWrite;
 
  public:
   FILE *outfile;

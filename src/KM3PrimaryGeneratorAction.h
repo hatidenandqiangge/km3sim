@@ -23,10 +23,8 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
  public:
   int nevents;
-  FILE *outfile;
-  FILE *infile;
-  char *filePythiaParticles;
-  char *fileParticles;
+  FILE *outfile_evt;
+  char *infile_evt;
   G4int numberofParticles;
   void GeneratePrimaries(G4Event *anEvent);
   void Initialize(void);

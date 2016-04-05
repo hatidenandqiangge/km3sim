@@ -16,7 +16,7 @@ KM3PrimaryGeneratorAction::~KM3PrimaryGeneratorAction() {
 }
 
 void KM3PrimaryGeneratorAction::Initialize() {
-  antaresHEPEvt = new HOURSevtREAD(fileParticles);
+  antaresHEPEvt = new HOURSevtREAD(infile_evt);
   nevents = antaresHEPEvt->GetNumberOfEvents();
   useHEPEvt = antaresHEPEvt->IsNeutrinoEvent();
 }
@@ -123,7 +123,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       direction[2] = LaserDZ;
       // normalize the direction vector
       direction = direction.unit();
-      fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", LaserX, LaserY,
+      fprintf(outfile_evt, "%.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", LaserX, LaserY,
               LaserZ, LaserDX, LaserDY, LaserDZ, Wavelength_Laser_Photons / nm);
     }
 
