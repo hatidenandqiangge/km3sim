@@ -22,7 +22,6 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
  public:
   FILE *outfile;
-  G4bool useANTARESformat;
   EvtIO *TheEVTtoWrite;
 
   G4VPhysicalVolume *Construct();

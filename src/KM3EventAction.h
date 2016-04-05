@@ -58,11 +58,9 @@ class KM3EventAction : public G4UserEventAction {
 #ifdef G4MYMUON_KEEPENERGY
   std::vector<G4double> EnergyAtPosition;
 #endif
-  G4bool useANTARESformat;
   EvtIO *TheEVTtoWrite;
 
  public:
-  FILE *outfile;
   inline void AddPrimaryNumber(G4int);
   inline G4int GetSlot(G4int);
   inline void Initialize(void) { numofMuons = 0; }

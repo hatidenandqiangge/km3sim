@@ -29,7 +29,6 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
   void GeneratePrimaries(G4Event *anEvent);
   void Initialize(void);
   G4bool useHEPEvt;
-  G4bool useANTARESformat;
   KM3TrackingAction *myTracking;
   KM3EventAction *event_action;
   G4double ParamEnergy;

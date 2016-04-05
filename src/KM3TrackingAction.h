@@ -16,7 +16,6 @@ class KM3TrackingAction : public G4UserTrackingAction {
  public:
   int numofInitialParticles;
   EvtIO *TheEVTtoWrite;
-  G4bool useANTARESformat;
 };
 
 #endif
