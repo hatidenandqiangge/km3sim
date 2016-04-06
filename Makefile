@@ -1,19 +1,19 @@
-# $Id: GNUmakefile,v 1.1 1999/01/07 16:05:40 gunter Exp $
-# --------------------------------------------------------------
-# GNUmakefile for examples module.  Gabriele Cosmo, 06/04/98.
-# --------------------------------------------------------------
+G4DIR = /sps/km3net/users/mlotze/software/geant4.10.02
 
-G4 = geant4.10.02
+G4INSTALL = ${G4DIR}/install
+G4BUILD = ${G4DIR}/build
+G4INCLUDE = $G
 
-ifndef G4INSTALL
-G4INSTALL = /sps/km3net/users/tsirigot/HOURS/${G4}/geant4make.sh
-endif
+G4INCLUDE = $(G4INSTALL)/include/Geant4
+G4LIB = $(G4INSTALL)/lib64/Geant4-9.6.2
+
+#ifndef G4INSTALL
+#G4INSTALL = /sps/km3net/users/mlotze/software/${G4}/build/geant4make.sh
+#endif
 
 .PHONY: all
-all: lib bin
+all: src
 
-G4INCLUDE = $(G4INSTALL)/../../../include/Geant4
-G4LIB = $(G4INSTALL)/../../../lib64/Geant4-9.6.2
 
 name := km3sim
 G4TARGET := $(name)
@@ -24,7 +24,8 @@ CLHEP_INCLUDE_DIR := /sps/km3net/users/tsirigot/HOURS/geant4.9.6.p02-install/inc
 CLHEP_LIB_DIR := /sps/km3net/users/tsirigot/HOURS/geant4.9.6.p02-install/lib64
 CLHEP_LIB := G4clhep
 G4SYSTEM := Linux-g++
-#CXXFLAGS := -g -O0
+#CXXFLAGS := -g -O2
+#CPPFLAGS += --static
 CPPVERBOSE := true
 #G4DEBUG := true
 
@@ -34,17 +35,19 @@ G4PROFILE := true
 G4LIB_USE_EXPAT := true
 G4LIB_BUILD_GDML := true
 
-# XML parser
+# Xerces = XML parser
+# Throw this out once GDML dep is obsolete
 XERCESCROOT := /afs/cern.ch/sw/lcg/external/XercesC/3.1.1p2/x86_64-slc6-gcc47-opt
+LDFLAGS += -L${XERVESROOT}/lib
 
 #in gdmllibs also load evt libs
 GDMLLIBS := -levtio -lxerces-c -lpthread
 G4LIB_BUILD_ZLIB := true
-#CPPFLAGS += --static
 
 # antares evt reader
 CPPFLAGS += -I/sps/km3net/users/tsirigot/HOURS/v1r12seawiet/inc
-LDFLAGS += -L/sps/km3net/users/tsirigot/HOURS/v1r12seawiet/lib -L/afs/cern.ch/sw/lcg/external/XercesC/3.1.1p2/x86_64-slc6-gcc47-opt/lib
+LDFLAGS += -L/sps/km3net/users/tsirigot/HOURS/v1r12seawiet/lib 
+
 
 # compile hadronic physics (includes muon photonuclear interaction).
 # When hadronic physics is not included only basic particles are constructed
