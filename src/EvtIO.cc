@@ -101,6 +101,30 @@ void EvtIO::ReadEvent() {
   }
 }
 
+// confliction version from HoursEventRead
+void EvtIO::ReadEvent2(void) {
+  evt->read(infile);
+  UseEarthLepton = false;
+  if (isneutrinoevent && !hasbundleinfo) {
+    int idneu, idtarget;
+    double xneu, yneu, zneu, pxneu, pyneu, pzneu, t0;
+    GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu, pyneu, pzneu, t0);
+    int NumberOfParticles = GetNumberOfParticles();
+    if (NumberOfParticles > 1) {
+      int idbeam;
+      double xx0, yy0, zz0, pxx0, pyy0, pzz0, t0;
+      for (int ipart = 0; ipart < NumberOfParticles; ipart++) {
+        GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
+        if (xx0 != xneu || yy0 != yneu || zz0 != zneu) {
+          UseEarthLepton = true;
+          break;
+        }
+      }
+    }
+  }
+}
+
+
 void EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
   std::string subchd = chd;
   size_t length = subchd.length();
@@ -469,4 +493,212 @@ SSid EvtIO::InitPDGTables(void) {
   PDGMASS[171] = 2.5194;
   PDGMASS[172] = 2.5159;
   PDGMASS[173] = 2.5175;
+}
+
+int EvtIO::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
+
+double EvtIO::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
+
+void EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
+                                   double &zz0, double &pxx0, double &pyy0,
+                                   double &pzz0, double &t0) {
+  std::string ParticleInfo;
+  if (UseEarthLepton)
+    ParticleInfo = evt->next("track_earthlepton");
+  else
+    ParticleInfo = evt->next("track_in");
+  double args[100];
+  int argnumber;
+  GetArgs(ParticleInfo, argnumber, args);
+  if ((int)args[9] <= 0) {
+    // in order to get rid off particles that are not standard (pythia
+    // or genie internal code particles e.g. 93)
+    idbeam = 0;
+    return;
+  }
+  if (isneutrinoevent && hasbundleinfo) {
+    // in order to select particles from neutrino interaction or muon
+    // bundle
+    if (ReadNeutrinoVertexParticles &&
+        (int)args[11] == 1) {  // select neutrino interaction particles
+      idbeam = 0;
+      return;
+    }
+    if (!ReadNeutrinoVertexParticles &&
+        (int)args[11] == 0) {  // select bundle muons
+      idbeam = 0;
+      return;
+    }
+  }
+  if (argnumber > 10)
+    idbeam = (int)args[10];
+  else
+    idbeam = ConvertHEPToPDG((int)args[9]);
+  xx0 = args[1] * m / cm;  // convert to cm
+  yy0 = args[2] * m / cm;
+  zz0 = args[3] * m / cm;
+  double totenergy = args[7];
+  double pmass = GetParticleMass((int)args[9]);
+  double pmom = totenergy * totenergy - pmass * pmass;
+  if (pmom > 0.0)
+    pmom = sqrt(totenergy * totenergy - pmass * pmass);
+  else
+    pmom = 0.0;
+  pxx0 = args[4] * pmom;
+  pyy0 = args[5] * pmom;
+  pzz0 = args[6] * pmom;
+  t0 = args[8];
+}
+
+void EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
+                                   double &yneu, double &zneu, double &pxneu,
+                                   double &pyneu, double &pzneu, double &t0) {
+  idneu = 0;
+  idtarget = 0;
+  xneu = 0.0;
+  yneu = 0.0;
+  zneu = 0.0;
+  pxneu = 0.0;
+  pyneu = 0.0;
+  pzneu = 0.0;
+  if (!isneutrinoevent) return;
+  evt->ndat("neutrino");
+  std::string NeutrinoInfo = evt->next("neutrino");
+  double args[100];
+  int argnumber;
+  GetArgs(NeutrinoInfo, argnumber, args);
+  idneu = (int)args[12];
+  if (argnumber == 15)
+    idtarget = (int)args[14];
+  else
+    idtarget = 1445;
+  xneu = args[1] * m / cm;  // convert to cm
+  yneu = args[2] * m / cm;
+  zneu = args[3] * m / cm;
+  double pmom = args[7];
+  pxneu = args[4] * pmom;
+  pyneu = args[5] * pmom;
+  pzneu = args[6] * pmom;
+  t0 = args[8];
+  // in case that ther is one track_in not with the same vertex with neutrino
+  if (evt->ndat("track_in") == 1 && !hasbundleinfo) {
+    int idbeam;
+    double xx0, yy0, zz0;
+    double pxx0, pyy0, pzz0;
+    double t0;
+    GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
+    if (xx0 != xneu || yy0 != yneu || zz0 != zneu) {
+      xneu = xx0;
+      yneu = yy0;
+      zneu = zz0;
+    }
+  }
+}
+
+// exactly as in EvtIO
+void EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
+  std::string subchd = chd;
+  size_t length = subchd.length();
+  size_t start, stop;
+  argnumber = 0;
+  while (length > 0) {
+    start = 0;
+    stop = subchd.find_first_of(" ");
+    if (stop != std::string::npos) {
+      args[argnumber] = atof((subchd.substr(start, stop - start)).data());
+      start = subchd.find_first_not_of(" ", stop);
+      if (start != std::string::npos) {
+        subchd = subchd.substr(start, length);
+        length = subchd.length();
+      } else {
+        length = 0;
+      }
+    } else {
+      args[argnumber] = atof(subchd.data());
+      length = 0;
+    }
+    argnumber++;
+  }
+}
+
+bool EvtIO::IsNeutrinoEvent(void) { return isneutrinoevent; }
+
+
+
+void EvtIO::GeneratePrimaryVertex(G4Event *anEvent) {
+  if (isneutrinoevent && hasbundleinfo) {
+    // first read the information of the neutrino vertex
+    int idneu, idtarget;
+    double xneu, yneu, zneu, pxneu, pyneu, pzneu, t0;
+    GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu, pyneu, pzneu, t0);
+    // create the neutrino interaction vertex including only the time
+    // the position is set in generator action
+    G4ThreeVector zero;
+    G4PrimaryVertex *vertex = new G4PrimaryVertex(zero, t0);
+    // add the particles from neutrino interaction to the vertex
+    int NHEP;  // number of entries
+    NHEP = GetNumberOfParticles();
+    ReadNeutrinoVertexParticles = true;
+    int idbeam;
+    double xx0, yy0, zz0;
+    double pxx0, pyy0, pzz0;
+    for (int IHEP = 0; IHEP < NHEP; IHEP++) {
+      GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
+      if (idbeam != 0) {  // do not load particles not within PDG coding (e.g.
+        // 93) and from muon bundle
+        if (abs(idbeam) != 411 && abs(idbeam) != 421 && abs(idbeam) != 431 &&
+            abs(idbeam) != 4122 && abs(idbeam) != 4212 &&
+            abs(idbeam) != 4222) {  // these particles are not defined or have
+          // not decay modes in GEANT4
+          G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
+          particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
+          vertex->SetPrimary(particle);
+        }
+      }
+    }
+    // Put the vertex to G4Event object
+    anEvent->AddPrimaryVertex(vertex);
+    // next load the information from the bundle muons
+    NHEP = GetNumberOfParticles();
+    ReadNeutrinoVertexParticles = false;
+    for (int IHEP = 0; IHEP < NHEP; IHEP++) {
+      GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
+      if (idbeam != 0) {  // load particles from muon bundle only
+        G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
+        particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
+        vertex = new G4PrimaryVertex(
+            G4ThreeVector(xx0 * cm, yy0 * cm, zz0 * cm), t0 * ns);
+        vertex->SetPrimary(particle);
+        anEvent->AddPrimaryVertex(vertex);
+      }
+    }
+  } else {
+    // create G4PrimaryVertex object
+    G4ThreeVector zero;
+    double particle_time = 0.0;
+    G4PrimaryVertex *vertex = new G4PrimaryVertex(zero, particle_time);
+
+    int NHEP;  // number of entries
+    NHEP = GetNumberOfParticles();
+    for (int IHEP = 0; IHEP < NHEP; IHEP++) {
+      int idbeam;
+      double xx0, yy0, zz0;
+      double pxx0, pyy0, pzz0;
+      double t0;
+      GetParticleInfo(idbeam, xx0, yy0, zz0, pxx0, pyy0, pzz0, t0);
+      if (idbeam != 0) {  // do not load particles not within PDG coding (e.g.
+        // 93)
+        if (abs(idbeam) != 411 && abs(idbeam) != 421 && abs(idbeam) != 431 &&
+            abs(idbeam) != 4122 && abs(idbeam) != 4212 &&
+            abs(idbeam) != 4222) {  // these particles are not defined or have
+          // not decay modes in GEANT4
+          G4PrimaryParticle *particle = new G4PrimaryParticle(idbeam);
+          particle->SetMomentum(pxx0 * GeV, pyy0 * GeV, pzz0 * GeV);
+          vertex->SetPrimary(particle);
+        }
+      }
+    }
+    // Put the vertex to G4Event object
+    anEvent->AddPrimaryVertex(vertex);
+  }
 }
