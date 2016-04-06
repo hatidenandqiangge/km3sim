@@ -21,7 +21,7 @@ HOURSevtREAD::HOURSevtREAD(char *infilechar) {
   // read header again
   ierr = evt->read(infile);
 
-  Initialize();
+  InitPDGTables();
 }
 
 HOURSevtREAD::~HOURSevtREAD() {
@@ -60,7 +60,7 @@ int HOURSevtREAD::GetNumberOfParticles(void) {
     return evt->ndat("track_in");
 }
 
-void HOURSevtREAD::Initialize(void) {
+void HOURSevtREAD::InitPDGTables(void) {
   // convert hep to pdg
   for (int i = 0; i <= 173; i++) ICONPDG[i] = 0;
 
