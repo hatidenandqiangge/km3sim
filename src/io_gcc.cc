@@ -1,10 +1,10 @@
 #include "io_gcc.h"
 
-using namespace std;
+namespace seaweed {
 
-unsigned event::read(istream& in) {
-  string cht;
-  string chd;
+unsigned event::read(std::istream& in) {
+  std::string cht;
+  std::string chd;
   clear();
   unsigned ierr = readhead(in);
   if (ierr != 0) return ierr;
@@ -40,14 +40,14 @@ unsigned event::defeve(unsigned nev, unsigned iev) {
 
 // give number of entries for key cht
 // reset tag counter
-int event::ndat(string cht) {
+int event::ndat(std::string cht) {
   evitmap[cht] = evdata.lower_bound(cht);
   return evdata.count(cht);
 }
 
 // give next data word chd for tag cht
-string event::next(string cht) {
-  string chd;
+std::string event::next(std::string cht) {
+  std::string chd;
   ev_iter evit = evitmap[cht];
   chd = (*evit).second;
   evitmap[cht]++;
@@ -75,7 +75,7 @@ unsigned event::run_id() { return ndrun; }
 unsigned event::type() { return ievtp; }
 
 // write event into output stream
-unsigned event::write(ostream& out) {
+unsigned event::write(std::ostream& out) {
   if (!new_event) {
     return 1;
   }
@@ -97,10 +97,10 @@ unsigned event::write(ostream& out) {
 }
 
 // eliminate tag from event list
-unsigned event::tagd(string cht) { return evdata.erase(cht); }
+unsigned event::tagd(std::string cht) { return evdata.erase(cht); }
 
 // eliminate tag with id from event list
-void event::tagd(string cht, unsigned nline) {
+void event::tagd(std::string cht, unsigned nline) {
   if (evdata.count(cht) < nline) {
     cout << "Event does not contain " << nline << " tag " << cht << endl;
     return;
@@ -113,7 +113,7 @@ void event::tagd(string cht, unsigned nline) {
 }
 
 // insert new data word for tag
-unsigned event::taga(string cht, string chd) {
+unsigned event::taga(std::string cht, std::string chd) {
   if (new_event) {
     evdata.insert(ev_multimap::value_type(cht, chd));
     return 0;
@@ -123,7 +123,7 @@ unsigned event::taga(string cht, string chd) {
 }
 
 // read event after skipping events
-unsigned event::skipev(istream& in, unsigned nskip) {
+unsigned event::skipev(std::istream& in, unsigned nskip) {
   unsigned mskip = 0;
   unsigned ierr;
   clear();
@@ -145,7 +145,7 @@ unsigned event::skipev(istream& in, unsigned nskip) {
 }
 
 // read start-of-run event after skipping runs
-unsigned event::skipru(istream& in, unsigned nskip) {
+unsigned event::skipru(std::istream& in, unsigned nskip) {
   unsigned mskip = 0;
   unsigned ierr;
   clear();
@@ -162,7 +162,7 @@ unsigned event::skipru(istream& in, unsigned nskip) {
 }
 
 // find event with specific ID
-unsigned event::findev(istream& in, unsigned nev) {
+unsigned event::findev(std::istream& in, unsigned nev) {
   unsigned ierr;
   clear();
   do {
@@ -177,7 +177,7 @@ unsigned event::findev(istream& in, unsigned nev) {
 }
 
 // find run with specific ID
-unsigned event::findru(istream& in, unsigned nru) {
+unsigned event::findru(std::istream& in, unsigned nru) {
   unsigned ierr;
   clear();
   do {
@@ -192,14 +192,14 @@ unsigned event::findru(istream& in, unsigned nru) {
 }
 
 // read event header line
-int event::readhead(istream& in) {
-  string cht;
-  string chd;
+int event::readhead(std::istream& in) {
+  std::string cht;
+  std::string chd;
   int ierr = readline(in, cht, chd);
   if (ierr != 0) return ierr;
 
   if (cht == "start_run") {
-    istringstream ichd(chd.c_str());
+    std::istringstream ichd(chd.c_str());
     ichd >> ndrun;
     ndevt = 0;
     ievtp = 0;
@@ -207,7 +207,7 @@ int event::readhead(istream& in) {
     new_event = true;
     return 0;
   } else if (cht == "start_event") {
-    istringstream ichd(chd.c_str());
+    std::istringstream ichd(chd.c_str());
     ichd >> ndevt >> ievtp;
     new_run = false;
     new_event = true;
@@ -218,9 +218,9 @@ int event::readhead(istream& in) {
 }
 
 //    read event body (after header line)
-int event::readbody(istream& in) {
-  string cht;
-  string chd;
+int event::readbody(std::istream& in) {
+  std::string cht;
+  std::string chd;
   do {
     int ierr = readline(in, cht, chd);
     if (ierr != 0) return ierr;
@@ -232,8 +232,8 @@ int event::readbody(istream& in) {
 }
 
 // read one line, find tag and data word
-int event::readline(istream& in, string& cht, string& chd) {
-  string chline;
+int event::readline(std::istream& in, std::string& cht, std::string& chd) {
+  std::string chline;
   size_t len = 0;
   size_t pos = 0;
 
@@ -243,12 +243,12 @@ int event::readline(istream& in, string& cht, string& chd) {
     if (in.eof()) return 2;
     len = chline.size();
     pos = chline.find(":");
-  } while (len < 2 || pos == string::npos || pos == 0);
+  } while (len < 2 || pos == std::string::npos || pos == 0);
 
-  string chx = chline.substr(0, pos);
+  std::string chx = chline.substr(0, pos);
   size_t pox = chx.find_first_not_of(" ");
   cht = " ";
-  if (pox != string::npos) {
+  if (pox != std::string::npos) {
     size_t poy = chx.find_last_not_of(" ");
     cht = chx.substr(pox, poy + 1);
   }
@@ -256,7 +256,7 @@ int event::readline(istream& in, string& cht, string& chd) {
   if (pos + 1 < len) {
     chx = chline.substr(pos + 1, len);
     size_t pox = chx.find_first_not_of(" ");
-    if (pox != string::npos) {
+    if (pox != std::string::npos) {
       size_t poy = chx.find_last_not_of(" ");
       chd = chx.substr(pox, poy + 1);
     }
@@ -272,3 +272,5 @@ void event::clear() {
   ievtp = 0;
   evdata.erase(evdata.begin(), evdata.end());
 }
+
+}   // namespace seaweed

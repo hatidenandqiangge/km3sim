@@ -7,6 +7,8 @@
 #include <sstream>
 #include <map>
 
+namespace seaweed {
+
 /**
   * multimap which holds the data of one event sorted
   * according to the tags containg the data words a string
@@ -259,5 +261,6 @@ class event {
     * @see event#read for return codes
     */
   unsigned findru(std::istream& is, unsigned nr);
-};
+};  // class event
+}   // namespace seaweed
 #endif
