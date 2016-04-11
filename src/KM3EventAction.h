@@ -6,7 +6,7 @@
 #include "G4UserEventAction.h"
 #include "G4ThreeVector.h"
 
-#include "EvtIO.h"
+#include "KM3EvtIO.h"
 
 class G4EventManager;
 class G4Event;
@@ -58,7 +58,7 @@ class KM3EventAction : public G4UserEventAction {
 #ifdef G4MYMUON_KEEPENERGY
   std::vector<G4double> EnergyAtPosition;
 #endif
-  EvtIO *TheEVTtoWrite;
+  KM3EvtIO *TheEVTtoWrite;
 
  public:
   inline void AddPrimaryNumber(G4int);

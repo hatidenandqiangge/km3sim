@@ -1,4 +1,4 @@
-#ifndef EvtIO_h #define EvtIO_h
+#ifndef KM3EvtIO_h #define KM3EvtIO_h
 
 #include "seaweed.h"
 #include <stdlib.h>
@@ -16,10 +16,10 @@
 //#include "G4ThreeVector.h"
 
 
-class EvtIO {
+class KM3EvtIO {
  public:
-  EvtIO(char *infile, char *outfile);
-  ~EvtIO();
+  KM3EvtIO(char *infile, char *outfile);
+  ~KM3EvtIO();
 
   void ReadRunHeader();
   void WriteRunHeader();

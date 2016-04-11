@@ -1,6 +1,6 @@
-#include "EvtIO.h"
+#include "KM3EvtIO.h"
 
-EvtIO::EvtIO(char *infilechar, char *outfilechar) {
+KM3EvtIO::KM3EvtIO(char *infilechar, char *outfilechar) {
   infile.open(infilechar, std::ifstream::in);
   evt = new seaweed::event();
 
@@ -30,27 +30,27 @@ EvtIO::EvtIO(char *infilechar, char *outfilechar) {
   RunHeaderIsWrite = false;
 }
 
-EvtIO::~EvtIO() {
+KM3EvtIO::~KM3EvtIO() {
   delete evt;
   infile.close();
   outfile.close();
 }
 
-int EvtIO::GetNumberOfEvents() {
+int KM3EvtIO::GetNumberOfEvents() {
   return nevents;
 }
 
-void EvtIO::ReadRunHeader() {
+void KM3EvtIO::ReadRunHeader() {
   if (!RunHeaderIsRead) evt->read(infile);
   RunHeaderIsRead = true;
 }
 
-void EvtIO::WriteRunHeader() {
+void KM3EvtIO::WriteRunHeader() {
   if (!RunHeaderIsWrite) evt->write(outfile);
   RunHeaderIsWrite = true;
 }
 
-void EvtIO::ReadEvent() {
+void KM3EvtIO::ReadEvent() {
   evt->read(infile);
   double args[100];
   int argnumber;
@@ -102,7 +102,7 @@ void EvtIO::ReadEvent() {
 }
 
 // confliction version from HoursEventRead
-void EvtIO::ReadEvent2(void) {
+void KM3EvtIO::ReadEvent2(void) {
   evt->read(infile);
   UseEarthLepton = false;
   if (isneutrinoevent && !hasbundleinfo) {
@@ -125,7 +125,7 @@ void EvtIO::ReadEvent2(void) {
 }
 
 
-void EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
+void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
   std::string subchd = chd;
   size_t length = subchd.length();
   size_t start, stop;
@@ -150,9 +150,9 @@ void EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
   }
 }
 
-void EvtIO::WriteEvent() { evt->write(outfile); }
+void KM3EvtIO::WriteEvent() { evt->write(outfile); }
 
-void EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
+void KM3EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
                            int npepure, double ttpure, int creatorProcess) {
   std::string dt("hit");
   char buffer[256];
@@ -172,7 +172,7 @@ void EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
   evt->taga(dt, dw);
 }
 
-void EvtIO::AddNumberOfHits(int hitnumber) {
+void KM3EvtIO::AddNumberOfHits(int hitnumber) {
   std::string dt("total_hits");
   char buffer[256];
   sprintf(buffer, "%8d", hitnumber);
@@ -180,7 +180,7 @@ void EvtIO::AddNumberOfHits(int hitnumber) {
   evt->taga(dt, dw);
 }
 
-void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
+void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
                                         double posx, double posy, double posz,
                                         double momx, double momy, double momz,
                                         double mom, double time) {
@@ -197,7 +197,7 @@ void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
   evt->taga(dt, dw);
 }
 
-void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
+void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
                                         double posx, double posy, double posz,
                                         double time) {
   std::string dt("muonaddi_info");
@@ -211,7 +211,7 @@ void EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
   evt->taga(dt, dw);
 }
 
-void EvtIO::AddMuonDecaySecondaries(int trackID, int parentID,
+void KM3EvtIO::AddMuonDecaySecondaries(int trackID, int parentID,
                                             double posx, double posy,
                                             double posz, double dx, double dy,
                                             double dz, double energy,
@@ -233,7 +233,7 @@ void EvtIO::AddMuonDecaySecondaries(int trackID, int parentID,
 }
 
 #ifdef G4MYMUON_KEEPENERGY
-void EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
+void KM3EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
   if (info.size() == 0) return;
   std::string dt("muonenergy_info");
   char buffer[256];
@@ -284,7 +284,7 @@ void EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
 }
 #endif
 
-SSid EvtIO::InitPDGTables(void) {
+SSid KM3EvtIO::InitPDGTables(void) {
   // convert hep to pdg
   for (int i = 0; i <= 173; i++) ICONPDG[i] = 0;
 
@@ -495,11 +495,11 @@ SSid EvtIO::InitPDGTables(void) {
   PDGMASS[173] = 2.5175;
 }
 
-int EvtIO::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
+int KM3EvtIO::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
 
-double EvtIO::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
+double KM3EvtIO::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
 
-void EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
+void KM3EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
                                    double &zz0, double &pxx0, double &pyy0,
                                    double &pzz0, double &t0) {
   std::string ParticleInfo;
@@ -550,7 +550,7 @@ void EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   t0 = args[8];
 }
 
-void EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
+void KM3EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
                                    double &yneu, double &zneu, double &pxneu,
                                    double &pyneu, double &pzneu, double &t0) {
   idneu = 0;
@@ -595,8 +595,8 @@ void EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
   }
 }
 
-// exactly as in EvtIO
-void EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
+// exactly as in KM3EvtIO
+void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
   std::string subchd = chd;
   size_t length = subchd.length();
   size_t start, stop;
@@ -621,11 +621,11 @@ void EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
   }
 }
 
-bool EvtIO::IsNeutrinoEvent(void) { return isneutrinoevent; }
+bool KM3EvtIO::IsNeutrinoEvent(void) { return isneutrinoevent; }
 
 
 
-void EvtIO::GeneratePrimaryVertex(G4Event *anEvent) {
+void KM3EvtIO::GeneratePrimaryVertex(G4Event *anEvent) {
   if (isneutrinoevent && hasbundleinfo) {
     // first read the information of the neutrino vertex
     int idneu, idtarget;

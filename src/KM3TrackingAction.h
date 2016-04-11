@@ -2,7 +2,7 @@
 #define KM3TrackingAction_h 1
 
 #include "G4UserTrackingAction.h"
-#include "EvtIO.h"
+#include "KM3EvtIO.h"
 #include "G4Types.h"
 
 class KM3TrackingAction : public G4UserTrackingAction {
@@ -15,7 +15,7 @@ class KM3TrackingAction : public G4UserTrackingAction {
 
  public:
   int numofInitialParticles;
-  EvtIO *TheEVTtoWrite;
+  KM3EvtIO *TheEVTtoWrite;
 };
 
 #endif

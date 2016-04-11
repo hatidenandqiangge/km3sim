@@ -11,7 +11,7 @@
 // newgeant #include "Saxana/SAXProcessor.h"
 // newgeant #include "Saxana/ProcessingConfigurator.h"
 
-#include "EvtIO.h"
+#include "KM3EvtIO.h"
 
 class G4VPhysicalVolume;
 
@@ -22,7 +22,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
  public:
   FILE *outfile;
-  EvtIO *TheEVTtoWrite;
+  KM3EvtIO *TheEVTtoWrite;
 
   G4VPhysicalVolume *Construct();
   G4double Quantum_Efficiency;
