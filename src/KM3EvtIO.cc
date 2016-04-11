@@ -36,9 +36,7 @@ KM3EvtIO::~KM3EvtIO() {
   outfile.close();
 }
 
-int KM3EvtIO::GetNumberOfEvents() {
-  return nevents;
-}
+int KM3EvtIO::GetNumberOfEvents() { return nevents; }
 
 void KM3EvtIO::ReadRunHeader() {
   if (!RunHeaderIsRead) evt->read(infile);
@@ -124,7 +122,6 @@ void KM3EvtIO::ReadEvent2(void) {
   }
 }
 
-
 void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
   std::string subchd = chd;
   size_t length = subchd.length();
@@ -153,7 +150,7 @@ void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
 void KM3EvtIO::WriteEvent() { evt->write(outfile); }
 
 void KM3EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
-                           int npepure, double ttpure, int creatorProcess) {
+                      int npepure, double ttpure, int creatorProcess) {
   std::string dt("hit");
   char buffer[256];
   int Gid;
@@ -181,9 +178,9 @@ void KM3EvtIO::AddNumberOfHits(int hitnumber) {
 }
 
 void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
-                                        double posx, double posy, double posz,
-                                        double momx, double momy, double momz,
-                                        double mom, double time) {
+                                   double posx, double posy, double posz,
+                                   double momx, double momy, double momz,
+                                   double mom, double time) {
   std::string dt("muonaddi_info");
   char buffer[256];
   tracknumber =
@@ -198,8 +195,8 @@ void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
 }
 
 void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
-                                        double posx, double posy, double posz,
-                                        double time) {
+                                   double posx, double posy, double posz,
+                                   double time) {
   std::string dt("muonaddi_info");
   char buffer[256];
   tracknumber =
@@ -211,11 +208,10 @@ void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
   evt->taga(dt, dw);
 }
 
-void KM3EvtIO::AddMuonDecaySecondaries(int trackID, int parentID,
-                                            double posx, double posy,
-                                            double posz, double dx, double dy,
-                                            double dz, double energy,
-                                            double time, int idPDG) {
+void KM3EvtIO::AddMuonDecaySecondaries(int trackID, int parentID, double posx,
+                                       double posy, double posz, double dx,
+                                       double dy, double dz, double energy,
+                                       double time, int idPDG) {
   if (parentID > NumberOfParticles) return;
   int Gid = ParticlesHEPNumber[parentID - 1];
   if ((Gid != 5) && (Gid != 6)) return;
@@ -500,8 +496,8 @@ int KM3EvtIO::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
 double KM3EvtIO::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
 
 void KM3EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
-                                   double &zz0, double &pxx0, double &pyy0,
-                                   double &pzz0, double &t0) {
+                               double &zz0, double &pxx0, double &pyy0,
+                               double &pzz0, double &t0) {
   std::string ParticleInfo;
   if (UseEarthLepton)
     ParticleInfo = evt->next("track_earthlepton");
@@ -551,8 +547,8 @@ void KM3EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
 }
 
 void KM3EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
-                                   double &yneu, double &zneu, double &pxneu,
-                                   double &pyneu, double &pzneu, double &t0) {
+                               double &yneu, double &zneu, double &pxneu,
+                               double &pyneu, double &pzneu, double &t0) {
   idneu = 0;
   idtarget = 0;
   xneu = 0.0;
@@ -622,8 +618,6 @@ void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
 }
 
 bool KM3EvtIO::IsNeutrinoEvent(void) { return isneutrinoevent; }
-
-
 
 void KM3EvtIO::GeneratePrimaryVertex(G4Event *anEvent) {
   if (isneutrinoevent && hasbundleinfo) {

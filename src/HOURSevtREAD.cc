@@ -399,8 +399,6 @@ void HOURSevtREAD::GetArgs(std::string &chd, int &argnumber, double *args) {
 
 bool HOURSevtREAD::IsNeutrinoEvent(void) { return isneutrinoevent; }
 
-
-
 void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
   if (isneutrinoevent && hasbundleinfo) {
     // first read the information of the neutrino vertex

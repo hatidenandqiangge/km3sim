@@ -262,5 +262,5 @@ class event {
     */
   unsigned findru(std::istream& is, unsigned nr);
 };  // class event
-}   // namespace seaweed
+}  // namespace seaweed
 #endif  // SEAWEED

@@ -123,16 +123,17 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
       direction[2] = LaserDZ;
       // normalize the direction vector
       direction = direction.unit();
-      fprintf(outfile_evt, "%.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", LaserX, LaserY,
-              LaserZ, LaserDX, LaserDY, LaserDZ, Wavelength_Laser_Photons / nm);
+      fprintf(outfile_evt, "%.6e %.6e %.6e %.6e %.6e %.6e %.6e\n", LaserX,
+              LaserY, LaserZ, LaserDX, LaserDY, LaserDZ,
+              Wavelength_Laser_Photons / nm);
     }
 
     G4ParticleDefinition *OPDefinition =
         G4OpticalPhoton::OpticalPhotonDefinition();
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, 0.0);
     numberofParticles = 0;
-      // Num_Laser_Photons is the number of photns before the
-      // relative QE and transparencies
+    // Num_Laser_Photons is the number of photns before the
+    // relative QE and transparencies
     for (G4int ip = 0; ip < Num_Laser_Photons; ip++) {
       G4double qeProb = QECathod->Value(photonEnergy);
       if (G4UniformRand() < qeProb) {
@@ -163,7 +164,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     G4cout << "Generating one laser pulse " << ievent << " Number of photons "
            << numberofParticles << G4endl;
   }
-#endif // G4MYLASER_PARAMETERIZATION
+#endif  // G4MYLASER_PARAMETERIZATION
 
   else {
     // starting particle time is common in neutrino interaction

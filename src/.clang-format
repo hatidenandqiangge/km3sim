@@ -1,7 +1,1 @@
----
-Language:        Cpp
-BasedOnStyle:  Google
-TabWidth:        2
-UseTab:          Never
-...
-
+-- - Language : Cpp BasedOnStyle : Google TabWidth : 2 UseTab : Never...

@@ -15,7 +15,6 @@
 #include "G4PrimaryParticle.h"
 //#include "G4ThreeVector.h"
 
-
 class KM3EvtIO {
  public:
   KM3EvtIO(char *infile, char *outfile);
@@ -42,9 +41,9 @@ class KM3EvtIO {
   void AddMuonEnergyInfo(const std::vector<double> &info);
 #endif
 
-	// taken from reader
+  // taken from reader
   int GetNumberOfEvents();
-  void ReadEvent(void);   // possible duplication
+  void ReadEvent(void);  // possible duplication
   void GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu, double &yneu,
                        double &zneu, double &pxneu, double &pyneu,
                        double &pzneu, double &t0);

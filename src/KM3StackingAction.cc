@@ -37,8 +37,7 @@ G4ClassificationOfNewTrack KM3StackingAction::ClassifyNewTrack(
     return fKill;
 
   // first check that is not a photon to save time
-  if (aTrack->GetDefinition() !=
-      G4OpticalPhoton::OpticalPhotonDefinition()) {
+  if (aTrack->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition()) {
     kineticEnergy = aTrack->GetKineticEnergy();
 
     // threshold for electron cerenkov production (not applicable for

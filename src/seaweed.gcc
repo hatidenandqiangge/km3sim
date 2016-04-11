@@ -273,4 +273,4 @@ void event::clear() {
   evdata.erase(evdata.begin(), evdata.end());
 }
 
-}   // namespace seaweed
+}  // namespace seaweed

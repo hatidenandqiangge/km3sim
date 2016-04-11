@@ -126,9 +126,7 @@
 #include "G4RadioactiveDecay.h"
 #include "G4IonTable.h"
 #include "G4Ions.h"
->>>>>>> 267ac4296849bbd10bb0173845a54afc0d754d56
-
-KM3Physics::KM3Physics() : G4VUserPhysicsList() {
+>>>>>>> 267ac4296849bbd10bb0173845a54afc0d754d56 KM3Physics::KM3Physics() : G4VUserPhysicsList() {
   defaultCutValue = 0.5 * mm;
   SetVerboseLevel(2);
 }
