@@ -82,3 +82,6 @@ Thumbs.db
 
 .svn/*
 doc/*
+CMakeCache.txt
+CMakeFiles/*
+

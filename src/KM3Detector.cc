@@ -698,12 +698,10 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     Cathods++;
   }
   // for newgeant add "_PV" at the end of physical volume name
-  if
-    pvName.contains("OMVolume") {
+  if pvName.contains("OMVolume") {
       // OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
       OMPositions *aOM = new OMPositions;
-      aOM->position =
-        AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+      aOM->position = AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
       aCathodsIDs = new std::vector<G4int>;
       aOM->CathodsIDs = aCathodsIDs;
       // if OM is sphere then set the outer radius as radius, if it is
@@ -745,8 +743,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
       OMs++;
     }
   // for newgeant add "_PV" at the end of physical volume name
-  if
-    pvName.contains("StoreyVolume") {
+  if pvName.contains("StoreyVolume") {
       // StoreysPositions *aStorey = (StoreysPositions
       // *)malloc(sizeof(StoreysPositions));
       StoreysPositions *aStorey = new StoreysPositions;
@@ -759,8 +756,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     }
   // new towers
   // for newgeant add "_PV" at the end of physical volume name
-  if
-    pvName.contains("TowerVolume") {
+  if pvName.contains("TowerVolume") {
       // TowersPositions *aTower = (TowersPositions
       // *)malloc(sizeof(TowersPositions));
       TowersPositions *aTower = new TowersPositions;
@@ -780,8 +776,7 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     aPVolume->GetLogicalVolume()->GetDaughter(i)->SetCopyNo(i);
     TotalPMTEntities(aPVolume->GetLogicalVolume()->GetDaughter(i));
   }
-  if
-    not pvName.contains("CathodVolume") {
+  if not pvName.contains("CathodVolume") {
       AffineTrans = tempoaffine.Inverse() * AffineTrans;
     }
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue().inverse();
