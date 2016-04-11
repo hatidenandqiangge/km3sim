@@ -19,7 +19,6 @@ class HOURSevtREAD {
   HOURSevtREAD(char *infile);
   ~HOURSevtREAD();
 
- public:
   int GetNumberOfEvents();
   void ReadEvent(void);
   void GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu, double &yneu,
@@ -38,7 +37,7 @@ class HOURSevtREAD {
   std::ifstream infile;
   int ICONPDG[174];
   double PDGMASS[174];
-  void Initialize(void);
+  void InitPDGTables(void);
   int ConvertHEPToPDG(int hepcode);
   void GetArgs(string &chd, int &argnumber, double *args);
   double GetParticleMass(int hepcode);

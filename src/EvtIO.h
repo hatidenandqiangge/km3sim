@@ -21,7 +21,6 @@ class EvtIO {
   EvtIO(char *infile, char *outfile);
   ~EvtIO();
 
- public:
   void ReadRunHeader();
   void WriteRunHeader();
   void ReadEvent();
@@ -72,8 +71,8 @@ class EvtIO {
   // taken from reader
   int nevents;
   int ICONPDG[174];
-  double PDGMADD[174];
-  void Initialize(void);
+  double PDGMASS[174];
+  void InitPDGTables(void);
   int ConvertHEPToPDG(int hepcode);
   double GetParticleMass(int hepcode);
   bool UseEarthLepton;

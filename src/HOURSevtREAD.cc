@@ -21,7 +21,7 @@ HOURSevtREAD::HOURSevtREAD(char *infilechar) {
   // read header again
   ierr = evt->read(infile);
 
-  Initialize();
+  InitPDGTables();
 }
 
 HOURSevtREAD::~HOURSevtREAD() {
@@ -60,7 +60,7 @@ int HOURSevtREAD::GetNumberOfParticles(void) {
     return evt->ndat("track_in");
 }
 
-void HOURSevtREAD::Initialize(void) {
+void HOURSevtREAD::InitPDGTables(void) {
   // convert hep to pdg
   for (int i = 0; i <= 173; i++) ICONPDG[i] = 0;
 
@@ -286,21 +286,22 @@ void HOURSevtREAD::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   double args[100];
   int argnumber;
   GetArgs(ParticleInfo, argnumber, args);
-  if ((int)args[9] <= 0) {  // in order to get rid off particles that are not
-    // standard (pythia or genie internal code particles
-    // e.g. 93)
+  if ((int)args[9] <= 0) {
+    // in order to get rid off particles that are not standard (pythia
+    // or genie internal code particles e.g. 93)
     idbeam = 0;
     return;
   }
-  if (isneutrinoevent && hasbundleinfo) {  // in order to select particles from
-    // neutrino interaction or muon bundle
+  if (isneutrinoevent && hasbundleinfo) {
+    // in order to select particles from neutrino interaction or muon
+    // bundle
     if (ReadNeutrinoVertexParticles &&
-        (int)args[11] == 1) {  // selsct neutrino interaction particles
+        (int)args[11] == 1) {  // select neutrino interaction particles
       idbeam = 0;
       return;
     }
     if (!ReadNeutrinoVertexParticles &&
-        (int)args[11] == 0) {  // selsct bundle muons
+        (int)args[11] == 0) {  // select bundle muons
       idbeam = 0;
       return;
     }
