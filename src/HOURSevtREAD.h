@@ -33,7 +33,7 @@ class HOURSevtREAD {
   void GeneratePrimaryVertex(G4Event *anEvent);
 
  private:
-  event *evt;
+  seaweed::event *evt;
   int nevents;
   std::ifstream infile;
   int ICONPDG[174];

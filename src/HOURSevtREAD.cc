@@ -2,7 +2,7 @@
 
 HOURSevtREAD::HOURSevtREAD(char *infilechar) {
   infile.open(infilechar, std::ifstream::in);
-  evt = new event();
+  evt = new seaweed::event();
   // read header
   int ierr = evt->read(infile);
   // count events

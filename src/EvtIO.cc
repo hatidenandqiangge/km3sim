@@ -2,7 +2,7 @@
 
 EvtIO::EvtIO(char *infilechar, char *outfilechar) {
   infile.open(infilechar, std::ifstream::in);
-  evt = new event();
+  evt = new seaweed::event();
 
   // the following is to find if it is neutrino events
   int ierr = evt->read(infile);

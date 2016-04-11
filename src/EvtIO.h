@@ -57,7 +57,7 @@ class EvtIO {
   void GeneratePrimaryVertex(G4Event *anEvent);
 
  private:
-  event *evt;
+  seaweed::event *evt;
   std::ifstream infile;
   std::ofstream outfile;
   bool RunHeaderIsRead;
