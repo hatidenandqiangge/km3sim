@@ -1,5 +1,5 @@
-#ifndef IO_GCC
-#define IO_GCC
+#ifndef SEAWEED
+#define SEAWEED
 
 #include <iostream>
 #include <iomanip>
@@ -263,4 +263,4 @@ class event {
   unsigned findru(std::istream& is, unsigned nr);
 };  // class event
 }   // namespace seaweed
-#endif
+#endif  // SEAWEED

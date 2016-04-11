@@ -1,7 +1,7 @@
 #ifndef HOURSevtREAD_h
 #define HOURSevtREAD_h
 
-#include "io_gcc.h"
+#include "seaweed.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>

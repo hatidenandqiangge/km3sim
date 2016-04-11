@@ -1,6 +1,6 @@
 #ifndef EvtIO_h #define EvtIO_h
 
-#include "io_gcc.h"
+#include "seaweed.h"
 #include <stdlib.h>
 #include <math.h>
 
