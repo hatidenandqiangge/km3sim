@@ -217,11 +217,11 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
     } while (rand * maxSin2 > sin2Theta);
 
     G4double qeProb = QECathod->Value(sampledEnergy);
+
     if (G4UniformRand() < qeProb) {
       // calculate x,y, and z components of photon momentum
       // (in coord system with primary particle direction
       //  aligned with the z axis)
-
       G4double sinTheta = sqrt(sin2Theta);
       G4double px = sinTheta * cosPhi;
       G4double py = sinTheta * sinPhi;
@@ -231,29 +231,23 @@ G4VParticleChange *KM3Cherenkov::PostStepDoIt(const G4Track &aTrack,
       // The momentum direction is still with respect
       // to the coordinate system where the primary
       // particle direction is aligned with the z axis
-
       G4ParticleMomentum photonMomentum(px, py, pz);
 
       // Rotate momentum direction back to global reference
       // system
-
       photonMomentum.rotateUz(p0);
 
       // Determine polarization of new photon
-
       G4double sx = cosTheta * cosPhi;
       G4double sy = cosTheta * sinPhi;
       G4double sz = -sinTheta;
-
       G4ThreeVector photonPolarization(sx, sy, sz);
 
       // Rotate back to original coord system
-
       photonPolarization.rotateUz(p0);
 
       // Generate new G4Track object and a new photon
       // first find generation position and time
-
       G4double delta, NumberOfPhotons, N;
       do {
         rand = G4UniformRand();
