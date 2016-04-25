@@ -25,14 +25,14 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   if (aStep->GetTrack()->GetParentID() == 0) {  // only the primary particle
     if (aStep->GetTrack()->GetDefinition() ==
-            G4MuonPlus::MuonPlusDefinition() ||
+        G4MuonPlus::MuonPlusDefinition() ||
         aStep->GetTrack()->GetDefinition() ==
-            G4MuonMinus::MuonMinusDefinition()) {
+        G4MuonMinus::MuonMinusDefinition()) {
       p0 = aStep->GetTrack()->GetMomentumDirection();
       x0 = aStep->GetTrack()->GetPosition();
-// here we keep the energy of the muon every 10 meters (approximately)
-// only if the first primary is a muon
-#ifdef G4MYMUON_KEEPENERGY
+
+      // here we keep the energy of the muon every 10 meters (approximately)
+      // only if the first primary is a muon
       if (aStep->GetTrack()->GetTrackID() == 1) {
         G4ThreeVector StartPosition = aStep->GetTrack()->GetVertexPosition();
         G4ThreeVector StartDirection =
@@ -51,7 +51,7 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
               aStep->GetTrack()->GetKineticEnergy());
         }
       }
-#endif
+
       // here report the position of the muon when it stops
       if (aStep->GetTrack()->GetKineticEnergy() == 0.0 &&
           aStep->GetTrack()->GetTrackStatus() == fStopButAlive) {
@@ -61,6 +61,7 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
           event_action->stopTime[MuonSlot] = aStep->GetTrack()->GetGlobalTime();
         }
       }
+
       // here kill muons that have not enough energy to reach the can
       // first check if it is inside the can
       G4double RRR2 =
@@ -135,7 +136,7 @@ void KM3SteppingAction::UserSteppingAction(const G4Step *aStep) {
         G4double HorDistTop2 =
             PointOnTop[0] * PointOnTop[0] + PointOnTop[1] * PointOnTop[1];
         G4double HorDistBottom2 = PointOnBottom[0] * PointOnBottom[0] +
-                                  PointOnBottom[1] * PointOnBottom[1];
+            PointOnBottom[1] * PointOnBottom[1];
 
         G4bool conti = true;
         if ((HorDistTop2 > RRR2) || (HorDistBottom2 > RRR2)) {
