@@ -1,7 +1,7 @@
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <stdio.h>
 
 #include "docopt.h"
 
@@ -19,6 +19,7 @@
 #include "KM3SteppingAction.h"
 #include "KM3EventAction.h"
 #include "KM3Detector.h"
+
 /** How to make a simple main:
  *
  * new G4Runmanager
