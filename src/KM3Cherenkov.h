@@ -4,7 +4,7 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include "globals.hh"
-#include "templates.h"
+#include "templates.hh"
 #include "Randomize.h"
 #include "G4ThreeVector.hh"
 #include "G4ParticleMomentum.hh"

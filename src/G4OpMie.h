@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "globals.hh"
-#include "templates.h"
+#include "templates.hh"
 #include "Randomize.h"
 
 #include "G4ThreeVector.hh"
