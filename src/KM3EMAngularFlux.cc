@@ -1,5 +1,5 @@
 #include "KM3EMAngularFlux.h"
-#include "Randomize.h"
+#include "Randomize.hh"
 
 KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
                                    bool FineBin) {

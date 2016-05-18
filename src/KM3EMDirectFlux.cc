@@ -1,5 +1,5 @@
 #include "KM3EMDirectFlux.h"
-#include "Randomize.h"
+#include "Randomize.hh"
 
 KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, G4double TotCathodArea) {
   VertexDistanceBins = 40;

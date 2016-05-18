@@ -5,7 +5,7 @@
 #include "KM3Hit.h"
 #include <stdio.h>
 #include "KM3Detector.h"
-#include "Randomize.h"
+#include "Randomize.hh"
 #include "G4MaterialPropertiesTable.hh"
 
 class G4Step;

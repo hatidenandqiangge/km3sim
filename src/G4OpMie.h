@@ -5,7 +5,7 @@
 
 #include "globals.hh"
 #include "templates.hh"
-#include "Randomize.h"
+#include "Randomize.hh"
 
 #include "G4ThreeVector.hh"
 #include "G4ParticleMomentum.hh"

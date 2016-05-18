@@ -5,7 +5,7 @@
 #include "G4HEPEvtInterface.hh"
 #include "G4PrimaryParticle.hh"
 #include "G4PrimaryVertex.hh"
-#include "Randomize.h"
+#include "Randomize.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
 
