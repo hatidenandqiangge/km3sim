@@ -1,7 +1,7 @@
 #include "KM3TrackInformation.h"
-#include "G4ParticleDefinition.h"
-#include "G4VProcess.h"
-#include "G4ios.h"
+#include "G4ParticleDefinition.hh"
+#include "G4VProcess.hh"
+#include "G4ios.hh"
 
 G4Allocator<KM3TrackInformation> aTrackInformationAllocator;
 

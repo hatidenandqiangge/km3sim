@@ -1,35 +1,34 @@
 #include "KM3Detector.h"
-
-#include "G4UnitsTable.h"
-
-#include "G4VUserDetectorConstruction.h"
 #include "KM3SD.h"
 #include "KM3StackingAction.h"
 
+#include "G4UnitsTable.hh"
+#include "G4VUserDetectorConstruction.hh"
+
 #include "globals.h"
-#include "G4Material.h"
-#include "G4MaterialTable.h"
-#include "G4Element.h"
-#include "G4ElementTable.h"
-#include "G4Box.h"
-#include "G4Sphere.h"
-#include "G4Tubs.h"
-#include "G4LogicalVolume.h"
-#include "G4ThreeVector.h"
-#include "G4PVPlacement.h"
-#include "G4PVReplica.h"
-#include "G4SDManager.h"
-#include "G4VisAttributes.h"
-#include "G4Colour.h"
-#include "G4UserLimits.h"
-#include "G4RegionStore.h"
-#include "G4VoxelLimits.h"  // newgeant
-#include "G4Processor/GDMLProcessor.h"
-#include "G4GDMLParser.h"  // newgeant
-#include "G4LogicalVolumeStore.h"
-#include "G4PhysicalVolumeStore.h"
-#include "G4GeometryManager.h"
-#include "CLHEP/Evaluator/Evaluator.h"
+#include "G4Material.hh"
+#include "G4MaterialTable.hh"
+#include "G4Element.hh"
+#include "G4ElementTable.hh"
+#include "G4Box.hh"
+#include "G4Sphere.hh"
+#include "G4Tubs.hh"
+#include "G4LogicalVolume.hh"
+#include "G4ThreeVector.hh"
+#include "G4PVPlacement.hh"
+#include "G4PVReplica.hh"
+#include "G4SDManager.hh"
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
+#include "G4UserLimits.hh"
+#include "G4RegionStore.hh"
+#include "G4VoxelLimits.hh"  // newgeant
+#include "G4Processor/GDMLProcessor.hh"
+#include "G4GDMLParser.hh"  // newgeant
+#include "G4LogicalVolumeStore.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4GeometryManager.hh"
+#include "CLHEP/Evaluator/Evaluator.hh"
 
 KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();

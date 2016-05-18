@@ -1,18 +1,21 @@
 #ifndef HOURSevtREAD_h
 #define HOURSevtREAD_h
 
-#include "seaweed.h"
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
+
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
+
 // following is for hepevt interface
-#include "G4Event.h"
-#include "G4PrimaryVertex.h"
-#include "G4PrimaryParticle.h"
+#include "G4Event.hh"
+#include "G4PrimaryVertex.hh"
+#include "G4PrimaryParticle.hh"
 //#include "G4ThreeVector.h"
+
+#include "seaweed.h"
 
 class HOURSevtREAD {
  public:

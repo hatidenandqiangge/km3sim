@@ -11,7 +11,7 @@
 #include "G4UItcsh.hh"
 #include "G4UnitsTable.hh"
 
-#include "KM3Sim.h"
+//#include "KM3Sim.h"
 #include "KM3Physics.h"
 #include "KM3PrimaryGeneratorAction.h"
 #include "KM3StackingAction.h"

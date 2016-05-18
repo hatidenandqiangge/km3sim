@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(km3sim)
 
-#include(${Geant4_USE_FILE})
+find_package(Geant4 REQUIRED)
+
+include(${Geant4_USE_FILE})
+
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/external/seaweed)
 include_directories(${PROJECT_SOURCE_DIR}/external/docopt.cpp)

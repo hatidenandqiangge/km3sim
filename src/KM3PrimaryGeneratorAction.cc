@@ -1,13 +1,13 @@
 #include "KM3PrimaryGeneratorAction.h"
 
 #include "globals.h"
-#include "G4Event.h"
-#include "G4HEPEvtInterface.h"
-#include "G4PrimaryParticle.h"
-#include "G4PrimaryVertex.h"
+#include "G4Event.hh"
+#include "G4HEPEvtInterface.hh"
+#include "G4PrimaryParticle.hh"
+#include "G4PrimaryVertex.hh"
 #include "Randomize.h"
-#include "G4ParticleDefinition.h"
-#include "G4ParticleTypes.h"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTypes.hh"
 
 KM3PrimaryGeneratorAction::KM3PrimaryGeneratorAction() {}
 

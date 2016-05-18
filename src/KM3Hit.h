@@ -1,12 +1,12 @@
 #ifndef KM3Hit_h
 #define KM3Hit_h 1
 
-#include "G4VHit.h"
-#include "G4THitsCollection.h"
-#include "G4Allocator.h"
-#include "G4ThreeVector.h"
-#include "G4VPhysicalVolume.h"
-#include "G4Transform3D.h"
+#include "G4VHit.hh"
+#include "G4THitsCollection.hh"
+#include "G4Allocator.hh"
+#include "G4ThreeVector.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4Transform3D.hh"
 
 class KM3Hit : public G4VHit {
  public:

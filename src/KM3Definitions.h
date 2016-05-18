@@ -1,6 +1,8 @@
-#include "G4Types.h"
-#include "G4ThreeVector.h"
 #include <vector>
+
+#include "G4Types.hh"
+#include "G4ThreeVector.hh"
+
 struct OMPositions {
   G4ThreeVector position;
   double radius;

@@ -1,7 +1,7 @@
 #include "KM3TrackingAction.h"
-#include "G4TrackingManager.h"
-#include "G4Track.h"
-#include "G4TrackVector.h"
+#include "G4TrackingManager.hh"
+#include "G4Track.hh"
+#include "G4TrackVector.hh"
 #include "KM3TrackInformation.h"
 
 void KM3TrackingAction::PreUserTrackingAction(const G4Track *aTrack) {

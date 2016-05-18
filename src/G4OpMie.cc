@@ -1,7 +1,7 @@
-#include "G4ios.h"
-#include "G4ExceptionHandler.h"
 #include <stdio.h>
-#include "G4OpMie.h"
+#include "G4ExceptionHandler.hh"
+#include "G4OpMie.hh"
+#include "G4ios.hh"
 
 G4OpMie::G4OpMie(const G4String &processName, G4ProcessType type)
     : G4VDiscreteProcess(processName, type) {

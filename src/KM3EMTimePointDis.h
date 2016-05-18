@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "G4ExceptionHandler.h"
+#include "G4ExceptionHandler.hh"
 
 struct onePE {
   G4double time;

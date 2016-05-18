@@ -1,9 +1,9 @@
 #ifndef KM3TrackingAction_h
 #define KM3TrackingAction_h 1
 
-#include "G4UserTrackingAction.h"
+#include "G4UserTrackingAction.hh"
 #include "KM3EvtIO.h"
-#include "G4Types.h"
+#include "G4Types.hh"
 
 class KM3TrackingAction : public G4UserTrackingAction {
  public:

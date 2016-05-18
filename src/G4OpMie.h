@@ -1,19 +1,21 @@
 #ifndef G4OpMie_h
 #define G4OpMie_h 1
 
+#include <vector>
+
 #include "globals.h"
 #include "templates.h"
 #include "Randomize.h"
-#include "G4ThreeVector.h"
-#include "G4ParticleMomentum.h"
-#include "G4Step.h"
-#include "G4VDiscreteProcess.h"
-#include "G4DynamicParticle.h"
-#include "G4Material.h"
-#include "G4OpticalPhoton.h"
-#include "G4PhysicsTable.h"
-#include "G4PhysicsOrderedFreeVector.h"
-#include <vector>
+
+#include "G4ThreeVector.hh"
+#include "G4ParticleMomentum.hh"
+#include "G4Step.hh"
+#include "G4VDiscreteProcess.hh"
+#include "G4DynamicParticle.hh"
+#include "G4Material.hh"
+#include "G4OpticalPhoton.hh"
+#include "G4PhysicsTable.hh"
+#include "G4PhysicsOrderedFreeVector.hh"
 
 struct PhaseFactors {
   double c0;

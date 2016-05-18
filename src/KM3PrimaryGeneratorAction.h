@@ -1,9 +1,9 @@
 #ifndef KM3PrimaryGeneratorAction_h
 #define KM3PrimaryGeneratorAction_h 1
 
-#include "G4VUserPrimaryGeneratorAction.h"
+#include "G4VUserPrimaryGeneratorAction.hh"
 #include "KM3TrackingAction.h"
-#include "G4ThreeVector.h"
+#include "G4ThreeVector.hh"
 #include "KM3EventAction.h"
 
 #include <stdio.h>
@@ -14,7 +14,8 @@
 class G4Event;
 class G4VPrimaryGenerator;
 
-#include "HOURSevtREAD.h"
+//#include "HOURSevtREAD.h"
+#include "KM3EvtIO.h"
 
 class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
  public:

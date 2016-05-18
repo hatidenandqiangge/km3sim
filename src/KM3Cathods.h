@@ -1,11 +1,11 @@
 #ifndef KM3Cathods_h
 #define KM3Cathods_h 1
 
-#include <vector>
 #include <stdio.h>
+#include <vector>
 #include "globals.h"
-#include "G4ThreeVector.h"
-#include "G4Transform3D.h"
+#include "G4ThreeVector.hh"
+#include "G4Transform3D.hh"
 
 struct Cathod {
   G4ThreeVector Position;

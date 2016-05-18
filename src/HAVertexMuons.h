@@ -1,12 +1,13 @@
 #ifndef HAVertexMuons_h
 #define HAVertexMuons_h 1
 
-#include <vector>
 #include "globals.h"
-#include "G4ThreeVector.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <vector>
+
+#include "G4ThreeVector.hh"
 
 class HAVertexMuons {
  public:

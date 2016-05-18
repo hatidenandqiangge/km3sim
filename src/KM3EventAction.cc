@@ -1,7 +1,7 @@
 #include "KM3EventAction.h"
-#include "G4Event.h"
-#include "G4EventManager.h"
-#include "G4ParticleTable.h"
+#include "G4Event.hh"
+#include "G4EventManager.hh"
+#include "G4ParticleTable.hh"
 #include "globals.h"
 
 void KM3EventAction::BeginOfEventAction(const G4Event *) {

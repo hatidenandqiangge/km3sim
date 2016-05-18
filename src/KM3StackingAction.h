@@ -2,7 +2,7 @@
 #define KM3StackingAction_H 1
 
 #include "globals.h"
-#include "G4UserStackingAction.h"
+#include "G4UserStackingAction.hh"
 #include "KM3Detector.h"
 #include "KM3Cherenkov.h"
 #include "KM3EMDeltaFlux.h"
