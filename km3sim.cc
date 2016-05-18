@@ -90,7 +90,7 @@ static const char USAGE[] =
 )";
 
 int main(int argc, char *argv[]) {
-  str::map<std::string, doctopt::value> args =
+  std::map<std::string, doctopt::value> args =
       doctop::docopt(USAGE, {argv + 1, argv + argc}, true);
 
   for (auto const &arg : args) {

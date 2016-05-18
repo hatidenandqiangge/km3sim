@@ -93,5 +93,5 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
   int global_det_id_;
   int n_doms_;
-}
+};
 #endif  // KM3Detector_h
