@@ -64,7 +64,7 @@ class KM3EvtIO {
   int ParticlesIdNumber[210000];
   bool isneutrinoevent;
   bool hasbundleinfo;
-  void GetArgs(string &chd, int &argnumber, double *args);
+  void GetArgs(std::string &chd, int &argnumber, double *args);
   int NumberOfParticles;
 
   // taken from reader
