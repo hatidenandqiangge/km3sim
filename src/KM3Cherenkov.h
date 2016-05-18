@@ -3,7 +3,7 @@
 
 #include <CLHEP/Units/SystemOfUnits.h>
 
-#include "globals.h"
+#include "globals.hh"
 #include "templates.h"
 #include "Randomize.h"
 #include "G4ThreeVector.hh"

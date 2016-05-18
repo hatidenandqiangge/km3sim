@@ -1,7 +1,7 @@
 #ifndef HAVertexMuons_h
 #define HAVertexMuons_h 1
 
-#include "globals.h"
+#include "globals.hh"
 #include <iostream>
 #include <fstream>
 #include <iomanip>

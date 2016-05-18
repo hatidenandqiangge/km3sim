@@ -2,7 +2,7 @@
 #define KM3EMDeltaFlux_h 1
 
 #include <vector>
-#include "globals.h"
+#include "globals.hh"
 #include <iostream>
 #include <fstream>
 #include <iomanip>

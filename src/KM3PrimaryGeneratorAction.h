@@ -7,7 +7,7 @@
 #include "KM3EventAction.h"
 
 #include <stdio.h>
-#include "globals.h"
+#include "globals.hh"
 
 #include "HAVertexMuons.h"
 

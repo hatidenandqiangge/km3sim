@@ -1,4 +1,4 @@
-#include "globals.h"
+#include "globals.hh"
 #include "KM3Physics.h"
 
 #include "G4UserSpecialCuts.hh"
@@ -63,7 +63,7 @@
 #include "G4IonTable.hh"
 #include "G4Ions.hh"
 
-#include "globals.h"
+#include "globals.hh"
 #include "KM3Physics.h"
 
 #include "G4UserSpecialCuts.hh"

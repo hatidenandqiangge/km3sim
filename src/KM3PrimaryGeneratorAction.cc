@@ -1,6 +1,6 @@
 #include "KM3PrimaryGeneratorAction.h"
 
-#include "globals.h"
+#include "globals.hh"
 #include "G4Event.hh"
 #include "G4HEPEvtInterface.hh"
 #include "G4PrimaryParticle.hh"

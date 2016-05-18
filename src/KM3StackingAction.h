@@ -1,7 +1,7 @@
 #ifndef KM3StackingAction_H
 #define KM3StackingAction_H 1
 
-#include "globals.h"
+#include "globals.hh"
 #include "G4UserStackingAction.hh"
 #include "KM3Detector.h"
 #include "KM3Cherenkov.h"

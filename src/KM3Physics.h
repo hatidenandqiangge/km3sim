@@ -2,7 +2,7 @@
 #define KM3Physics_h 1
 
 #include "G4VUserPhysicsList.hh"
-#include "globals.h"
+#include "globals.hh"
 #include "KM3Detector.h"
 #include "KM3Cherenkov.h"
 

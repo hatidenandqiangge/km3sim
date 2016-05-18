@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "globals.h"
+#include "globals.hh"
 #include "templates.h"
 #include "Randomize.h"
 

@@ -2,7 +2,7 @@
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 #include "G4ParticleTable.hh"
-#include "globals.h"
+#include "globals.hh"
 
 void KM3EventAction::BeginOfEventAction(const G4Event *) {
   if (!(G4ParticleTable::GetParticleTable()->GetReadiness())) {

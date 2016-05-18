@@ -1,7 +1,7 @@
 #ifndef KM3TrackInformation_h
 #define KM3TrackInformation_h 1
 
-#include "globals.h"
+#include "globals.hh"
 #include "G4Track.hh"
 #include "G4Allocator.hh"
 #include "G4VUserTrackInformation.hh"

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <vector>
-#include "globals.h"
+#include "globals.hh"
 #include "G4ThreeVector.hh"
 #include "G4Transform3D.hh"
 

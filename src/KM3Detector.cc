@@ -5,7 +5,7 @@
 #include "G4UnitsTable.hh"
 #include "G4VUserDetectorConstruction.hh"
 
-#include "globals.h"
+#include "globals.hh"
 #include "G4Material.hh"
 #include "G4MaterialTable.hh"
 #include "G4Element.hh"
