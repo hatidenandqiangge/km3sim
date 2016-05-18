@@ -40,7 +40,7 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
  private:
   G4VPrimaryGenerator *HEPEvt;
-  HOURSevtREAD *antaresHEPEvt;
+  KM3EvtIO *antaresHEPEvt;
   G4double EventWeight;
   G4ThreeVector detectorCenter;
   G4double detectorMaxRho;
