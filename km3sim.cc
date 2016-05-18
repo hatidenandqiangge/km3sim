@@ -94,17 +94,13 @@ int main(int argc, const char **argv)
   std::map<std::string, docopt::value> args =
     docopt::docopt(USAGE, {argv + 1, argv + argc}, true, "KM3Sim 2.0");
 
-  for (auto const &arg : args) {
-    std::cout << arg.fist << arg.second << std::endl;
-  }
-
-  G4long myseed = atol(args["--seed"]);
+  G4long myseed = args["--seed"].asLong();
   CLHEP::HepRandom::setTheSeed(myseed);
 
-  std::string Geometry_File = args["-d"];
-  std::string Parameter_File = args["-p"];
-  std::string infile_evt = args["-i"];
-  std::string outfile_evt = args["-o"];
+  std::string Geometry_File = args["-d"].asString();
+  std::string Parameter_File = args["-p"].asString();
+  std::string infile_evt = args["-i"].asString();
+  std::string outfile_evt = args["-o"].asString();
   G4double ParamEnergy;
   G4int ParamNumber;
   G4int ParamParticle;
@@ -123,7 +119,7 @@ int main(int argc, const char **argv)
   // EvtIO->ReadRunHeader()
   // EvtIO->WriteRunHeader()
   // EvtIO->WriteEvent()
-  EvtIO TheEVTtoWrite = new EvtIO(infile_evt, outfile_evt);
+  KM3EvtIO TheEVTtoWrite = new KM3EvtIO(infile_evt, outfile_evt);
 
   G4RunManager *runManager = new G4RunManager;
 
