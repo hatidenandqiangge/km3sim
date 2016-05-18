@@ -88,4 +88,5 @@ CPPFLAGS += -DG4ENABLE_MIE
 # print header with cathod information
 # CPPFLAGS += -DG4PRINT_HEADER
 
-include $(G4INSTALL)/config/binmake.gmk
+#include $(G4INSTALL)/config/binmake.gmk
+include /sps/km3net/users/mlotze/external/geant4.10.02/install/share/Geant4-10.2.0/geant4make/config/binmake.gmk

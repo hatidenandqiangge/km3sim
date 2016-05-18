@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(km3sim)
 
-include(${Geant4_USE_FILE})
+#include(${Geant4_USE_FILE})
 include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/external/seaweed)
+include_directories(${PROJECT_SOURCE_DIR}/external/docopt.cpp)
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/src/*.h)
@@ -14,12 +16,12 @@ set(KM3SIM_SCRIPTS
 	run_km3sim.sh
 )
 
-foreach(_script ${EXAMPLEB1_SCRIPTS})
-	configure_file(
-		${PROJECT_SOURCE_DIR}/${_script}
-		${PROJECT_BINARY_DIR}/${_script}
-		COPYONLY
-	)
-endforeach()
+#foreach(_script ${EXAMPLEB1_SCRIPTS})
+#	configure_file(
+#		${PROJECT_SOURCE_DIR}/${_script}
+#		${PROJECT_BINARY_DIR}/${_script}
+#		COPYONLY
+#	)
+#endforeach()
 
-install(TARGETS exampleB1 DESTINATION bin)
+#install(TARGETS DESTINATION bin)

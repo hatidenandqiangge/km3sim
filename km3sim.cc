@@ -5,11 +5,11 @@
 
 #include "docopt.h"
 
-#include "G4RunManager.h"
-#include "G4UImanager.h"
-#include "G4UIterminal.h"
-#include "G4UItcsh.h"
-#include "G4UnitsTable.h"
+#include "G4RunManager.hh"
+#include "G4UImanager.hh"
+#include "G4UIterminal.hh"
+#include "G4UItcsh.hh"
+#include "G4UnitsTable.hh"
 
 #include "KM3Sim.h"
 #include "KM3Physics.h"
