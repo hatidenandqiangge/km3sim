@@ -1,4 +1,5 @@
-#ifndef KM3EvtIO_h #define KM3EvtIO_h
+#ifndef KM3EvtIO_h
+#define KM3EvtIO_h
 
 #include "seaweed.h"
 #include <stdlib.h>
@@ -77,4 +78,5 @@ class KM3EvtIO {
   bool UseEarthLepton;
   bool ReadNeutrinoVertexParticles;
 };
-#endif
+#endif   // KM3EvtIO_h
+
