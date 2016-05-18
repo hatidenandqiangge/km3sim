@@ -92,7 +92,7 @@ static const char USAGE[] =
 int main(int argc, const char **argv)
 {
   std::map<std::string, docopt::value> args =
-    doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "KM3Sim 2.0");
+    docopt::docopt(USAGE, {argv + 1, argv + argc}, true, "KM3Sim 2.0");
 
   for (auto const &arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
