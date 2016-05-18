@@ -89,9 +89,9 @@ static const char USAGE[] =
     --no-mie          Disable mie scattering [default: false]
 )";
 
-int main(int argc, char *argv[]) {
+int main(int argc, const char **argv) {
   std::map<std::string, doctopt::value> args =
-      doctop::docopt(USAGE, {argv + 1, argv + argc}, true);
+      doctop::docopt(USAGE, {argv + 1, argv + argc}, true, "KM3Sim 2.0");
 
   for (auto const &arg : args) {
     std::cout << arg.fist << arg.second << std::endl;
