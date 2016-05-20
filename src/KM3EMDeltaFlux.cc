@@ -1,6 +1,8 @@
 #include "KM3EMDeltaFlux.h"
 #include "Randomize.hh"
 
+using CLHEP::meter;
+
 KM3EMDeltaFlux::KM3EMDeltaFlux(char *infileParam, G4double QEmax,
                                G4double TotCathodArea) {
   VertexDistanceBins = 40;

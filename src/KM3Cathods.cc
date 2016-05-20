@@ -1,5 +1,7 @@
 #include "KM3Cathods.h"
 
+using CLHEP::cm;
+
 // map cathod ID to the following
 // 6 cathod params: x, y, z, dx, dy, dz
 // rest is global for all cathods
