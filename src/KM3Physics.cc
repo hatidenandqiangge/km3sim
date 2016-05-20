@@ -57,7 +57,7 @@
 #include "G4hIonisation.hh"
 
 #include "G4OpAbsorption.hh"
-#include "G4OpMie.hh"
+#include "G4OpMie.h"
 #include "G4Decay.hh"
 #include "G4RadioactiveDecay.hh"
 #include "G4IonTable.hh"

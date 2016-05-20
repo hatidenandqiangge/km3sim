@@ -16,6 +16,7 @@
 #include "G4OpticalPhoton.hh"
 #include "G4PhysicsTable.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 struct PhaseFactors {
   double c0;
