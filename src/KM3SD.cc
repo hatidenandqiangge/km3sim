@@ -6,9 +6,10 @@
 #include "G4ios.hh"
 #include "KM3TrackInformation.h"
 
+using CLHEP::c_light;
+using CLHEP::cm;
 using CLHEP::meter;
 using CLHEP::ns;
-using CLHEP::c_light;
 using CLHEP::pi;
 
 KM3SD::KM3SD(G4String name) : G4VSensitiveDetector(name) {
