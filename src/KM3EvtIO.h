@@ -18,7 +18,7 @@
 
 class KM3EvtIO {
  public:
-  KM3EvtIO(char *infile, char *outfile);
+  KM3EvtIO(std::string infile, std::string outfile);
   ~KM3EvtIO();
 
   void ReadRunHeader();

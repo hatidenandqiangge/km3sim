@@ -119,7 +119,7 @@ int main(int argc, const char **argv)
   // EvtIO->ReadRunHeader()
   // EvtIO->WriteRunHeader()
   // EvtIO->WriteEvent()
-  KM3EvtIO TheEVTtoWrite = new KM3EvtIO(infile_evt, outfile_evt);
+  KM3EvtIO *TheEVTtoWrite = new KM3EvtIO(infile_evt, outfile_evt);
 
   G4RunManager *runManager = new G4RunManager;
 

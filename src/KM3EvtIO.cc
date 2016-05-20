@@ -1,7 +1,7 @@
 #include "KM3EvtIO.h"
 
-KM3EvtIO::KM3EvtIO(char *infilechar, char *outfilechar) {
-  infile.open(infilechar, std::ifstream::in);
+KM3EvtIO::KM3EvtIO(std::string infilechar, str::string outfile) {
+  infile.open(infile, std::ifstream::in);
   evt = new seaweed::event();
 
   // the following is to find if it is neutrino events
@@ -25,7 +25,7 @@ KM3EvtIO::KM3EvtIO(char *infilechar, char *outfilechar) {
   infile.clear();
   infile.seekg(0, std::ios::beg);
 
-  outfile.open(outfilechar, std::ofstream::out);
+  outfile.open(outfile, std::ofstream::out);
   RunHeaderIsRead = false;
   RunHeaderIsWrite = false;
 }

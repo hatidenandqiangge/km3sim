@@ -52,8 +52,10 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double MaxAbsDist;
   G4bool vrmlhits;
   G4bool DrawDetector;
-  char *Geometry_File;
-  char *Parameter_File;
+  //char *Geometry_File;
+  //char *Parameter_File;
+  std::string Geometry_File;
+  std::string Parameter_File;
   G4double TotCathodArea;
   KM3PrimaryGeneratorAction *MyGenerator;
 

@@ -1,15 +1,18 @@
 #ifndef KM3PrimaryGeneratorAction_h
 #define KM3PrimaryGeneratorAction_h 1
 
+#include <stdio.h>
+
+#include <string>
+
+#include "globals.hh"
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "KM3TrackingAction.h"
 #include "G4ThreeVector.hh"
 #include "KM3EventAction.h"
 
-#include <stdio.h>
-#include "globals.hh"
-
 #include "HAVertexMuons.h"
+
 
 class G4Event;
 class G4VPrimaryGenerator;
@@ -25,7 +28,7 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
  public:
   int nevents;
   FILE *outfile_evt;
-  char *infile_evt;
+  std::string infile_evt;
   G4int numberofParticles;
   void GeneratePrimaries(G4Event *anEvent);
   void Initialize(void);
