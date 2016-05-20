@@ -174,7 +174,7 @@ int main(int argc, const char **argv)
   //G4UIsession *session = 0;
   //session = new G4UIterminal();
   // inactivate the parametrization
-  UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
+  //UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
 
   // start a run
   runManager->SetVerboseLevel(1);
