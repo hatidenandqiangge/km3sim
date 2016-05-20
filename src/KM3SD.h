@@ -7,6 +7,8 @@
 #include "KM3Detector.h"
 #include "Randomize.hh"
 #include "G4MaterialPropertiesTable.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 class G4Step;
 class G4HCofThisEvent;

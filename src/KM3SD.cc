@@ -6,6 +6,10 @@
 #include "G4ios.hh"
 #include "KM3TrackInformation.h"
 
+using CLHEP::meter;
+using CLHEP::ns;
+using CLHEP::c_light;
+
 KM3SD::KM3SD(G4String name) : G4VSensitiveDetector(name) {
   G4String HCname;
   collectionName.insert(HCname = "MyCollection");
@@ -83,9 +87,8 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     G4ThreeVector PMTDirection = myStDetector->allCathods->GetDirection();
     G4double CathodRadius = myStDetector->allCathods->GetCathodRadius();
     G4double CathodHeight = myStDetector->allCathods->GetCathodHeight();
-    if
-      not AcceptAngle(photonDirection.dot(PMTDirection), CathodRadius,
-                      CathodHeight, false) {
+    if (not AcceptAngle(photonDirection.dot(PMTDirection), CathodRadius,
+                      CathodHeight, false)) {
         // at this point we dont kill the track if it is not accepted
         // due to anglular acceptance this has an observable effect a
         // few percent only when running simulation with parametrization
@@ -107,7 +110,6 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     if (info == NULL)
       info = (KM3TrackInformation *)(aStep->GetTrack()->GetUserInformation());
     originalParentID = info->GetOriginalParentID();
-    G4String creator = info->GetOriginalTrackCreatorProcess();
     G4String creator = info->GetOriginalTrackCreatorProcess();
     if (creator == "KM3Cherenkov")
       originalTrackCreatorProcess = 0;
@@ -220,13 +222,15 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
     thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);
   }
 
-  G4ThreeVector dirPARAM(0.0, 0.0, 1.0);
-  G4double startz = -600.0 * meter;
-  G4ThreeVector vertexPARAM(0.0, 0.0, startz);
-  G4ThreeVector posPMT = myStDetector->allCathods->GetPosition(id);
-  G4double TRes = TResidual(time, posPMT, vertexPARAM, dirPARAM);
-  if (fabs(TRes) < 20.0 * ns) ArrayParam[id]++;
-  if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns)) ArrayParamAll[id]++;
+  // TODO:
+  // why is this param stuff still here?
+  //G4ThreeVector dirPARAM(0.0, 0.0, 1.0);
+  //G4double startz = -600.0 * meter;
+  //G4ThreeVector vertexPARAM(0.0, 0.0, startz);
+  //G4ThreeVector posPMT = myStDetector->allCathods->GetPosition(id);
+  //G4double TRes = TResidual(time, posPMT, vertexPARAM, dirPARAM);
+  //if (fabs(TRes) < 20.0 * ns) ArrayParam[id]++;
+  //if ((TRes > -20.0 * ns) && (TRes < 100.0 * ns)) ArrayParamAll[id]++;
 }
 
 void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
