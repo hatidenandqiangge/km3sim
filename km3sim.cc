@@ -102,7 +102,7 @@ int main(int argc, const char **argv)
   std::string infile_evt = args["-i"].asString();
   std::string outfile_evt = args["-o"].asString();
   G4double ParamEnergy;
-  G4int ParamNumber;
+  //G4int ParamNumber;
   G4int ParamParticle;
 
   // sole remaining IO method
@@ -168,10 +168,11 @@ int main(int argc, const char **argv)
   // Initialize G4 kernel
   runManager->Initialize();
 
+  // Ummm dont use UI
   // get the pointer to the UI manager and set verbosities
-  G4UImanager *UI = G4UImanager::GetUIpointer();
-  G4UIsession *session = 0;
-  session = new G4UIterminal();
+  //G4UImanager *UI = G4UImanager::GetUIpointer();
+  //G4UIsession *session = 0;
+  //session = new G4UIterminal();
   // inactivate the parametrization
   UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
 

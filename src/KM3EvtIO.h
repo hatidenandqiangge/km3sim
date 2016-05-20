@@ -23,7 +23,8 @@ class KM3EvtIO {
 
   void ReadRunHeader();
   void WriteRunHeader();
-  void ReadEvent();
+  // taken from writer
+  //void ReadEvent();
   void WriteEvent();
   void AddHit(int id, int PMTid, double pe, double t, int trackid, int npepure,
               double ttpure, int creatorProcess);
@@ -44,6 +45,7 @@ class KM3EvtIO {
 
   // taken from reader
   int GetNumberOfEvents();
+  // this will actually get used if im right
   void ReadEvent(void);  // possible duplication
   void GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu, double &yneu,
                        double &zneu, double &pxneu, double &pyneu,

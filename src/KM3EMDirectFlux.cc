@@ -1,6 +1,8 @@
 #include "KM3EMDirectFlux.h"
 #include "Randomize.hh"
 
+using CLHEP::meter;
+
 KM3EMDirectFlux::KM3EMDirectFlux(char *infileParam, G4double TotCathodArea) {
   VertexDistanceBins = 40;
   std::ifstream infile(infileParam, std::ios::in | std::ios::binary);

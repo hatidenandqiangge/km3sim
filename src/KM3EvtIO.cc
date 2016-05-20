@@ -48,56 +48,57 @@ void KM3EvtIO::WriteRunHeader() {
   RunHeaderIsWrite = true;
 }
 
-void KM3EvtIO::ReadEvent() {
-  evt->read(infile);
-  double args[100];
-  int argnumber;
-  bool UseEarthLepton = false;
-  // use earthlepton or not
-  if (isneutrinoevent && !hasbundleinfo) {
-    evt->ndat("neutrino");
-    std::string NeutrinoInfo = evt->next("neutrino");
-    GetArgs(NeutrinoInfo, argnumber, args);
-    double xneu, yneu, zneu;
-    xneu = args[1];
-    yneu = args[2];
-    zneu = args[3];
-    int NumberOfPart = evt->ndat("track_in");
-    if (NumberOfPart > 1) {
-      double xx0, yy0, zz0;
-      for (int ipart = 0; ipart < NumberOfPart; ipart++) {
-        std::string ParticleInfo = evt->next("track_in");
-        GetArgs(ParticleInfo, argnumber, args);
-        xx0 = args[1];
-        yy0 = args[2];
-        zz0 = args[3];
-        if (xx0 != xneu || yy0 != yneu || zz0 != zneu) {
-          UseEarthLepton = true;
-          break;
-        }
-      }
-    }
-  }
-  if (UseEarthLepton)
-    NumberOfParticles = evt->ndat("track_earthlepton");
-  else
-    NumberOfParticles = evt->ndat("track_in");
-  int icount = 0;
-  for (int ip = 0; ip < NumberOfParticles; ip++) {
-    std::string ParticleInfo;
-    if (UseEarthLepton)
-      ParticleInfo = evt->next("track_earthlepton");
-    else
-      ParticleInfo = evt->next("track_in");
-    GetArgs(ParticleInfo, argnumber, args);
-    if ((int)args[9] >
-        0) {  // do not count particles not within standard pdg coding
-      ParticlesIdNumber[icount] = (int)args[0];
-      ParticlesHEPNumber[icount] = (int)args[9];
-      icount++;
-    }
-  }
-}
+//// is this even used?
+//void KM3EvtIO::ReadEvent() {
+//  evt->read(infile);
+//  double args[100];
+//  int argnumber;
+//  bool UseEarthLepton = false;
+//  // use earthlepton or not
+//  if (isneutrinoevent && !hasbundleinfo) {
+//    evt->ndat("neutrino");
+//    std::string NeutrinoInfo = evt->next("neutrino");
+//    GetArgs(NeutrinoInfo, argnumber, args);
+//    double xneu, yneu, zneu;
+//    xneu = args[1];
+//    yneu = args[2];
+//    zneu = args[3];
+//    int NumberOfPart = evt->ndat("track_in");
+//    if (NumberOfPart > 1) {
+//      double xx0, yy0, zz0;
+//      for (int ipart = 0; ipart < NumberOfPart; ipart++) {
+//        std::string ParticleInfo = evt->next("track_in");
+//        GetArgs(ParticleInfo, argnumber, args);
+//        xx0 = args[1];
+//        yy0 = args[2];
+//        zz0 = args[3];
+//        if (xx0 != xneu || yy0 != yneu || zz0 != zneu) {
+//          UseEarthLepton = true;
+//          break;
+//        }
+//      }
+//    }
+//  }
+//  if (UseEarthLepton)
+//    NumberOfParticles = evt->ndat("track_earthlepton");
+//  else
+//    NumberOfParticles = evt->ndat("track_in");
+//  int icount = 0;
+//  for (int ip = 0; ip < NumberOfParticles; ip++) {
+//    std::string ParticleInfo;
+//    if (UseEarthLepton)
+//      ParticleInfo = evt->next("track_earthlepton");
+//    else
+//      ParticleInfo = evt->next("track_in");
+//    GetArgs(ParticleInfo, argnumber, args);
+//    if ((int)args[9] >
+//        0) {  // do not count particles not within standard pdg coding
+//      ParticlesIdNumber[icount] = (int)args[0];
+//      ParticlesHEPNumber[icount] = (int)args[9];
+//      icount++;
+//    }
+//  }
+//}
 
 // confliction version from HoursEventRead
 void KM3EvtIO::ReadEvent2(void) {
