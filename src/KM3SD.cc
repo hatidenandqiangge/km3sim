@@ -9,6 +9,7 @@
 using CLHEP::meter;
 using CLHEP::ns;
 using CLHEP::c_light;
+using CLHEP::pi;
 
 KM3SD::KM3SD(G4String name) : G4VSensitiveDetector(name) {
   G4String HCname;
