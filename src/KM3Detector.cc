@@ -51,6 +51,7 @@
 
 
 using CLHEP::meter;
+using CLHEP::pi;
 
 KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();
@@ -822,6 +823,14 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   //fWorld = new G4VPhysicalVolume(0,
   worldBox = new G4Box("WorldBox", 2200 * meter, 2200 * meter, 2200 * meter);
   worldLog = new G4LogicalVolume(worldBox, Water, "WorldVolume");
+  crustBox = new G4Box("CrustBox", 2200 * meter, 2200 * meter, 984.7 * meter);
+  crustLog = new G4LogicalVolume(crustBox, Crust, "CrustVolume");
+  crustPV = new G4PvPlacement(0, G4ThreeVector(0, 0, -607.65), "CrustVolume",
+      crustLog, 0);
+
+  // tower dims x, y, z = 1, 1, 170.0 meter
+  // storey dims x, y, z = 0.6, 0.6, 0.6 meter
+  // omsphere dims =
 
   // crustBox
   // TowerBox

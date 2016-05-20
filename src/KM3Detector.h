@@ -73,6 +73,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
   // newgeant ProcessingConfigurator config;
   G4VPhysicalVolume *fWorld;
   G4Material *Water;
+  G4Material *Crust;
 
  private:
   G4double detectorDepth;
