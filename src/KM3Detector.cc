@@ -30,6 +30,28 @@
 #include "G4GeometryManager.hh"
 #include "CLHEP/Evaluator/Evaluator.hh"
 
+// all we need to define for km3SD
+// cath material
+// water material
+// cath:
+//  position
+//  direction
+//  width
+//  height
+//  id (internal)
+// only thing read is KM3Detector.allCathod()
+//
+// SteppingAction/KM3Cherenkov (through KM3Physics):
+// detector MaxRho
+// detector MaxRho2
+// detectorCenter [0, 1] = [x, y]
+// botoompos
+// maxz
+// quantum_efficiency
+
+
+using CLHEP::meter;
+
 KM3Detector::KM3Detector() {
   allCathods = new KM3Cathods();
   allStoreys = new std::vector<StoreysPositions *>;
@@ -651,6 +673,16 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
 
   G4String pvName = aPVolume->GetName();
 
+  //TODO:
+  //for pmt in detx:
+  //  cathinnerradius (glob)
+  //  cathouterradius (glob)
+  //  cathheight (glob)
+  //  position
+  //  direction
+  //  trans (???)
+  //  cath
+
   //  for newgeant add "_PV" at the end of physical volume name
   //  if(pvName == "CathodVolume_PV")
   //
@@ -667,17 +699,6 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     G4Transform3D trans(RotationMatr, Position);
     G4String solidName = aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType();
 
-    if solidName == G4String("G4Sphere") {
-      CathodRadius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-      G4double InnerRadius =
-        ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetInnerRadius();
-      // applicable mainly to shell type cathods (EM)
-      if ((CathodRadius - InnerRadius) < 1.001 * mm) {
-        CathodRadius = 0.5 * (CathodRadius + InnerRadius);
-      }
-    }
     if solidName == G4String("G4Tubs") {
       // applicable to thin tube cathods (normal run)
       CathodRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
@@ -790,24 +811,35 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // newgeant  sxpInitialize();
   // newgeant  sxp.Run();
 
-  // newgeant fWorld =  (G4VPhysicalVolume
-  // *)GDMLProcessor::GetInstance()->GetWorldVolume();
-  G4GDMLParser parser;         // newgeant
+  //// newgeant fWorld =  (G4VPhysicalVolume
+  //// *)GDMLProcessor::GetInstance()->GetWorldVolume();
+  //G4GDMLParser parser;         // newgeant
+  //parser.Read(Geometry_File);  // newgeant
+
+  // TODO
+  //DetXParser parser;
   parser.Read(Geometry_File);  // newgeant
-  fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume();  // newgeant
-  if (fWorld == 0)
-    G4Exception(
-        "World volume not set properly check your setup selection "
-        "criteria or GDML input!",
-        "", FatalException, "");
+  //fWorld = new G4VPhysicalVolume(0,
+  worldBox = new G4Box("WorldBox", 2200 * meter, 2200 * meter, 2200 * meter);
+  worldLog = new G4LogicalVolume(worldBox, Water, "WorldVolume");
 
+  // crustBox
+  // TowerBox
+  // StoreyBox
+  // OMSphere
+  // CathodTube
+  //
+  // put cathods into world volume
+
+  //fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume();  // newgeant
+
+//  if (fWorld == 0)
+//    G4Exception(
+//        "World volume not set properly check your setup selection "
+//        "criteria or GDML input!",
+//        "", FatalException, "");
+//
   G4cout << "Total Cathods " << TotalPMTEntities(fWorld) << G4endl;
-
-  //  G4int History[10]={20,20,18,0,2,0,0,0,0,0};
-  //  G4int dep=5;
-  //  G4cout <<"123456 "<<allCathods->GetCathodId(dep,History)<<G4endl;
-  //  History[3]=1;
-  //  G4cout <<"123456 "<<allCathods->GetCathodId(dep,History)<<G4endl;
 
   //------------------------------------------------
   // Sensitive detectors
@@ -838,19 +870,6 @@ G4VPhysicalVolume *KM3Detector::Construct() {
       aLogicalVolume->SetSensitiveDetector(aMySD);
     }
   }
-
-  // tempotest
-  // G4VPhysicalVolume* aPhysicalVolume;
-  // std::vector<G4VPhysicalVolume*> *aPhysicalStore;
-  // theSize=G4PhysicalVolumeStore::GetInstance()->size();
-  // aPhysicalStore = G4PhysicalVolumeStore::GetInstance();
-  // for(size_t i=0 ; i<theSize ; i++){
-  //   aPhysicalVolume = (*aPhysicalStore)[i];
-  //   G4cout <<  aPhysicalVolume->GetName() <<"
-  //   "<<aPhysicalVolume->GetMultiplicity()<<"
-  //   "<<aPhysicalVolume->GetCopyNo()<< G4endl;
-  // }
-  // tempotest
 
   // fully adjustable benthos and storey linked list
   G4cout << "Total World Volume Entities= "
@@ -897,11 +916,10 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
   TotCathodArea =
     CaPerOM * pi * allCathods->GetCathodRadius(0) *
-    allCathods->GetCathodRadius(0);  // this is valid only if at simulation
-  // level (not EM or HA param) all cathods
-  // have the same radius. Easy to change to
-  // account for a detector with varius
-  // cathod types
+    allCathods->GetCathodRadius(0);
+  // this is valid only if at simulation level (not EM or HA param)
+  // all cathods have the same radius. Easy to change to account for a
+  // detector with varius cathod types
 
   // return the physical World
   return fWorld;

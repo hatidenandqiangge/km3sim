@@ -14,13 +14,13 @@ using CLHEP::pi;
 
 KM3SD::KM3SD(G4String name) : G4VSensitiveDetector(name) {
   G4String HCname;
-  collectionName.insert(HCname = "MyCollection");
+  collectionName.insert(HCname = "HitsCollection");
 }
 
 KM3SD::~KM3SD() {}
 
 void KM3SD::Initialize(G4HCofThisEvent *HCE) {
-  MyCollection =
+  HitsCollection =
       new KM3HitsCollection(SensitiveDetectorName, collectionName[0]);
 }
 
@@ -66,7 +66,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
   // count by 0.2% when we have 60m scaterin length and 0.6% when we
   // have 20m scattering length. This is negligible and I dont take this
   // into account.
-  if (MyCollection->entries() < 10000000) {
+  if (HitsCollection->entries() < 10000000) {
     G4ThreeVector photonDirection = aStep->GetTrack()->GetMomentumDirection();
 
     // newmie
@@ -183,7 +183,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     // short    newHit->SetangleIncident(angleIncident);
     // short    newHit->SetangleDirection(angleDirection);
 
-    MyCollection->insert(newHit);
+    HitsCollection->insert(newHit);
   }
 
   // killing must not been done, when we have EM or HA or FIT
@@ -204,22 +204,22 @@ void KM3SD::InsertExternalHit(G4int id, const G4ThreeVector &OMPosition,
   static G4int ooo = 0;
   if (ooo == 0) {
     ooo = 1;
-    G4Material *aMaterial = G4Material::GetMaterial("Cathod");
+    G4Material *cathMaterial = G4Material::GetMaterial("Cathod");
     G4double MaxQE = -1;
     G4double PhEneAtMaxQE;
-    G4MaterialPropertyVector *aPropertyVector =
-        aMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
-    for (size_t i = 0; i < aPropertyVector->GetVectorLength(); i++) {
-      G4double ThisQE = (*aPropertyVector)[i];
-      G4double ThisPhEne = aPropertyVector->Energy(i);
+    G4MaterialPropertyVector *cathPropertyVector =
+        cathMaterial->GetMaterialPropertiesTable()->GetProperty("Q_EFF");
+    for (size_t i = 0; i < cathPropertyVector->GetVectorLength(); i++) {
+      G4double ThisQE = (*cathPropertyVector)[i];
+      G4double ThisPhEne = cathPropertyVector->Energy(i);
       if (ThisQE > MaxQE) {
         MaxQE = ThisQE;
         PhEneAtMaxQE = ThisPhEne;
       }
     }
-    aMaterial = G4Material::GetMaterial("Water");
+    cathMaterial = G4Material::GetMaterial("Water");
     G4MaterialPropertyVector *GroupVel =
-        aMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+        cathMaterial->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
     // coresponds to the maximum qe each time. This is the right one
     thespeedmaxQE = GroupVel->Value(PhEneAtMaxQE);
   }
@@ -240,7 +240,7 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     G4int TotalNumberOfCathods = myStDetector->allCathods->GetNumberOfCathods();
     outfile = myStDetector->outfile;
     // count for this event
-    G4int NbHits = MyCollection->entries();
+    G4int NbHits = HitsCollection->entries();
     // count total
     static G4int ooo = 0;
     ooo += NbHits;
@@ -248,8 +248,8 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     G4cout << "This Event Hits: " << NbHits << G4endl;
     int i;
 
-    // here we sort MyCollection according to ascending pmt number
-    std::vector<KM3Hit *> *theCollectionVector = MyCollection->GetVector();
+    // here we sort HitsCollection according to ascending pmt number
+    std::vector<KM3Hit *> *theCollectionVector = HitsCollection->GetVector();
     QuickSort(0, theCollectionVector, 0, NbHits - 1);
     // from now on the hits are sorted in cathod id
     // next sort according to ascending time for each cathod id
@@ -257,9 +257,9 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
       G4int prevCathod, currentCathod;
       G4int istart, istop;
       istart = 0;
-      prevCathod = (*MyCollection)[istart]->GetCathodId();
+      prevCathod = (*HitsCollection)[istart]->GetCathodId();
       for (i = 1; i < NbHits; i++) {
-        currentCathod = (*MyCollection)[i]->GetCathodId();
+        currentCathod = (*HitsCollection)[i]->GetCathodId();
         if (currentCathod != prevCathod) {
           istop = i - 1;
           QuickSort(1, theCollectionVector, istart, istop);
@@ -279,22 +279,22 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     // find the number of hit entries to write
     G4int NbHitsWrite = 0;
     for (i = 0; i < NbHits; i++)
-      if ((*MyCollection)[i]->GetMany() > 0) NbHitsWrite++;
+      if ((*HitsCollection)[i]->GetMany() > 0) NbHitsWrite++;
 
     // find earliest hit time
     G4double timefirst = 1E20;
     for (i = 0; i < NbHits; i++) {
-      if ((*MyCollection)[i]->GetTime() < timefirst &&
-          (*MyCollection)[i]->GetMany() > 0)
-        timefirst = (*MyCollection)[i]->GetTime();
+      if ((*HitsCollection)[i]->GetTime() < timefirst &&
+          (*HitsCollection)[i]->GetMany() > 0)
+        timefirst = (*HitsCollection)[i]->GetTime();
     }
 
     // find how many cathods are hitted
     int allhit = 0;
     int prevcathod = -1;
     for (i = 0; i < NbHits; i++) {
-      if (prevcathod != (*MyCollection)[i]->GetCathodId()) allhit++;
-      prevcathod = (*MyCollection)[i]->GetCathodId();
+      if (prevcathod != (*HitsCollection)[i]->GetCathodId()) allhit++;
+      prevcathod = (*HitsCollection)[i]->GetCathodId();
     }
     myStDetector->TheEVTtoWrite->AddNumberOfHits(NbHitsWrite);
 
@@ -302,15 +302,15 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     G4int LastPmtNumber;
     G4int LastHitNumber;
     for (i = NbHits - 1; i >= 0; i--)
-      if ((*MyCollection)[i]->GetMany() > 0) {
-        LastPmtNumber = (*MyCollection)[i]->GetCathodId();
+      if ((*HitsCollection)[i]->GetMany() > 0) {
+        LastPmtNumber = (*HitsCollection)[i]->GetCathodId();
         LastHitNumber = i;
         break;
       }
     G4int LastPmtNumHits = 0;
     for (i = NbHits - 1; i >= 0; i--)
-      if ((*MyCollection)[i]->GetMany() > 0) {
-        if ((*MyCollection)[i]->GetCathodId() == LastPmtNumber)
+      if ((*HitsCollection)[i]->GetMany() > 0) {
+        if ((*HitsCollection)[i]->GetCathodId() == LastPmtNumber)
           LastPmtNumHits++;
         else
           break;
@@ -319,16 +319,16 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
     int numphotons = 0;
     G4double firstphoton = 1.E50;
     int numpes = 0;
-    if (NbHits > 0) prevcathod = (*MyCollection)[0]->GetCathodId();
+    if (NbHits > 0) prevcathod = (*HitsCollection)[0]->GetCathodId();
     int prevstart = 0;
     int numhit = 0;
     for (i = 0; i < NbHits; i++) {
-      if ((*MyCollection)[i]->GetMany() > 0) {
-        if (prevcathod == (*MyCollection)[i]->GetCathodId()) {
+      if ((*HitsCollection)[i]->GetMany() > 0) {
+        if (prevcathod == (*HitsCollection)[i]->GetCathodId()) {
           numphotons++;
-          numpes += (*MyCollection)[i]->GetMany();
-          if ((*MyCollection)[i]->GetTime() - timefirst < firstphoton)
-            firstphoton = (*MyCollection)[i]->GetTime() - timefirst;
+          numpes += (*HitsCollection)[i]->GetMany();
+          if ((*HitsCollection)[i]->GetTime() - timefirst < firstphoton)
+            firstphoton = (*HitsCollection)[i]->GetTime() - timefirst;
         } else {
           if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition =
@@ -336,47 +336,47 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
             DrawCathodHit(numpes, Cposition);
           }
           for (int j = prevstart; j < i; j++) {
-            if ((*MyCollection)[j]->GetMany() > 0) {
+            if ((*HitsCollection)[j]->GetMany() > 0) {
               numhit++;
               // here write antares format info
-              G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
+              G4int originalInfo = (*HitsCollection)[j]->GetoriginalInfo();
               G4int originalParticleNumber = originalInfo / 10 + 1;
               G4int originalTrackCreatorProcess =
                   originalInfo - (originalParticleNumber - 1) * 10;
               myStDetector->TheEVTtoWrite->AddHit(
-                  numhit, prevcathod, double((*MyCollection)[j]->GetMany()),
-                  (*MyCollection)[j]->GetTime(), originalParticleNumber,
-                  (*MyCollection)[j]->GetMany(), (*MyCollection)[j]->GetTime(),
+                  numhit, prevcathod, double((*HitsCollection)[j]->GetMany()),
+                  (*HitsCollection)[j]->GetTime(), originalParticleNumber,
+                  (*HitsCollection)[j]->GetMany(), (*HitsCollection)[j]->GetTime(),
                   originalTrackCreatorProcess);
             }
           }
           prevstart = i;
           numphotons = 1;
-          firstphoton = (*MyCollection)[i]->GetTime() - timefirst;
-          numpes = (*MyCollection)[i]->GetMany();
+          firstphoton = (*HitsCollection)[i]->GetTime() - timefirst;
+          numpes = (*HitsCollection)[i]->GetMany();
         }
-        prevcathod = (*MyCollection)[i]->GetCathodId();
+        prevcathod = (*HitsCollection)[i]->GetCathodId();
         //  if(i == (NbHits-1) ){
         //  if(numhit == (NbHitsWrite-1) ){
         if (numhit == (NbHitsWrite - LastPmtNumHits) && i == LastHitNumber) {
           if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition = myStDetector->allCathods->GetPosition(
-                (*MyCollection)[i]->GetCathodId());
+                (*HitsCollection)[i]->GetCathodId());
             DrawCathodHit(numpes, Cposition);
           }
           for (int j = prevstart; j < NbHits; j++) {
-            if ((*MyCollection)[j]->GetMany() > 0) {
+            if ((*HitsCollection)[j]->GetMany() > 0) {
               numhit++;
               // here write antares format info
-              G4int originalInfo = (*MyCollection)[j]->GetoriginalInfo();
+              G4int originalInfo = (*HitsCollection)[j]->GetoriginalInfo();
               G4int originalParticleNumber = originalInfo / 10 + 1;
               G4int originalTrackCreatorProcess =
                   originalInfo - (originalParticleNumber - 1) * 10;
               myStDetector->TheEVTtoWrite->AddHit(
-                  numhit, (*MyCollection)[i]->GetCathodId(),
-                  double((*MyCollection)[j]->GetMany()),
-                  (*MyCollection)[j]->GetTime(), originalParticleNumber,
-                  (*MyCollection)[j]->GetMany(), (*MyCollection)[j]->GetTime(),
+                  numhit, (*HitsCollection)[i]->GetCathodId(),
+                  double((*HitsCollection)[j]->GetMany()),
+                  (*HitsCollection)[j]->GetTime(), originalParticleNumber,
+                  (*HitsCollection)[j]->GetMany(), (*HitsCollection)[j]->GetTime(),
                   originalTrackCreatorProcess);
             }
           }
@@ -389,9 +389,9 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
       if (HCID < 0) {
         HCID = GetCollectionID(0);
       }
-      HCE->AddHitsCollection(HCID, MyCollection);
+      HCE->AddHitsCollection(HCID, HitsCollection);
     } else
-      delete MyCollection;
+      delete HitsCollection;
   }
 }
 
@@ -403,8 +403,8 @@ void KM3SD::MergeHits(G4int nfirst, G4int nlast, G4double MergeWindow) {
 go77:
   istart = istop + 1;
   for (iuu = istart + 1; iuu <= nlast; iuu++) {
-    if (((*MyCollection)[iuu - 1]->GetTime() -
-         (*MyCollection)[istart - 1]->GetTime()) > MergeWindow) {
+    if (((*HitsCollection)[iuu - 1]->GetTime() -
+         (*HitsCollection)[istart - 1]->GetTime()) > MergeWindow) {
       istop = iuu - 1;
       goto go78;
     }
@@ -416,17 +416,17 @@ go78:
   if (imany > 1) {
     G4double MeanTime = 0.0;
     for (iuu = istart; iuu <= istop; iuu++)
-      MeanTime += (*MyCollection)[iuu - 1]->GetTime();
+      MeanTime += (*HitsCollection)[iuu - 1]->GetTime();
     MeanTime /= imany;
-    (*MyCollection)[istart - 1]->SetTime(MeanTime);
-    (*MyCollection)[istart - 1]->SetMany(imany);
+    (*HitsCollection)[istart - 1]->SetTime(MeanTime);
+    (*HitsCollection)[istart - 1]->SetMany(imany);
     for (iuu = istart + 1; iuu <= istop; iuu++)
-      (*MyCollection)[iuu - 1]->SetMany(0);
+      (*HitsCollection)[iuu - 1]->SetMany(0);
   }
   goto go77;
 }
 
-G4int KM3SD::ProcessMyCollection(KM3HitsCollection *aCollection) { return (0); }
+G4int KM3SD::ProcessHitsCollection(KM3HitsCollection *aCollection) { return (0); }
 
 void KM3SD::clear() {}
 
@@ -529,8 +529,8 @@ G4bool KM3SD::AcceptAngle(G4double cosangle, G4double CathodRadius,
   static G4double MinCos_Acc = -1.0;
   static G4double MaxCos_Acc = 0.25;
   if (Ang_Acc == NULL) {
-    G4Material *aMaterial = G4Material::GetMaterial("Cathod");
-    Ang_Acc = aMaterial->GetMaterialPropertiesTable()->GetProperty(
+    G4Material *cathMaterial = G4Material::GetMaterial("Cathod");
+    Ang_Acc = cathMaterial->GetMaterialPropertiesTable()->GetProperty(
         "ANGULAR_ACCEPTANCE");
     MinCos_Acc = Ang_Acc->GetMinLowEdgeEnergy();
     MaxCos_Acc = Ang_Acc->GetMaxLowEdgeEnergy();

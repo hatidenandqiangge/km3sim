@@ -11,6 +11,7 @@
 #include <string>
 
 #include "G4VUserDetectorConstruction.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 // newgeant #include "Saxana/SAXProcessor.h"
 // newgeant #include "Saxana/ProcessingConfigurator.h"
 
@@ -45,9 +46,6 @@ class KM3Detector : public G4VUserDetectorConstruction {
   // storeys plus a number of absorption lengths
   G4double detectorMaxRho;
 
-  std::vector<StoreysPositions *> *allStoreys;
-  std::vector<OMPositions *> *allOMs;
-  std::vector<TowersPositions *> *allTowers;  // new towers
   KM3Cathods *allCathods;
   G4double MaxAbsDist;
   G4bool vrmlhits;
@@ -66,10 +64,15 @@ class KM3Detector : public G4VUserDetectorConstruction {
   void SetUpVariables(void);
   // newgeant  void sxpInitialize(void);
 
+  std::vector<StoreysPositions *> *allStoreys;
+  std::vector<OMPositions *> *allOMs;
+  std::vector<TowersPositions *> *allTowers;  // new towers
+
  private:
   // newgeant  SAXProcessor sxp;
   // newgeant ProcessingConfigurator config;
   G4VPhysicalVolume *fWorld;
+  G4Material *Water;
 
  private:
   G4double detectorDepth;
