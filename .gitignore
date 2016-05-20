@@ -86,3 +86,5 @@ CMakeCache.txt
 CMakeFiles/*
 build/*
 external/docopt.cpp/*
+Makefile
+cmake_install.cmake
