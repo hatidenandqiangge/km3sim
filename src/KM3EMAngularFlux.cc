@@ -1,6 +1,8 @@
 #include "KM3EMAngularFlux.h"
 #include "Randomize.hh"
 
+using CLHEP::meter;
+
 KM3EMAngularFlux::KM3EMAngularFlux(std::ifstream &infile, bool &ok,
                                    bool FineBin) {
   VertexSolidAngleBins = 51;
