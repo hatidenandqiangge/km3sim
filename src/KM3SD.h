@@ -30,7 +30,7 @@ class KM3SD : public G4VSensitiveDetector {
                          const G4ThreeVector &photonDirection);
 
  private:
-  KM3HitsCollection *MyCollection;
+  KM3HitsCollection *HitsCollection;
   G4int ProcessMyCollection(KM3HitsCollection *aCollection);
   void DrawCathodHit(G4int NumberOfPhotons, G4ThreeVector pos);
   G4double TResidual(G4double, const G4ThreeVector &, const G4ThreeVector &,

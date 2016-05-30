@@ -20,8 +20,7 @@ KM3SD::KM3SD(G4String name) : G4VSensitiveDetector(name) {
 KM3SD::~KM3SD() {}
 
 void KM3SD::Initialize(G4HCofThisEvent *HCE) {
-  HitsCollection =
-      new KM3HitsCollection(SensitiveDetectorName, collectionName[0]);
+  HitsCollection = new KM3HitsCollection(SensitiveDetectorName, collectionName[0]);
 }
 
 G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
