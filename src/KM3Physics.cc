@@ -142,6 +142,15 @@ using CLHEP::mm;
 using CLHEP::PeV;
 using CLHEP::TeV;
 
+/*
+ *
+ * OK... nbins is always 220
+ * also, you cant set the binning at individual processes
+ * => set binning globally?
+ *
+ */
+
+
 KM3Physics::KM3Physics() : G4VUserPhysicsList() {
   defaultCutValue = 0.5 * mm;
   SetVerboseLevel(2);
@@ -224,7 +233,7 @@ void KM3Physics::ConstructEM() {
       nBins = 220;          // 120 before
       //      aGammaConversion->SetPhysicsTableBining(lowE,highE,nBins);
       //      //not applicable to Geant 4.8
-      aGammaConversion->SetLambdaBinning(nBins);
+      //aGammaConversion->SetLambdaBinning(nBins);
       aGammaConversion->SetMinKinEnergy(lowE);
       aGammaConversion->SetMaxKinEnergy(highE);
       pmanager->AddDiscreteProcess(aGammaConversion);
@@ -236,7 +245,7 @@ void KM3Physics::ConstructEM() {
       nBins = 220;          // 120 before
       //      aComptonScattering->SetPhysicsTableBining(lowE,highE,nBins);
       //      //not applicable to Geant 4.8
-      aComptonScattering->SetLambdaBinning(nBins);
+      //aComptonScattering->SetLambdaBinning(nBins);
       aComptonScattering->SetMinKinEnergy(lowE);
       aComptonScattering->SetMaxKinEnergy(highE);
       pmanager->AddDiscreteProcess(aComptonScattering);
@@ -253,10 +262,10 @@ void KM3Physics::ConstructEM() {
       //      theeminusMultipleScattering->SetMaxKinEnergy(highE);
       G4eIonisation *theeminusIonisation = new G4eIonisation();
       theeminusIonisation->SetDEDXBinning(nBins);
-      theeminusIonisation->SetLambdaBinning(nBins);
+      //theeminusIonisation->SetLambdaBinning(nBins);
       theeminusIonisation->SetMaxKinEnergy(highE);
       G4eBremsstrahlung *theeminusBremsstrahlung = new G4eBremsstrahlung();
-      theeminusBremsstrahlung->SetLambdaBinning(nBins);
+      //theeminusBremsstrahlung->SetLambdaBinning(nBins);
       theeminusBremsstrahlung->SetDEDXBinning(nBins);
       theeminusBremsstrahlung->SetMaxKinEnergy(highE);
       //      ((G4eIonisation*)theeminusIonisation)->SetLowerBoundLambda(0.00024);
@@ -289,14 +298,14 @@ void KM3Physics::ConstructEM() {
       //      theeplusMultipleScattering->SetMaxKinEnergy(highE);
       G4eIonisation *theeplusIonisation = new G4eIonisation();
       theeplusIonisation->SetDEDXBinning(nBins);
-      theeplusIonisation->SetLambdaBinning(nBins);
+      //theeplusIonisation->SetLambdaBinning(nBins);
       theeplusIonisation->SetMaxKinEnergy(highE);
       G4eBremsstrahlung *theeplusBremsstrahlung = new G4eBremsstrahlung();
-      theeplusBremsstrahlung->SetLambdaBinning(nBins);
+      //theeplusBremsstrahlung->SetLambdaBinning(nBins);
       theeplusBremsstrahlung->SetDEDXBinning(nBins);
       theeplusBremsstrahlung->SetMaxKinEnergy(highE);
       G4eplusAnnihilation *theeplusAnnihilation = new G4eplusAnnihilation();
-      theeplusAnnihilation->SetLambdaBinning(nBins);
+      //theeplusAnnihilation->SetLambdaBinning(nBins);
       theeplusAnnihilation->SetMaxKinEnergy(highE);
       //      G4VProcess* theAnnihiToMuPair          = new G4AnnihiToMuPair();
       //      //is not likely to happen
@@ -337,15 +346,15 @@ void KM3Physics::ConstructEM() {
       //      aMultipleScattering->SetBinning(nBins);
       //      aMultipleScattering->SetMaxKinEnergy(highE);
       G4MuBremsstrahlung *aBremsstrahlung = new G4MuBremsstrahlung();
-      aBremsstrahlung->SetLambdaBinning(nBins);
+      //aBremsstrahlung->SetLambdaBinning(nBins);
       aBremsstrahlung->SetDEDXBinning(nBins);
       aBremsstrahlung->SetMaxKinEnergy(highE);
       G4MuPairProduction *aPairProduction = new G4MuPairProduction();
-      aPairProduction->SetLambdaBinning(nBins);
+      //aPairProduction->SetLambdaBinning(nBins);
       aPairProduction->SetDEDXBinning(nBins);
       aPairProduction->SetMaxKinEnergy(highE);
       G4MuIonisation *anIonisation = new G4MuIonisation();
-      anIonisation->SetLambdaBinning(nBins);
+      //anIonisation->SetLambdaBinning(nBins);
       anIonisation->SetDEDXBinning(nBins);
       anIonisation->SetMaxKinEnergy(highE);
 
@@ -392,7 +401,7 @@ void KM3Physics::ConstructEM() {
       //      aMultipleScattering->SetMaxKinEnergy(highE);
 
       G4hIonisation *anIonisation = new G4hIonisation();
-      anIonisation->SetLambdaBinning(nBins);
+      //anIonisation->SetLambdaBinning(nBins);
       anIonisation->SetDEDXBinning(nBins);
       anIonisation->SetMaxKinEnergy(highE);
 
