@@ -1,6 +1,9 @@
 #include "KM3EMDistanceFlux.h"
 #include "Randomize.hh"
 
+using CLHEP::GeV;
+using CLHEP::meter;
+
 KM3EMDistanceFlux::KM3EMDistanceFlux(std::ifstream &infile) {
   VertexDistanceBins = 40;
   keepDistances = new std::vector<KM3EMAngularFlux *>;

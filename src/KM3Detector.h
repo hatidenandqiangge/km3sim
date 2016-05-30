@@ -3,6 +3,7 @@
 
 #include "KM3Definitions.h"
 #include "KM3Cathods.h"
+#include "G4Material.hh"
 #include "KM3PrimaryGeneratorAction.h"
 #include "KM3EvtIO.h"
 
@@ -37,6 +38,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double detectorRadius;
 
   void ReadPMTPositions(const std::string &detx_file_name);
+  void ReadDetector(const std::string &detx_filename);
 
   // this is the maximum vertical distance of the storeys
   // from the center plus a number of absorpion lengths

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iomanip>
 #include "KM3EMAngularFlux.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 class KM3EMDistanceFlux {
  public:

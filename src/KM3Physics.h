@@ -5,6 +5,8 @@
 #include "globals.hh"
 #include "KM3Detector.h"
 #include "KM3Cherenkov.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 class KM3Physics : public G4VUserPhysicsList {
  public:
@@ -24,10 +26,8 @@ class KM3Physics : public G4VUserPhysicsList {
   void ConstructEM();
   void ConstructOP();
 
-#ifdef G4HADRONIC_COMPILE
  protected:
   void ConstructHA();
-#endif
 
  public:
   KM3Detector *aDetector;

@@ -37,22 +37,30 @@
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
 #include "G4MuPairProduction.hh"
-#include "G4MuonMinusCaptureAtRest.hh"
+
+// this is apparently renamed/merged in 4.9.10
+// see http://geant4.cern.ch/support/ReleaseNotes4.10.0.html
+//#include "G4MuonMinusCaptureAtRest.hh"
+#include "G4MuonMinusCapture.hh"
+//#include "G4LEAlphaInelastic.hh"
+//#include "G4AlphaInelastic.hh"
+#include "G4AlphaInelasticProcess.hh"
+//#include "G4LEDeuteronInelastic.hh"
+#include "G4DeuteronInelasticProcess.hh"
+//#include "G4LETritonInelastic.hh"
+#include "G4TritonInelasticProcess.hh"
+//#include "G4PionMinusAbsorptionAtRest.hh"
+#include "G4PiMinusAbsorptionBertini.hh"
+//#include "G4KaonMinusAbsorption.hh"
+#include "G4KaonMinusAbsorptionBertini.hh"
+
 #include "G4MuonNuclearProcess.hh"  //transition to 4.9.6
 #include "G4MuonVDNuclearModel.hh"  //transition to 4.9.6
 #include "G4hBremsstrahlung.hh"
 #include "G4hPairProduction.hh"
 #include "G4HadronicProcessStore.hh"
 #include "G4HadronElasticPhysics.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT.hh"
-#include "G4AlphaInelasticProcess.hh"
-#include "G4LEAlphaInelastic.hh"
-#include "G4DeuteronInelasticProcess.hh"
-#include "G4LEDeuteronInelastic.hh"
-#include "G4TritonInelasticProcess.hh"
-#include "G4LETritonInelastic.hh"
-#include "G4PionMinusAbsorptionAtRest.hh"
-#include "G4KaonMinusAbsorption.hh"
+#include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 //#include "G4AnnihiToMuPair.hh"
 #include "G4hIonisation.hh"
 
@@ -101,31 +109,38 @@
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
 #include "G4MuPairProduction.hh"
-#include "G4MuonMinusCaptureAtRest.hh"
 #include "G4MuonNuclearProcess.hh"  //transition to 4.9.6
 #include "G4MuonVDNuclearModel.hh"  //transition to 4.9.6
 #include "G4hBremsstrahlung.hh"
 #include "G4hPairProduction.hh"
 #include "G4HadronicProcessStore.hh"
 #include "G4HadronElasticPhysics.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 #include "G4AlphaInelasticProcess.hh"
-#include "G4LEAlphaInelastic.hh"
+//#include "G4LEAlphaInelastic.hh"
 #include "G4DeuteronInelasticProcess.hh"
-#include "G4LEDeuteronInelastic.hh"
+//#include "G4LEDeuteronInelastic.hh"
 #include "G4TritonInelasticProcess.hh"
-#include "G4LETritonInelastic.hh"
-#include "G4PionMinusAbsorptionAtRest.hh"
-#include "G4KaonMinusAbsorption.hh"
+//#include "G4LETritonInelastic.hh"
+//#include "G4PionMinusAbsorptionAtRest.hh"
+//#include "G4KaonMinusAbsorption.hh"
 //#include "G4AnnihiToMuPair.hh"
 #include "G4hIonisation.hh"
 
 #include "G4OpAbsorption.hh"
-#include "G4OpMie.hh"
+#include "G4OpMie.h"
 #include "G4Decay.hh"
 #include "G4RadioactiveDecay.hh"
 #include "G4IonTable.hh"
 #include "G4Ions.hh"
+
+using CLHEP::electron_mass_c2;
+using CLHEP::GeV;
+using CLHEP::keV;
+using CLHEP::MeV;
+using CLHEP::mm;
+using CLHEP::PeV;
+using CLHEP::TeV;
 
 KM3Physics::KM3Physics() : G4VUserPhysicsList() {
   defaultCutValue = 0.5 * mm;
@@ -351,7 +366,7 @@ void KM3Physics::ConstructEM() {
 
       // new add muon minus capture at rest
       if (particleName == "mu-")
-        pmanager->AddRestProcess(new G4MuonMinusCaptureAtRest);
+        pmanager->AddRestProcess(new G4MuonMinusCapture);
       pmanager->AddDiscreteProcess(aMuNuclearInteraction);
       //
       // set ordering for AlongStepDoIt
@@ -505,22 +520,29 @@ void KM3Physics::ConstructHA() {
   // alpha particle
   G4AlphaInelasticProcess *theAlphaInelastic = new G4AlphaInelasticProcess();
   G4ProcessManager *pmanager = G4Alpha::Alpha()->GetProcessManager();
-  G4LEAlphaInelastic *theLEAlphaModel = new G4LEAlphaInelastic();
-  theAlphaInelastic->RegisterMe(theLEAlphaModel);
-  pmanager->AddDiscreteProcess(theAlphaInelastic);
+
+  // g4.10
+  //G4LEAlphaInelastic *theLEAlphaModel = new G4LEAlphaInelastic();
+  //theAlphaInelastic->RegisterMe(theLEAlphaModel);
+  //pmanager->AddDiscreteProcess(theAlphaInelastic);
+
   // Deuteron
   G4DeuteronInelasticProcess *theDeuteronInelastic =
       new G4DeuteronInelasticProcess();
   pmanager = G4Deuteron::Deuteron()->GetProcessManager();
-  G4LEDeuteronInelastic *theLEDeuteronModel = new G4LEDeuteronInelastic();
-  theDeuteronInelastic->RegisterMe(theLEDeuteronModel);
-  pmanager->AddDiscreteProcess(theDeuteronInelastic);
+
+  // g4.10
+  //G4LEDeuteronInelastic *theLEDeuteronModel = new G4LEDeuteronInelastic();
+  //theDeuteronInelastic->RegisterMe(theLEDeuteronModel);
+  //pmanager->AddDiscreteProcess(theDeuteronInelastic);
+  //
   // Triton
   G4TritonInelasticProcess *theTritonInelastic = new G4TritonInelasticProcess();
   pmanager = G4Triton::Triton()->GetProcessManager();
-  G4LETritonInelastic *theLETritonModel = new G4LETritonInelastic();
-  theTritonInelastic->RegisterMe(theLETritonModel);
-  pmanager->AddDiscreteProcess(theTritonInelastic);
+  // g4.10
+  //G4LETritonInelastic *theLETritonModel = new G4LETritonInelastic();
+  //theTritonInelastic->RegisterMe(theLETritonModel);
+  //pmanager->AddDiscreteProcess(theTritonInelastic);
 
   // next take into account the capture processes for pion and kaon minus
   // PionMinus
