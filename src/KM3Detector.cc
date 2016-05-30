@@ -23,7 +23,6 @@
 #include "G4UserLimits.hh"
 #include "G4RegionStore.hh"
 #include "G4VoxelLimits.hh"  // newgeant
-#include "G4Processor/GDMLProcessor.hh"
 #include "G4GDMLParser.hh"  // newgeant
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
