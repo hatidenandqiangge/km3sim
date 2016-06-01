@@ -5,12 +5,25 @@ find_package(Geant4 REQUIRED)
 
 include(${Geant4_USE_FILE})
 
-execute_process(COMMAND git clone https://github.com/docopt/docopt.cpp.git
-  ${PROJECT_SOURCE_DIR}/external/docopt.cpp)
-
-include_directories(${PROJECT_SOURCE_DIR}/src)
+#execute_process(COMMAND git clone https://github.com/docopt/docopt.cpp.git
+#  ${PROJECT_SOURCE_DIR}/external/docopt.cpp)
+set( CMAKE_C_FLAGS "-Wall -g")
+set(DOCOPT_ROOT ${PROJECT_SOURCE_DIR}/external/docopt)
+set(DOCOPT_INCLUDE_DIRS ${DOCOPT_ROOT})
+#set(DOCOPT_LIBRARIES ${DOCOPT_ROOT})
+set(docopt_INSTALL_DIR "${DOCOPT_ROOT}")
+set(docopt_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${docopt_INSTALL_DIR})
+include(ExternalProject)
+ExternalProject_Add(docopt
+  PREFIX ${DOCOPT_ROOT}
+  GIT_REPOSITORY https://github.com/docopt/docopt.cpp.git
+  BINARY_DIR ${DOCOPT_ROOT}
+  INSTALL_DIR ${DOCOPT_ROOT}
+  CMAKE_ARGS ${docopt_CMAKE_ARGS}
+)
+include_directories(${DOCOPT_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/external/seaweed)
-include_directories(${PROJECT_SOURCE_DIR}/external/docopt.cpp)
+include_directories(${PROJECT_SOURCE_DIR}/src)
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/src/*.h)
