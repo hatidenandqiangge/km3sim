@@ -3,6 +3,11 @@
 #include "G4ParticleTypes.hh"
 #include "G4Step.hh"
 
+using CLHEP::TeV;
+using CLHEP::GeV;
+using CLHEP::meter;
+using CLHEP::m;
+
 KM3SteppingAction::KM3SteppingAction() {
   P7[0] = 0.14709;
   P7[1] = 2.2948;

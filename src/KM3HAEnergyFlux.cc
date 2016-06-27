@@ -4,6 +4,8 @@
 #include "CLHEP/Random/RandPoisson.h"
 
 using CLHEP::TeV;
+using CLHEP::GeV;
+using CLHEP::meter;
 
 KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, G4double QEmax,
                                  G4double TotCathodArea, G4double EneMin,

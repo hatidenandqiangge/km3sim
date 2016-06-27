@@ -1,6 +1,13 @@
 #include "KM3EvtIO.h"
 
-KM3EvtIO::KM3EvtIO(std::string infilechar, str::string outfile) {
+using CLHEP::TeV;
+using CLHEP::GeV;
+using CLHEP::meter;
+using CLHEP::m;
+using CLHEP::cm;
+using CLHEP::ns;
+
+KM3EvtIO::KM3EvtIO(std::string infilechar, std::string outfile) {
   infile.open(infile, std::ifstream::in);
   evt = new seaweed::event();
 
@@ -229,7 +236,6 @@ void KM3EvtIO::AddMuonDecaySecondaries(int trackID, int parentID, double posx,
   evt->taga(dt, dw);
 }
 
-#ifdef G4MYMUON_KEEPENERGY
 void KM3EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
   if (info.size() == 0) return;
   std::string dt("muonenergy_info");
@@ -275,11 +281,10 @@ void KM3EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
       sprintf(buffer, "%4d %8.2e %8.2e", itag, info[i], info[i + 1]);
     else if (nentries == 1)
       sprintf(buffer, "%4d %8.2e", itag, info[i]);
-    string dw(buffer);
+    std::string dw(buffer);
     evt->taga(dt, dw);
   }
 }
-#endif
 
 SSid KM3EvtIO::InitPDGTables(void) {
   // convert hep to pdg

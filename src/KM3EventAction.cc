@@ -44,10 +44,7 @@ void KM3EventAction::BeginOfEventAction(const G4Event *) {
   leaveTime.clear();
   stopPosition.clear();
   stopTime.clear();
-#ifdef G4MYMUON_KEEPENERGY
   EnergyAtPosition.clear();
-#endif
-
   G4ThreeVector vzero(0.0, 0.0, 0.0);
   G4double izero;
   izero = 0.0;
@@ -127,11 +124,9 @@ void KM3EventAction::EndOfEventAction(const G4Event *) {
         (stopPosition[ip])[2] / m, (stopTime[ip]) / ns);
   }
 // write information of muon energies every 10 meters
-#ifdef G4MYMUON_KEEPENERGY
   for (int ien = 0; ien < EnergyAtPosition.size(); ien++)
     EnergyAtPosition[ien] = EnergyAtPosition[ien] / GeV;  // convert to GeV
   TheEVTtoWrite->AddMuonEnergyInfo(EnergyAtPosition);
-#endif
   // write to output file
   TheEVTtoWrite->WriteEvent();
 }

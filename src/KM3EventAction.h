@@ -57,9 +57,7 @@ class KM3EventAction : public G4UserEventAction {
   std::vector<G4double> leaveTime;
   std::vector<G4ThreeVector> stopPosition;
   std::vector<G4double> stopTime;
-#ifdef G4MYMUON_KEEPENERGY
   std::vector<G4double> EnergyAtPosition;
-#endif
   KM3EvtIO *TheEVTtoWrite;
 
  public:
