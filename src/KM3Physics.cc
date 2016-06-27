@@ -583,12 +583,15 @@ void KM3Physics::ConstructHA() {
 
   // next take into account the capture processes for pion and kaon minus
   // PionMinus
+  // g4.10: pi/k absoroption now in G4HadronicAbsorptionBertini
   pmanager = G4PionMinus::PionMinus()->GetProcessManager();
-  pmanager->AddRestProcess(new G4PionMinusAbsorptionAtRest);
+  //pmanager->AddRestProcess(new G4PionMinusAbsorptionAtRest);
+  pmanager->AddRestProcess(new G4HadronicAbsorptionBertini);
 
   // KaonMinus
   pmanager = G4KaonMinus::KaonMinus()->GetProcessManager();
-  pmanager->AddRestProcess(new G4KaonMinusAbsorption);
+  //pmanager->AddRestProcess(new G4KaonMinusAbsorption);
+  pmanager->AddRestProcess(new G4HadronicAbsorptionBertini);
 }
 
 void KM3Physics::ConstructOP() {
