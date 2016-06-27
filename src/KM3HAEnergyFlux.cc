@@ -3,6 +3,8 @@
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
 
+using CLHEP::TeV;
+
 KM3HAEnergyFlux::KM3HAEnergyFlux(char *infileParam, G4double QEmax,
                                  G4double TotCathodArea, G4double EneMin,
                                  G4double EneMax) {

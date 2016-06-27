@@ -1,6 +1,9 @@
 #include "KM3EMTimePointDis.h"
 #include "Randomize.hh"
 
+using CLHEP::degree;
+using CLHEP::pi;
+
 KM3EMTimePointDis::KM3EMTimePointDis(std::ifstream &infile, bool &ok) {
   TimeSolidAngleBins = 52;
   TimeBins = 111;

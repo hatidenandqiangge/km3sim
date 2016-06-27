@@ -4,6 +4,11 @@
 #include "G4ParticleTable.hh"
 #include "globals.hh"
 
+using CLHEP::keV;
+using CLHEP::GeV;
+using CLHEP::ns;
+using CLHEP::m;
+
 void KM3EventAction::BeginOfEventAction(const G4Event *) {
   if (!(G4ParticleTable::GetParticleTable()->GetReadiness())) {
     G4String msg;

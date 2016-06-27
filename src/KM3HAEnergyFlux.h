@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iomanip>
 #include "KM3EMDistanceFlux.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 class KM3HAEnergyFlux {
  public:

@@ -5,6 +5,8 @@
 #include "G4Types.hh"
 #include "G4UserEventAction.hh"
 #include "G4ThreeVector.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 #include "KM3EvtIO.h"
 

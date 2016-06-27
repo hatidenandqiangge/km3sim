@@ -6,6 +6,8 @@
 #include "KM3Detector.h"
 #include "KM3Cherenkov.h"
 #include "KM3EMDeltaFlux.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 class KM3StackingAction : public G4UserStackingAction {
  public:
