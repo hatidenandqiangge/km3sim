@@ -10,15 +10,16 @@
 #include "KM3TrackingAction.h"
 #include "G4ThreeVector.hh"
 #include "KM3EventAction.h"
-
 #include "HAVertexMuons.h"
+#include "HOURSevtRead.h"
+#include "KM3EvtIO.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 
 class G4Event;
 class G4VPrimaryGenerator;
 
-//#include "HOURSevtREAD.h"
-#include "KM3EvtIO.h"
 
 class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
  public:
@@ -43,7 +44,8 @@ class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
  private:
   G4VPrimaryGenerator *HEPEvt;
-  KM3EvtIO *antaresHEPEvt;
+  //KM3EvtIO *antaresHEPEvt;
+  HOURSevtRead *antaresHEPEvt;
   G4double EventWeight;
   G4ThreeVector detectorCenter;
   G4double detectorMaxRho;

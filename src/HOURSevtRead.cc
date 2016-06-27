@@ -1,115 +1,44 @@
-#include "KM3EvtIO.h"
+#include "HOURSevtRead.h"
 
 using CLHEP::TeV;
 using CLHEP::GeV;
 using CLHEP::meter;
-using CLHEP::m;
-using CLHEP::cm;
 using CLHEP::ns;
+using CLHEP::cm;
+using CLHEP::m;
 
-KM3EvtIO::KM3EvtIO(std::string infilechar, std::string outfilechar) {
+HOURSevtRead::HOURSevtRead(std::string infilechar) {
   infile.open(infilechar, std::ifstream::in);
   evt = new seaweed::event();
-
-  // the following is to find if it is neutrino events
+  // read header
   int ierr = evt->read(infile);
-  int nevents = 0;
+  // count events
+  nevents = 0;
   isneutrinoevent = true;
   hasbundleinfo = true;
   while (evt->read(infile) == 0) {
     nevents++;
-    if (nevents < 10 && evt->ndat("neutrino") == 0) {
-      isneutrinoevent = false;
-      break;
-    }
-    if (nevents < 10 && evt->ndat("track_bundle") == 0) {
-      hasbundleinfo = false;
-      break;
-    }
-    if (nevents == 10) break;
+    if (nevents < 10 && evt->ndat("neutrino") == 0) isneutrinoevent = false;
+    if (nevents < 10 && evt->ndat("track_bundle") == 0) hasbundleinfo = false;
   }
   // position to the beggining of the file
   infile.clear();
   infile.seekg(0, std::ios::beg);
 
-  outfile.open(outfilechar, std::ofstream::out);
-  RunHeaderIsRead = false;
-  RunHeaderIsWrite = false;
+  // read header again
+  ierr = evt->read(infile);
+
+  InitPDGTables();
 }
 
-KM3EvtIO::~KM3EvtIO() {
+HOURSevtRead::~HOURSevtRead() {
   delete evt;
   infile.close();
-  outfile.close();
 }
 
-int KM3EvtIO::GetNumberOfEvents() { return nevents; }
+int HOURSevtRead::GetNumberOfEvents() { return nevents; }
 
-void KM3EvtIO::ReadRunHeader() {
-  if (!RunHeaderIsRead) evt->read(infile);
-  RunHeaderIsRead = true;
-}
-
-void KM3EvtIO::WriteRunHeader() {
-  if (!RunHeaderIsWrite) evt->write(outfile);
-  RunHeaderIsWrite = true;
-}
-
-//// is this even used?
-//void KM3EvtIO::ReadEvent() {
-//  evt->read(infile);
-//  double args[100];
-//  int argnumber;
-//  bool UseEarthLepton = false;
-//  // use earthlepton or not
-//  if (isneutrinoevent && !hasbundleinfo) {
-//    evt->ndat("neutrino");
-//    std::string NeutrinoInfo = evt->next("neutrino");
-//    GetArgs(NeutrinoInfo, argnumber, args);
-//    double xneu, yneu, zneu;
-//    xneu = args[1];
-//    yneu = args[2];
-//    zneu = args[3];
-//    int NumberOfPart = evt->ndat("track_in");
-//    if (NumberOfPart > 1) {
-//      double xx0, yy0, zz0;
-//      for (int ipart = 0; ipart < NumberOfPart; ipart++) {
-//        std::string ParticleInfo = evt->next("track_in");
-//        GetArgs(ParticleInfo, argnumber, args);
-//        xx0 = args[1];
-//        yy0 = args[2];
-//        zz0 = args[3];
-//        if (xx0 != xneu || yy0 != yneu || zz0 != zneu) {
-//          UseEarthLepton = true;
-//          break;
-//        }
-//      }
-//    }
-//  }
-//  if (UseEarthLepton)
-//    NumberOfParticles = evt->ndat("track_earthlepton");
-//  else
-//    NumberOfParticles = evt->ndat("track_in");
-//  int icount = 0;
-//  for (int ip = 0; ip < NumberOfParticles; ip++) {
-//    std::string ParticleInfo;
-//    if (UseEarthLepton)
-//      ParticleInfo = evt->next("track_earthlepton");
-//    else
-//      ParticleInfo = evt->next("track_in");
-//    GetArgs(ParticleInfo, argnumber, args);
-//    if ((int)args[9] >
-//        0) {  // do not count particles not within standard pdg coding
-//      ParticlesIdNumber[icount] = (int)args[0];
-//      ParticlesHEPNumber[icount] = (int)args[9];
-//      icount++;
-//    }
-//  }
-//}
-
-// confliction version from HoursEventRead
-//void KM3EvtIO::ReadEvent2(void) {
-void KM3EvtIO::ReadEvent(void) {
+void HOURSevtRead::ReadEvent(void) {
   evt->read(infile);
   UseEarthLepton = false;
   if (isneutrinoevent && !hasbundleinfo) {
@@ -131,165 +60,14 @@ void KM3EvtIO::ReadEvent(void) {
   }
 }
 
-// TODO: duplication?
-//void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
-//  std::string subchd = chd;
-//  size_t length = subchd.length();
-//  size_t start, stop;
-//  argnumber = 0;
-//  while (length > 0) {
-//    start = 0;
-//    stop = subchd.find_first_of(" ");
-//    if (stop != std::string::npos) {
-//      args[argnumber] = atof((subchd.substr(start, stop - start)).data());
-//      start = subchd.find_first_not_of(" ", stop);
-//      if (start != std::string::npos) {
-//        subchd = subchd.substr(start, length);
-//        length = subchd.length();
-//      } else {
-//        length = 0;
-//      }
-//    } else {
-//      args[argnumber] = atof(subchd.data());
-//      length = 0;
-//    }
-//    argnumber++;
-//  }
-//}
-
-
-void KM3EvtIO::WriteEvent() { evt->write(outfile); }
-
-void KM3EvtIO::AddHit(int id, int PMTid, double pe, double t, int trackid,
-                      int npepure, double ttpure, int creatorProcess) {
-  std::string dt("hit");
-  char buffer[256];
-  int Gid;
-  if (trackid <= NumberOfParticles) {
-    Gid = ParticlesHEPNumber[trackid - 1];
-    // convert from geant track id to input track id
-    trackid = ParticlesIdNumber[trackid - 1];
-  } else {
-    Gid = 6;
-    trackid = 999999;
-  }
-  PMTid++;  // in the evt file the numbering of pmts starts from 1
-  sprintf(buffer, "%8d %6d %6.2f %10.2f %4d %4d %3d %10.2f %4d", id, PMTid, pe,
-          t, Gid, trackid, npepure, ttpure, creatorProcess);
-  std::string dw(buffer);
-  evt->taga(dt, dw);
+int HOURSevtRead::GetNumberOfParticles(void) {
+  if (UseEarthLepton)
+    return evt->ndat("track_earthlepton");
+  else
+    return evt->ndat("track_in");
 }
 
-void KM3EvtIO::AddNumberOfHits(int hitnumber) {
-  std::string dt("total_hits");
-  char buffer[256];
-  sprintf(buffer, "%8d", hitnumber);
-  std::string dw(buffer);
-  evt->taga(dt, dw);
-}
-
-void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
-                                   double posx, double posy, double posz,
-                                   double momx, double momy, double momz,
-                                   double mom, double time) {
-  std::string dt("muonaddi_info");
-  char buffer[256];
-  tracknumber =
-      ParticlesIdNumber[tracknumber -
-                        1];  // convert from geant track id to input track id
-  sprintf(buffer,
-          "%4d %2d %8.2f %8.2f %8.2f %10.6f %10.6f %10.6f %12.6e %10.2f",
-          tracknumber, positionnumber, posx, posy, posz, momx, momy, momz, mom,
-          time);
-  std::string dw(buffer);
-  evt->taga(dt, dw);
-}
-
-void KM3EvtIO::AddMuonPositionInfo(int tracknumber, int positionnumber,
-                                   double posx, double posy, double posz,
-                                   double time) {
-  std::string dt("muonaddi_info");
-  char buffer[256];
-  tracknumber =
-      ParticlesIdNumber[tracknumber -
-                        1];  // convert from geant track id to input track id
-  sprintf(buffer, "%4d %2d %8.2f %8.2f %8.2f %10.2f", tracknumber,
-          positionnumber, posx, posy, posz, time);
-  std::string dw(buffer);
-  evt->taga(dt, dw);
-}
-
-void KM3EvtIO::AddMuonDecaySecondaries(int trackID, int parentID, double posx,
-                                       double posy, double posz, double dx,
-                                       double dy, double dz, double energy,
-                                       double time, int idPDG) {
-  if (parentID > NumberOfParticles) return;
-  int Gid = ParticlesHEPNumber[parentID - 1];
-  if ((Gid != 5) && (Gid != 6)) return;
-  parentID =
-      ParticlesIdNumber[parentID -
-                        1];  // convert from geant track id to input track id
-  std::string dt("muon_decay");
-  char buffer[256];
-  sprintf(
-      buffer,
-      "%6d %6d %10.3f %10.3f %10.3f %12.8f %12.8f %12.8f %12.6f %10.2f %10d",
-      trackID, parentID, posx, posy, posz, dx, dy, dz, energy, time, idPDG);
-  std::string dw(buffer);
-  evt->taga(dt, dw);
-}
-
-void KM3EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
-  if (info.size() == 0) return;
-  std::string dt("muonenergy_info");
-  char buffer[256];
-  int NumberOfTags = int((info.size() - 1) / 10.0) + 1;
-  for (int itag = 0; itag < NumberOfTags; itag++) {
-    int istart = 10 * itag;
-    int istop = istart + 10;
-    if (istop > info.size()) istop = info.size();
-    int nentries = istop - istart;
-    int i = istart;
-    if (nentries == 10)
-      sprintf(buffer,
-              "%4d %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e",
-              itag, info[i], info[i + 1], info[i + 2], info[i + 3], info[i + 4],
-              info[i + 5], info[i + 6], info[i + 7], info[i + 8], info[i + 9]);
-    else if (nentries == 9)
-      sprintf(buffer,
-              "%4d %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e", itag,
-              info[i], info[i + 1], info[i + 2], info[i + 3], info[i + 4],
-              info[i + 5], info[i + 6], info[i + 7], info[i + 8]);
-    else if (nentries == 8)
-      sprintf(buffer, "%4d %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e",
-              itag, info[i], info[i + 1], info[i + 2], info[i + 3], info[i + 4],
-              info[i + 5], info[i + 6], info[i + 7]);
-    else if (nentries == 7)
-      sprintf(buffer, "%4d %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e", itag,
-              info[i], info[i + 1], info[i + 2], info[i + 3], info[i + 4],
-              info[i + 5], info[i + 6]);
-    else if (nentries == 6)
-      sprintf(buffer, "%4d %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e", itag, info[i],
-              info[i + 1], info[i + 2], info[i + 3], info[i + 4], info[i + 5]);
-    else if (nentries == 5)
-      sprintf(buffer, "%4d %8.2e %8.2e %8.2e %8.2e %8.2e", itag, info[i],
-              info[i + 1], info[i + 2], info[i + 3], info[i + 4]);
-    else if (nentries == 4)
-      sprintf(buffer, "%4d %8.2e %8.2e %8.2e %8.2e", itag, info[i], info[i + 1],
-              info[i + 2], info[i + 3]);
-    else if (nentries == 3)
-      sprintf(buffer, "%4d %8.2e %8.2e %8.2e", itag, info[i], info[i + 1],
-              info[i + 2]);
-    else if (nentries == 2)
-      sprintf(buffer, "%4d %8.2e %8.2e", itag, info[i], info[i + 1]);
-    else if (nentries == 1)
-      sprintf(buffer, "%4d %8.2e", itag, info[i]);
-    std::string dw(buffer);
-    evt->taga(dt, dw);
-  }
-}
-
-void KM3EvtIO::InitPDGTables(void) {
+void HOURSevtRead::InitPDGTables(void) {
   // convert hep to pdg
   for (int i = 0; i <= 173; i++) ICONPDG[i] = 0;
 
@@ -500,13 +278,13 @@ void KM3EvtIO::InitPDGTables(void) {
   PDGMASS[173] = 2.5175;
 }
 
-int KM3EvtIO::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
+int HOURSevtRead::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
 
-double KM3EvtIO::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
+double HOURSevtRead::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
 
-void KM3EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
-                               double &zz0, double &pxx0, double &pyy0,
-                               double &pzz0, double &t0) {
+void HOURSevtRead::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
+                                   double &zz0, double &pxx0, double &pyy0,
+                                   double &pzz0, double &t0) {
   std::string ParticleInfo;
   if (UseEarthLepton)
     ParticleInfo = evt->next("track_earthlepton");
@@ -555,9 +333,9 @@ void KM3EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   t0 = args[8];
 }
 
-void KM3EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
-                               double &yneu, double &zneu, double &pxneu,
-                               double &pyneu, double &pzneu, double &t0) {
+void HOURSevtRead::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
+                                   double &yneu, double &zneu, double &pxneu,
+                                   double &pyneu, double &pzneu, double &t0) {
   idneu = 0;
   idtarget = 0;
   xneu = 0.0;
@@ -601,7 +379,7 @@ void KM3EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
 }
 
 // exactly as in KM3EvtIO
-void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
+void HOURSevtRead::GetArgs(std::string &chd, int &argnumber, double *args) {
   std::string subchd = chd;
   size_t length = subchd.length();
   size_t start, stop;
@@ -626,9 +404,9 @@ void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
   }
 }
 
-bool KM3EvtIO::IsNeutrinoEvent(void) { return isneutrinoevent; }
+bool HOURSevtRead::IsNeutrinoEvent(void) { return isneutrinoevent; }
 
-void KM3EvtIO::GeneratePrimaryVertex(G4Event *anEvent) {
+void HOURSevtRead::GeneratePrimaryVertex(G4Event *anEvent) {
   if (isneutrinoevent && hasbundleinfo) {
     // first read the information of the neutrino vertex
     int idneu, idtarget;
