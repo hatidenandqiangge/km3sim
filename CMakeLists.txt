@@ -25,7 +25,15 @@ add_library(libdocopt STATIC IMPORTED)
 set_target_properties(libdocopt PROPERTIES IMPORTED_LOCATION ${DOCOPT_LIBRARIES})
 add_dependencies(libdocopt docopt)
 
+set(Geant4_INCLUDE_DIRS /usr/include/Geant4)
+message(${Geant4_INCLUDE_DIRS})
+
+# this one lacks a prefix, its just /include/...
 include_directories(${DOCOPT_INCLUDE_DIRS})
+
+include_directories(${Geant4_INCLUDE_DIRS})
+add_definitions(${Geant4_DEFINITIONS})              # Add -D type defs
+set(CMAKE_CXX_FLAGS ${Geant4_CXX_FLAGS})            # Optional
 
 include_directories(${PROJECT_SOURCE_DIR}/external/seaweed)
 include_directories(${PROJECT_SOURCE_DIR}/src)
@@ -33,6 +41,7 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(km3sim km3sim.cc ${sources} ${headers})
+#target_link_libraries(km3sim libdocopt ${DOCOPT_LIBRARIES} ${Geant4_LIBRARIES})
 target_link_libraries(km3sim ${Geant4_LIBRARIES})
 target_link_libraries(km3sim libdocopt ${DOCOPT_LIBRARIES})
 
@@ -40,12 +49,3 @@ set(KM3SIM_SCRIPTS
 	run_km3sim.sh
 )
 
-#foreach(_script ${EXAMPLEB1_SCRIPTS})
-#	configure_file(
-#		${PROJECT_SOURCE_DIR}/${_script}
-#		${PROJECT_BINARY_DIR}/${_script}
-#		COPYONLY
-#	)
-#endforeach()
-
-#install(TARGETS DESTINATION bin)
