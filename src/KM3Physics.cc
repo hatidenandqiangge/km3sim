@@ -456,8 +456,8 @@ void KM3Physics::ConstructHA() {
   theHadronElasticPhysics->ConstructProcess();
 
   // hadron physics (inelastic). from HadronPhysicsQGSP_FTFP_BERT builder
-  HadronPhysicsQGSP_FTFP_BERT *theQGSP_FTFP_BERT =
-      new HadronPhysicsQGSP_FTFP_BERT("hadron", true);
+  G4HadronPhysicsQGSP_FTFP_BERT *theQGSP_FTFP_BERT =
+      new G4HadronPhysicsQGSP_FTFP_BERT("hadron", true);
   theQGSP_FTFP_BERT->SetVerboseLevel(0);
   theQGSP_FTFP_BERT->ConstructProcess();
 
@@ -469,6 +469,19 @@ void KM3Physics::ConstructHA() {
   // access the Process through the particle manager and access the
   // highest energy interaction model of this process through the the
   // G4EnergyRangeManager
+  // Update (moritz): this has changed with 4.10:
+  // from: geant4.10.02.p01/source/processes/hadronic/management/History
+  // > 15 May 2014 Vladimir Ivanchenko (hadr-man-V10-00-01)
+  // > ---------------------------------------------------
+  // > - G4HadronicProcess: added method  GetHadronicInteractionList() allowing
+  // >     access to the list of registered models, removed obsolete access
+  // >     methods to G4EnergyRangeManager
+  // > - G4HadronicProcessStore - become G4ThreadLocalSingletone allowing
+  // >     proper destruction of hadronic processes/models/x-sections
+  // > - G4EnergyRangeManager - cleaned up; instead of c-array models pointers
+  // >     are stored in stl vector
+  // > - this tag requires remove deletion of Physics vectors from destructors
+  // >     of all hadronic classes
   theParticleIterator->reset();
   while ((*theParticleIterator)()) {
     G4ParticleDefinition *particle = theParticleIterator->value();
@@ -489,13 +502,12 @@ void KM3Physics::ConstructHA() {
       G4int isi = aVector->size();
       for (G4int iii = 0; iii < isi; iii++) {
         G4VProcess *app = (*aVector)[iii];
-        //  G4cout <<"PPPPPnames "<<particleName<<" "<<
-        // app->GetProcessName() <<" "<<app->GetProcessSubType()<<G4endl;
         if (app->GetProcessSubType() == 121 ||
             app->GetProcessSubType() ==
                 111) {  // is hadronic inelastic or elastic process
           G4HadronicProcess *aHp = (G4HadronicProcess *)(*aVector)[iii];
-          G4EnergyRangeManager *aMan = aHp->GetManagerPointer();
+            // no longer needed with 4.10
+          //G4EnergyRangeManager *aMan = aHp->GetManagerPointer();
           G4cout << aHp->GetProcessName() << G4endl;
           const G4MaterialTable *theMaterialTable =
               G4Material::GetMaterialTable();
@@ -512,10 +524,26 @@ void KM3Physics::ConstructHA() {
                 "Material Water and one Element of it not found in ConstructHA",
                 "", FatalException, "");
           } else {
-            G4HadronicInteraction *anIn =
-                aMan->GetHadronicInteraction(99 * TeV, aMaterial, anElement);
-            anIn->SetMaxEnergy(elimitmaxall);
-            anIn->SetVerboseLevel(0);
+            // new 4.10 shit
+            std::vector<G4HadronicInteraction*> &hadInList =
+              aHp->GetHadronicInteractionList();
+            G4int n_inter = hadInList.size();
+            for (G4int idx = 0; idx < n_inter; idx++) {
+              G4HadronicInteraction *hadIn = hadInList[idx];
+              // copied from energymanager code
+              G4double kinEnergy = 99 * TeV;
+              G4double low = hadIn->GetMinEnergy(aMaterial, anElement);
+              G4double high = hadIn->GetMaxEnergy(aMaterial, anElement);
+              if (low <= kinEnergy && high > kinEnergy) {
+                hadIn->SetMaxEnergy(elimitmaxall);
+                hadIn->SetVerboseLevel(0);
+              }
+            }
+            // no longer needed with 4.10
+            //G4HadronicInteraction *anIn =
+            //    aMan->GetHadronicInteraction(99 * TeV, aMaterial, anElement);
+            //anIn->SetMaxEnergy(elimitmaxall);
+            //anIn->SetVerboseLevel(0);
           }
         }
       }
