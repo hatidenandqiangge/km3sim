@@ -555,6 +555,13 @@ void KM3EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   t0 = args[8];
 }
 
+int KM3EvtIO::GetNumberOfParticles(void) {
+  if (UseEarthLepton)
+    return evt->ndat("track_earthlepton");
+  else
+    return evt->ndat("track_in");
+}
+
 void KM3EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
                                double &yneu, double &zneu, double &pxneu,
                                double &pyneu, double &pzneu, double &t0) {
