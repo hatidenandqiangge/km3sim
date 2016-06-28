@@ -42,7 +42,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(km3sim km3sim.cc ${sources} ${headers})
 target_link_libraries(km3sim ${Geant4_LIBRARIES})
-#target_link_libraries(km3sim libdocopt ${DOCOPT_LIBRARIES})
+target_link_libraries(km3sim libdocopt ${DOCOPT_LIBRARIES})
 # TODO: add seaweed
 
 set(KM3SIM_SCRIPTS
