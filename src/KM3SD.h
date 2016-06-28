@@ -4,6 +4,7 @@
 #include "G4VSensitiveDetector.hh"
 #include "KM3Hit.h"
 #include <stdio.h>
+#include <vector>
 #include "KM3Detector.h"
 #include "Randomize.hh"
 #include "G4MaterialPropertiesTable.hh"
@@ -32,7 +33,6 @@ class KM3SD : public G4VSensitiveDetector {
  private:
   KM3HitsCollection *HitsCollection;
   G4int ProcessHitsCollection(KM3HitsCollection *aCollection);
-  void DrawCathodHit(G4int NumberOfPhotons, G4ThreeVector pos);
   G4double TResidual(G4double, const G4ThreeVector &, const G4ThreeVector &,
                      const G4ThreeVector &);
   void clear();

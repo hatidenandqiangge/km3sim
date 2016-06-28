@@ -332,7 +332,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition =
                 myStDetector->allCathods->GetPosition(prevcathod);
-            DrawCathodHit(numpes, Cposition);
           }
           for (int j = prevstart; j < i; j++) {
             if ((*HitsCollection)[j]->GetMany() > 0) {
@@ -361,7 +360,6 @@ void KM3SD::EndOfEvent(G4HCofThisEvent *HCE) {
           if (myStDetector->vrmlhits) {  // draw hits
             G4ThreeVector Cposition = myStDetector->allCathods->GetPosition(
                 (*HitsCollection)[i]->GetCathodId());
-            DrawCathodHit(numpes, Cposition);
           }
           for (int j = prevstart; j < NbHits; j++) {
             if ((*HitsCollection)[j]->GetMany() > 0) {
