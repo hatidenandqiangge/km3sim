@@ -180,7 +180,7 @@ void KM3Physics::ConstructParticle() {
 
 void KM3Physics::ConstructProcess() {
   AddTransportation();
-  AddParameterisation();
+  //AddParameterisation();
   ConstructEM();
   // construct hadronic processes only in case of Pythia input
   // (for apparent reasons)

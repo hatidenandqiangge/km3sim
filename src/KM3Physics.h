@@ -21,7 +21,7 @@ class KM3Physics : public G4VUserPhysicsList {
 
  protected:
   // these methods Construct physics processes and register them
-  void AddParameterisation();
+  //void AddParameterisation();
   void ConstructGeneral();
   void ConstructEM();
   void ConstructOP();
