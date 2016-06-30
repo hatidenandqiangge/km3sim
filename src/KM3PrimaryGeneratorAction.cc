@@ -9,6 +9,13 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
 
+using CLHEP::TeV;
+using CLHEP::GeV;
+using CLHEP::meter;
+using CLHEP::ns;
+using CLHEP::cm;
+using CLHEP::m;
+
 KM3PrimaryGeneratorAction::KM3PrimaryGeneratorAction() {}
 
 KM3PrimaryGeneratorAction::~KM3PrimaryGeneratorAction() {
@@ -16,7 +23,7 @@ KM3PrimaryGeneratorAction::~KM3PrimaryGeneratorAction() {
 }
 
 void KM3PrimaryGeneratorAction::Initialize() {
-  antaresHEPEvt = new HOURSevtREAD(infile_evt);
+  antaresHEPEvt = new HOURSevtRead(infile_evt);
   nevents = antaresHEPEvt->GetNumberOfEvents();
   useHEPEvt = antaresHEPEvt->IsNeutrinoEvent();
 }

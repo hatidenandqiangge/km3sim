@@ -15,12 +15,15 @@
 #include "G4PrimaryParticle.hh"
 //#include "G4ThreeVector.h"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 #include "seaweed.h"
 
-class HOURSevtREAD {
+class HOURSevtRead {
  public:
-  HOURSevtREAD(char *infile);
-  ~HOURSevtREAD();
+  //HOURSevtRead(char *infile);
+  HOURSevtRead(std::string infile);
+  ~HOURSevtRead();
 
   int GetNumberOfEvents();
   void ReadEvent(void);
@@ -42,7 +45,7 @@ class HOURSevtREAD {
   double PDGMASS[174];
   void InitPDGTables(void);
   int ConvertHEPToPDG(int hepcode);
-  void GetArgs(string &chd, int &argnumber, double *args);
+  void GetArgs(std::string &chd, int &argnumber, double *args);
   double GetParticleMass(int hepcode);
   bool UseEarthLepton;
   bool isneutrinoevent;

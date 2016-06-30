@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iomanip>
 #include "G4ExceptionHandler.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 struct onePE {
   G4double time;

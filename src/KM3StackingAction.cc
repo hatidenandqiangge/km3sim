@@ -14,6 +14,12 @@
 #include "KM3PrimaryGeneratorAction.h"
 //#endif
 
+using CLHEP::keV;
+using CLHEP::GeV;
+using CLHEP::TeV;
+using CLHEP::ns;
+using CLHEP::m;
+
 KM3StackingAction::KM3StackingAction() { ; }
 
 KM3StackingAction::~KM3StackingAction() { ; }

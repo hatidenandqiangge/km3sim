@@ -10,7 +10,7 @@ include(${Geant4_USE_FILE})
 set( CMAKE_C_FLAGS "-Wall -g")
 set(DOCOPT_ROOT ${PROJECT_SOURCE_DIR}/external/docopt)
 set(DOCOPT_INCLUDE_DIRS ${DOCOPT_ROOT}/include/docopt)
-set(DOCOPT_LIBRARIES ${DOCOPT_ROOT}/lib/libdocopt.a)
+set(DOCOPT_LIBRARIES ${DOCOPT_ROOT}/lib64/libdocopt.a)
 set(docopt_INSTALL_DIR "${DOCOPT_ROOT}")
 set(docopt_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${docopt_INSTALL_DIR})
 include(ExternalProject)
@@ -25,7 +25,15 @@ add_library(libdocopt STATIC IMPORTED)
 set_target_properties(libdocopt PROPERTIES IMPORTED_LOCATION ${DOCOPT_LIBRARIES})
 add_dependencies(libdocopt docopt)
 
+set(Geant4_INCLUDE_DIRS /usr/include/Geant4)
+message(${Geant4_INCLUDE_DIRS})
+
+# this one lacks a prefix, its just /include/...
 include_directories(${DOCOPT_INCLUDE_DIRS})
+
+include_directories(${Geant4_INCLUDE_DIRS})
+add_definitions(${Geant4_DEFINITIONS})              # Add -D type defs
+set(CMAKE_CXX_FLAGS ${Geant4_CXX_FLAGS})            # Optional
 
 include_directories(${PROJECT_SOURCE_DIR}/external/seaweed)
 include_directories(${PROJECT_SOURCE_DIR}/src)
@@ -34,18 +42,10 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(km3sim km3sim.cc ${sources} ${headers})
 target_link_libraries(km3sim ${Geant4_LIBRARIES})
-target_link_libraries(km3sim libdocopt ${DOCOPT_LIBRARIES})
+target_link_libraries(km3sim libdocopt)
+# TODO: add seaweed
 
 set(KM3SIM_SCRIPTS
 	run_km3sim.sh
 )
 
-#foreach(_script ${EXAMPLEB1_SCRIPTS})
-#	configure_file(
-#		${PROJECT_SOURCE_DIR}/${_script}
-#		${PROJECT_BINARY_DIR}/${_script}
-#		COPYONLY
-#	)
-#endforeach()
-
-#install(TARGETS DESTINATION bin)

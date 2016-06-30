@@ -5,6 +5,9 @@
 #include "KM3Detector.h"
 #include "KM3EventAction.h"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
+
 class KM3SteppingAction : public G4UserSteppingAction {
  public:
   KM3SteppingAction();

@@ -1,7 +1,14 @@
 #include "KM3EvtIO.h"
 
-KM3EvtIO::KM3EvtIO(std::string infilechar, str::string outfile) {
-  infile.open(infile, std::ifstream::in);
+using CLHEP::TeV;
+using CLHEP::GeV;
+using CLHEP::meter;
+using CLHEP::m;
+using CLHEP::cm;
+using CLHEP::ns;
+
+KM3EvtIO::KM3EvtIO(std::string infilechar, std::string outfilechar) {
+  infile.open(infilechar, std::ifstream::in);
   evt = new seaweed::event();
 
   // the following is to find if it is neutrino events
@@ -25,7 +32,7 @@ KM3EvtIO::KM3EvtIO(std::string infilechar, str::string outfile) {
   infile.clear();
   infile.seekg(0, std::ios::beg);
 
-  outfile.open(outfile, std::ofstream::out);
+  outfile.open(outfilechar, std::ofstream::out);
   RunHeaderIsRead = false;
   RunHeaderIsWrite = false;
 }
@@ -101,7 +108,8 @@ void KM3EvtIO::WriteRunHeader() {
 //}
 
 // confliction version from HoursEventRead
-void KM3EvtIO::ReadEvent2(void) {
+//void KM3EvtIO::ReadEvent2(void) {
+void KM3EvtIO::ReadEvent(void) {
   evt->read(infile);
   UseEarthLepton = false;
   if (isneutrinoevent && !hasbundleinfo) {
@@ -123,30 +131,32 @@ void KM3EvtIO::ReadEvent2(void) {
   }
 }
 
-void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
-  std::string subchd = chd;
-  size_t length = subchd.length();
-  size_t start, stop;
-  argnumber = 0;
-  while (length > 0) {
-    start = 0;
-    stop = subchd.find_first_of(" ");
-    if (stop != std::string::npos) {
-      args[argnumber] = atof((subchd.substr(start, stop - start)).data());
-      start = subchd.find_first_not_of(" ", stop);
-      if (start != std::string::npos) {
-        subchd = subchd.substr(start, length);
-        length = subchd.length();
-      } else {
-        length = 0;
-      }
-    } else {
-      args[argnumber] = atof(subchd.data());
-      length = 0;
-    }
-    argnumber++;
-  }
-}
+// TODO: duplication?
+//void KM3EvtIO::GetArgs(std::string &chd, int &argnumber, double *args) {
+//  std::string subchd = chd;
+//  size_t length = subchd.length();
+//  size_t start, stop;
+//  argnumber = 0;
+//  while (length > 0) {
+//    start = 0;
+//    stop = subchd.find_first_of(" ");
+//    if (stop != std::string::npos) {
+//      args[argnumber] = atof((subchd.substr(start, stop - start)).data());
+//      start = subchd.find_first_not_of(" ", stop);
+//      if (start != std::string::npos) {
+//        subchd = subchd.substr(start, length);
+//        length = subchd.length();
+//      } else {
+//        length = 0;
+//      }
+//    } else {
+//      args[argnumber] = atof(subchd.data());
+//      length = 0;
+//    }
+//    argnumber++;
+//  }
+//}
+
 
 void KM3EvtIO::WriteEvent() { evt->write(outfile); }
 
@@ -229,7 +239,6 @@ void KM3EvtIO::AddMuonDecaySecondaries(int trackID, int parentID, double posx,
   evt->taga(dt, dw);
 }
 
-#ifdef G4MYMUON_KEEPENERGY
 void KM3EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
   if (info.size() == 0) return;
   std::string dt("muonenergy_info");
@@ -275,13 +284,12 @@ void KM3EvtIO::AddMuonEnergyInfo(const std::vector<double> &info) {
       sprintf(buffer, "%4d %8.2e %8.2e", itag, info[i], info[i + 1]);
     else if (nentries == 1)
       sprintf(buffer, "%4d %8.2e", itag, info[i]);
-    string dw(buffer);
+    std::string dw(buffer);
     evt->taga(dt, dw);
   }
 }
-#endif
 
-SSid KM3EvtIO::InitPDGTables(void) {
+void KM3EvtIO::InitPDGTables(void) {
   // convert hep to pdg
   for (int i = 0; i <= 173; i++) ICONPDG[i] = 0;
 
@@ -545,6 +553,13 @@ void KM3EvtIO::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   pyy0 = args[5] * pmom;
   pzz0 = args[6] * pmom;
   t0 = args[8];
+}
+
+int KM3EvtIO::GetNumberOfParticles(void) {
+  if (UseEarthLepton)
+    return evt->ndat("track_earthlepton");
+  else
+    return evt->ndat("track_in");
 }
 
 void KM3EvtIO::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,

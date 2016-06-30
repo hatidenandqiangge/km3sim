@@ -81,17 +81,17 @@ unsigned event::write(std::ostream& out) {
   }
 
   if (new_run) {
-    out << "start_run: " << ndrun << endl;
+    out << "start_run: " << ndrun << std::endl;
     if (out.bad()) return 2;
   } else {
-    out << "start_event: " << ndevt << " " << ievtp << endl;
+    out << "start_event: " << ndevt << " " << ievtp << std::endl;
     if (out.bad()) return 2;
   }
   for (ev_iter evit = evdata.begin(); evit != evdata.end(); ++evit) {
-    out << (*evit).first + ": " << (*evit).second << endl;
+    out << (*evit).first + ": " << (*evit).second << std::endl;
     if (out.bad()) return 2;
   }
-  out << "end_event:" << endl;
+  out << "end_event:" << std::endl;
   if (out.bad()) return 2;
   return 0;
 }
@@ -102,7 +102,7 @@ unsigned event::tagd(std::string cht) { return evdata.erase(cht); }
 // eliminate tag with id from event list
 void event::tagd(std::string cht, unsigned nline) {
   if (evdata.count(cht) < nline) {
-    cout << "Event does not contain " << nline << " tag " << cht << endl;
+    std::cout << "Event does not contain " << nline << " tag " << cht << std::endl;
     return;
   }
   ev_iter im = evdata.lower_bound(cht);

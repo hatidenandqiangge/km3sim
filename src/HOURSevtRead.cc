@@ -1,6 +1,13 @@
-#include "HOURSevtREAD.h"
+#include "HOURSevtRead.h"
 
-HOURSevtREAD::HOURSevtREAD(char *infilechar) {
+using CLHEP::TeV;
+using CLHEP::GeV;
+using CLHEP::meter;
+using CLHEP::ns;
+using CLHEP::cm;
+using CLHEP::m;
+
+HOURSevtRead::HOURSevtRead(std::string infilechar) {
   infile.open(infilechar, std::ifstream::in);
   evt = new seaweed::event();
   // read header
@@ -24,14 +31,14 @@ HOURSevtREAD::HOURSevtREAD(char *infilechar) {
   InitPDGTables();
 }
 
-HOURSevtREAD::~HOURSevtREAD() {
+HOURSevtRead::~HOURSevtRead() {
   delete evt;
   infile.close();
 }
 
-int HOURSevtREAD::GetNumberOfEvents() { return nevents; }
+int HOURSevtRead::GetNumberOfEvents() { return nevents; }
 
-void HOURSevtREAD::ReadEvent(void) {
+void HOURSevtRead::ReadEvent(void) {
   evt->read(infile);
   UseEarthLepton = false;
   if (isneutrinoevent && !hasbundleinfo) {
@@ -53,14 +60,14 @@ void HOURSevtREAD::ReadEvent(void) {
   }
 }
 
-int HOURSevtREAD::GetNumberOfParticles(void) {
+int HOURSevtRead::GetNumberOfParticles(void) {
   if (UseEarthLepton)
     return evt->ndat("track_earthlepton");
   else
     return evt->ndat("track_in");
 }
 
-void HOURSevtREAD::InitPDGTables(void) {
+void HOURSevtRead::InitPDGTables(void) {
   // convert hep to pdg
   for (int i = 0; i <= 173; i++) ICONPDG[i] = 0;
 
@@ -271,11 +278,11 @@ void HOURSevtREAD::InitPDGTables(void) {
   PDGMASS[173] = 2.5175;
 }
 
-int HOURSevtREAD::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
+int HOURSevtRead::ConvertHEPToPDG(int hepcode) { return ICONPDG[hepcode]; }
 
-double HOURSevtREAD::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
+double HOURSevtRead::GetParticleMass(int hepcode) { return PDGMASS[hepcode]; }
 
-void HOURSevtREAD::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
+void HOURSevtRead::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
                                    double &zz0, double &pxx0, double &pyy0,
                                    double &pzz0, double &t0) {
   std::string ParticleInfo;
@@ -326,7 +333,7 @@ void HOURSevtREAD::GetParticleInfo(int &idbeam, double &xx0, double &yy0,
   t0 = args[8];
 }
 
-void HOURSevtREAD::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
+void HOURSevtRead::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
                                    double &yneu, double &zneu, double &pxneu,
                                    double &pyneu, double &pzneu, double &t0) {
   idneu = 0;
@@ -372,7 +379,7 @@ void HOURSevtREAD::GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu,
 }
 
 // exactly as in KM3EvtIO
-void HOURSevtREAD::GetArgs(std::string &chd, int &argnumber, double *args) {
+void HOURSevtRead::GetArgs(std::string &chd, int &argnumber, double *args) {
   std::string subchd = chd;
   size_t length = subchd.length();
   size_t start, stop;
@@ -397,9 +404,9 @@ void HOURSevtREAD::GetArgs(std::string &chd, int &argnumber, double *args) {
   }
 }
 
-bool HOURSevtREAD::IsNeutrinoEvent(void) { return isneutrinoevent; }
+bool HOURSevtRead::IsNeutrinoEvent(void) { return isneutrinoevent; }
 
-void HOURSevtREAD::GeneratePrimaryVertex(G4Event *anEvent) {
+void HOURSevtRead::GeneratePrimaryVertex(G4Event *anEvent) {
   if (isneutrinoevent && hasbundleinfo) {
     // first read the information of the neutrino vertex
     int idneu, idtarget;

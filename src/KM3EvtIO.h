@@ -15,6 +15,8 @@
 #include "G4PrimaryVertex.hh"
 #include "G4PrimaryParticle.hh"
 //#include "G4ThreeVector.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 class KM3EvtIO {
  public:
@@ -39,9 +41,7 @@ class KM3EvtIO {
                                double dz, double energy, double time,
                                int idPDG);
 
-#ifdef G4MYMUON_KEEPENERGY
   void AddMuonEnergyInfo(const std::vector<double> &info);
-#endif
 
   // taken from reader
   int GetNumberOfEvents();
