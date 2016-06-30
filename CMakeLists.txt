@@ -22,7 +22,6 @@ add_dependencies(libdocopt docopt)
 find_package(Geant4 10 REQUIRED)
 include(${Geant4_USE_FILE})
 set(Geant4_INCLUDE_DIRS ${Geant4_DIR}/include/Geant4)
-message(${Geant4_INCLUDE_DIRS})
 
 include_directories(${DOCOPT_INCLUDE_DIRS})
 include_directories(${Geant4_INCLUDE_DIRS})
