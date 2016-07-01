@@ -13,10 +13,11 @@ using namespace std;
 
 class HOURSevtREAD {
 public:
-  HOURSevtREAD(char *infile);
+  HOURSevtREAD(char *infile, unsigned int rank, unsigned int total_processes);
   ~HOURSevtREAD();
 
 public:
+  unsigned int real_nevents;
   int GetNumberOfEvents();
   void ReadEvent(void);
   void GetNeutrinoInfo(int &idneu, int &idtarget, double &xneu, double &yneu,
@@ -31,7 +32,11 @@ public:
 
 private:
   event *evt;
-  int nevents;
+  unsigned int nevents;
+
+  unsigned int _rank;
+  unsigned int _total_processes;
+
   ifstream infile;
   int ICONPDG[174];
   double PDGMASS[174];

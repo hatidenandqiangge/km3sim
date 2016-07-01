@@ -103,9 +103,16 @@ void KM3PrimaryGeneratorAction::Initialize() {
      defined(G4MYHAMUONS_PARAMETERIZATION)) ||                                 \
     !defined(G4MYHA_PARAMETERIZATION)
   if (useANTARESformat) {
-    antaresHEPEvt = new HOURSevtREAD(fileParticles);
+#ifdef G4MPI_SUPPORT
+    antaresHEPEvt = new HOURSevtREAD(fileParticles, g4MPI->GetRank(), g4MPI->GetSize());
+#else
+    antaresHEPEvt = new HOURSevtREAD(fileParticles, 0, 1);
+#endif
+
     nevents = antaresHEPEvt->GetNumberOfEvents();
     useHEPEvt = antaresHEPEvt->IsNeutrinoEvent();
+G4cout << "Number of events: " << nevents  << G4endl;
+G4cout << "Neutrino event: " << useHEPEvt << G4endl;
   } else {
     infile = fopen(fileParticles, "r"); // it contains the number of events, the
                                         // particle type, the vertex and
@@ -930,6 +937,7 @@ void KM3PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     t0 = 0.0; // starting particle time is common in neutrino interaction
     if (useANTARESformat) {
       antaresHEPEvt->ReadEvent();
+G4cout << "read event " << antaresHEPEvt->real_nevents << G4endl;
       antaresHEPEvt->GetNeutrinoInfo(idneu, idtarget, xneu, yneu, zneu, pxneu,
                                      pyneu, pzneu, t0);
     } else

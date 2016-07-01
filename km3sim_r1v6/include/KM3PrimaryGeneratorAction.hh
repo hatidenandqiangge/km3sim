@@ -62,6 +62,10 @@ class G4VPrimaryGenerator;
 
 #include "HOURSevtREAD.hh"
 
+#ifdef G4MPI_SUPPORT
+#include "G4MPImanager.hh"
+#endif
+
 class KM3PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 public:
   KM3PrimaryGeneratorAction();
@@ -90,6 +94,10 @@ public:
   G4ThreeVector direction;
 #ifdef G4MYHAMUONS_PARAMETERIZATION
   std::ofstream *outMuonHAFile;
+#endif
+
+#ifdef G4MPI_SUPPORT
+  G4MPImanager* g4MPI;
 #endif
 
 private:

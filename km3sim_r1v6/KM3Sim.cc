@@ -25,7 +25,19 @@
 #include <iomanip>
 #endif
 
+#ifdef G4MPI_SUPPORT
+#include "G4MPImanager.hh"
+#include "G4MPIsession.hh"
+#endif
+
 int main(int argc, char *argv[]) {
+
+#ifdef G4MPI_SUPPORT
+G4MPImanager* g4MPI= new G4MPImanager(argc,argv);
+G4MPIsession* session= g4MPI-> GetMPIsession();
+G4cout << "MPI " << g4MPI->GetRank() << "," << g4MPI->GetSize() <<G4endl;
+
+#endif
 
 #ifdef G4HADRONIC_COMPILE
   G4cout << "The program has been compiled with hadronic physics and full "
@@ -418,6 +430,10 @@ int main(int argc, char *argv[]) {
   runManager->SetNumberOfEventsToBeStored(0);
   // myGeneratorAction and MyTrackingAction
   KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
+
+#ifdef G4MPI_SUPPORT
+  myGeneratorAction->g4MPI = g4MPI;
+#endif
   myGeneratorAction->outfile = savefile;
   myGeneratorAction->useHEPEvt = useHEPEvt;
   myGeneratorAction->useANTARESformat = useANTARESformat;
@@ -492,11 +508,14 @@ int main(int argc, char *argv[]) {
 
   // get the pointer to the UI manager and set verbosities
   G4UImanager *UI = G4UImanager::GetUIpointer();
+
+#ifndef G4MPI_SUPPORT
   G4UIsession *session = 0;
 #ifdef G4UI_USE_TCSH
   session = new G4UIterminal(new G4UItcsh);
 #else
   session = new G4UIterminal();
+#endif
 #endif
 
   // UI->ApplyCommand("/control/execute myrun.mac");
@@ -569,6 +588,9 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
+
+
+
   if (visual && visuale) {
     UI->ApplyCommand("/vis/viewer/flush");
   }
@@ -595,6 +617,9 @@ int main(int argc, char *argv[]) {
   // Visualization, if you choose to have it!
   delete visManager;
 #endif
+
+  delete g4MPI;
+  
   delete runManager;
   return 0;
 }

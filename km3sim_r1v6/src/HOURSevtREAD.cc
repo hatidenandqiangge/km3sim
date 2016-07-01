@@ -1,29 +1,38 @@
 #include "HOURSevtREAD.hh"
 
-HOURSevtREAD::HOURSevtREAD(char *infilechar) {
+HOURSevtREAD::HOURSevtREAD(char *infilechar, unsigned int rank, unsigned int total_processes) {
+
+  _rank = rank;
+  _total_processes = total_processes;
   infile.open(infilechar, ifstream::in);
   evt = new event();
   // read header
   int ierr = evt->read(infile);
   // count events
   nevents = 0;
+  real_nevents = 0;
   isneutrinoevent = true;
   hasbundleinfo = true;
   while (evt->read(infile) == 0) {
-    nevents++;
-    if (nevents < 10 && evt->ndat("neutrino") == 0)
+    if ((real_nevents%total_processes) == rank) {
+      nevents++;
+    }
+    real_nevents ++;
+    if (real_nevents < 10 && evt->ndat("neutrino") == 0)
       isneutrinoevent = false;
-    if (nevents < 10 && evt->ndat("track_bundle") == 0)
+    if (real_nevents < 10 && evt->ndat("track_bundle") == 0)
       hasbundleinfo = false;
   }
+  G4cout << "evtREAD: Total events:" << real_nevents << " Process events:" << nevents << G4endl;
   // position to the beggining of the file
   infile.clear();
   infile.seekg(0, ios::beg);
 
   // read header again
   ierr = evt->read(infile);
-
+  real_nevents = 0;
   Initialize();
+
 }
 
 HOURSevtREAD::~HOURSevtREAD() {
@@ -34,7 +43,12 @@ HOURSevtREAD::~HOURSevtREAD() {
 int HOURSevtREAD::GetNumberOfEvents() { return nevents; }
 
 void HOURSevtREAD::ReadEvent(void) {
+  while  ((real_nevents%_total_processes) != _rank) {
+    evt->read(infile);    // remove event from other processes
+    real_nevents++;
+  }
   evt->read(infile);
+  real_nevents++;
   UseEarthLepton = false;
   if (isneutrinoevent && !hasbundleinfo) {
     int idneu, idtarget;
