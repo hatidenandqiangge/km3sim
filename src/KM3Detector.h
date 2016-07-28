@@ -37,7 +37,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double outerStorey;
   G4double detectorRadius;
 
-  G4VPhysicalVolume* ConstructWorld(const std::string &detxFile);
+  G4VPhysicalVolume* ConstructWorldVolume(const std::string &detxFile);
 
   // this is the maximum vertical distance of the storeys
   // from the center plus a number of absorpion lengths
@@ -75,6 +75,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4VPhysicalVolume *fWorld;
   G4Material *Water;
   G4Material *Crust;
+  G4Material *Cathod;
 
  private:
   G4double detectorDepth;
