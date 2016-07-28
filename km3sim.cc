@@ -74,11 +74,13 @@ static const char USAGE[] =
     R"(km3sim.
 
   Usage:
-    km3sim [--seed=<sd>] INFILE (-p PARAMS) (-d DETECTOR) [-o OUTFILE]
+    km3sim [--seed=<sd>] -p PARAMS -d DETECTOR -i INFILE -o OUTFILE
     km3sim (-h | --help)
     km3sim --version
 
   Options:
+    -i INFILE         Input .evt file (e.g. from gSeaGen)
+    -o OUTFILE        Output .evt file (for JTE)
     -p PARAMS         File with physics (seawater etc.) input parameters.
     -d DETECTOR       File with detector geometry.
     -h --help         Show this screen.
