@@ -52,6 +52,8 @@ using CLHEP::atmosphere;
 using CLHEP::bar;
 using CLHEP::c_light;
 using CLHEP::cm3;
+using CLHEP::cm;
+using CLHEP::deg;
 using CLHEP::g;
 using CLHEP::h_Planck;
 using CLHEP::kelvin;
@@ -823,50 +825,17 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   SetUpVariables();
   ConstructMaterials();
   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(1000.0 * m);
-  // newgeant  sxpInitialize();
-  // newgeant  sxp.Run();
 
-  //// newgeant fWorld =  (G4VPhysicalVolume
-  //// *)GDMLProcessor::GetInstance()->GetWorldVolume();
-  G4GDMLParser parser;         // newgeant
-  parser.Read(Geometry_File);  // newgeant
+  G4GDMLParser parser;
+  parser.Read(Geometry_File);
+  fWorld = parser.GetWorldVolume();
+  //fWorld = ConstructWorldVolume()
 
-  // TODO
-  //DetXParser parser;
-  //parser.Read(Geometry_File);  // newgeant
-  //fWorld = new G4VPhysicalVolume(0,
-  G4Box *worldBox = new G4Box("WorldBox", 2200 * meter, 2200 * meter, 2200 * meter);
-  G4LogicalVolume *worldLog = new G4LogicalVolume(worldBox, Water, "WorldVolume");
-  G4Box *crustBox = new G4Box("CrustBox", 2200 * meter, 2200 * meter, 984.7 * meter);
-  G4LogicalVolume *crustLog = new G4LogicalVolume(crustBox, Crust, "CrustVolume");
-  G4VPhysicalVolume *crustPV = new G4PVPlacement(0,
-      G4ThreeVector(0, 0, -607.65),
-      crustLog,
-      "CrustVolume",
-      worldLog,
-      false,
-      0);
-
-  // tower dims x, y, z = 1, 1, 170.0 meter
-  // storey dims x, y, z = 0.6, 0.6, 0.6 meter
-  // omsphere dims =
-
-  // crustBox
-  // TowerBox
-  // StoreyBox
-  // OMSphere
-  // CathodTube
-  //
-  // put G4VPhysicalVolumes into world volume
-
-  //fWorld = (G4VPhysicalVolume *)parser.GetWorldVolume();  // newgeant
-
-  //  if (fWorld == 0)
-  //    G4Exception(
-  //        "World volume not set properly check your setup selection "
-  //        "criteria or GDML input!",
-  //        "", FatalException, "");
-  //
+  if (fWorld == 0)
+    G4Exception(
+        "World volume not set properly check your setup selection "
+        "criteria or GDML input!",
+        "", FatalException, "");
   G4cout << "Total Cathods " << TotalPMTEntities(fWorld) << G4endl;
 
   //------------------------------------------------
@@ -954,10 +923,13 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 }
 // TODO closing brace
 
-void KM3Detector::ReadDetector(const std::string &detx_filename) {
+
+
+
+void KM3Detector::ConstructWorld(const std::string &detxFile) {
   // Parse according to
   // http://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx.29
-  std::ifstream infile(detx_filename);
+  std::ifstream infile(detxFile);
 
   std::string line;
   std::getline(infile, line);
@@ -982,9 +954,51 @@ void KM3Detector::ReadDetector(const std::string &detx_filename) {
       iss >> pmt_id_global >> x >> y >> z >> dx >> dy >> dz >> t0;
     }
   }
-}
 
-/*
- * allCathods->addCathod(trans, Position, Direction, CathodRadius,
- * CathodHeight, Depth - 1);
- */
+  // there are 3 different materials:
+  //  Water
+  //  Crust
+  //  Cathod (composite)
+  G4Box *worldBox = new G4Box("WorldBox",
+      2200 * meter, 2200 * meter, 2200 * meter);
+  G4Box *crustBox = new G4Box("CrustBox",
+      2200 * meter, 2200 * meter, 984.7 * meter);
+  G4Box *towerBox = new G4Box("TowerBox",
+      1 * meter, 1 * meter, 170.0 * meter);
+  G4Box *storeyBox = new G4Box("StoreyBox",
+      0.6 * meter, 0.6 * meter, 0.6 * meter);
+  G4Sphere *omSphere = new G4Sphere("OMSphere",
+      0.0 * cm, 21.6 * cm, 0.0 * deg, 360.0 * deg, 0.0 * deg, 180.0 * deg);
+  G4Tubs *cathodTube = new G4Tubs("CathodTube",
+      0.0 * cm, 4.7462 * cm, 0.5 * cm, 0.0 * deg, 360.0 * deg);
+
+  G4LogicalVolume *worldLog = new G4LogicalVolume(worldBox,
+      Water, "WorldVolume");
+  G4LogicalVolume *crustLog = new G4LogicalVolume(crustBox,
+      Crust, "CrustVolume");
+  G4LogicalVolume *towerLog = new G4LogicalVolume(towerBox,
+      Water, "TowerVolume");
+  G4LogicalVolume *storeyLog = new G4LogicalVolume(storeyBox,
+      Water, "StoreyVolume");
+  G4LogicalVolume *omVolume = new G4LogicalVolume(omSphere,
+      Water, "OMSphere");
+  G4LogicalVolume *cathodVolume = new G4LogicalVolume(cathodTube,
+      Cathod, "CathodVolume");
+
+  G4VPhysicalVolume *crustPV = new G4PVPlacement(0,
+      G4ThreeVector(0, 0, -607.65), crustLog, "CrustVolume", worldLog,
+      false, 0);
+  // make many cathod logical & physical volumes
+  // G4VPhysicalVolume *cathod_1_PV = new G4PVPlacement(vol_1, rot_1, pos_1);
+
+  // derive OM positions from PMT positions
+  // make many OM volumes (or don't? it's water after all)
+
+  // Towers/benthos: only referenced in this file
+  // interesting for propa:
+  //    materials volumnes: cathods, crust, water
+  //    detector boundaries (bottomPos, topPos, radius)
+
+  // put G4VPhysicalVolumes into world volume
+
+}

@@ -37,8 +37,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
   G4double outerStorey;
   G4double detectorRadius;
 
-  void ReadPMTPositions(const std::string &detx_file_name);
-  void ReadDetector(const std::string &detx_filename);
+  G4VPhysicalVolume* ConstructWorld(const std::string &detxFile);
 
   // this is the maximum vertical distance of the storeys
   // from the center plus a number of absorpion lengths
