@@ -76,32 +76,32 @@ KM3Detector::~KM3Detector() {
   // newgeant  sxp.Finalize();
   delete allCathods;
 
-  for (size_t i = 0; i < allOMs->size(); i++) {
-    (*allOMs)[i]->CathodsIDs->clear();
-    delete (*allOMs)[i]->CathodsIDs;
-    // free((*allOMs)[i]);
-    delete (*allOMs)[i];
-  }
-  allOMs->clear();
-  delete allOMs;
+  //for (size_t i = 0; i < allOMs->size(); i++) {
+  //  (*allOMs)[i]->CathodsIDs->clear();
+  //  delete (*allOMs)[i]->CathodsIDs;
+  //  // free((*allOMs)[i]);
+  //  delete (*allOMs)[i];
+  //}
+  //allOMs->clear();
+  //delete allOMs;
 
-  for (size_t i = 0; i < allStoreys->size(); i++) {
-    (*allStoreys)[i]->BenthosIDs->clear();
-    delete (*allStoreys)[i]->BenthosIDs;
-    // free((*allStoreys)[i]);
-    delete (*allStoreys)[i];
-  }
-  allStoreys->clear();
-  delete allStoreys;
+  //for (size_t i = 0; i < allStoreys->size(); i++) {
+  //  (*allStoreys)[i]->BenthosIDs->clear();
+  //  delete (*allStoreys)[i]->BenthosIDs;
+  //  // free((*allStoreys)[i]);
+  //  delete (*allStoreys)[i];
+  //}
+  //allStoreys->clear();
+  //delete allStoreys;
 
-  for (size_t i = 0; i < allTowers->size(); i++) {
-    (*allTowers)[i]->BenthosIDs->clear();
-    delete (*allTowers)[i]->BenthosIDs;
-    // free((*allTowers)[i]);
-    delete (*allTowers)[i];
-  }
-  allTowers->clear();
-  delete allTowers;
+  //for (size_t i = 0; i < allTowers->size(); i++) {
+  //  (*allTowers)[i]->BenthosIDs->clear();
+  //  delete (*allTowers)[i]->BenthosIDs;
+  //  // free((*allTowers)[i]);
+  //  delete (*allTowers)[i];
+  //}
+  //allTowers->clear();
+  //delete allTowers;
 }
 
 void KM3Detector::FindDetectorRadius() {
@@ -112,6 +112,8 @@ void KM3Detector::FindDetectorRadius() {
   detectorMaxz = 0.0;
   detectorMaxRho = 0.0;
   detectorCenter = G4ThreeVector(0.0, 0.0, 0.0);
+
+  // TODO: derive from cathods
   for (size_t isto = 0; isto < allStoreys->size(); isto++) {
     G4ThreeVector pos = (*(allStoreys))[isto]->position;
     G4double radius = (*(allStoreys))[isto]->radius;
@@ -128,6 +130,8 @@ void KM3Detector::FindDetectorRadius() {
   detectorMaxz = highestStorey + MaxAbsDist;
   G4cout << "Detector radius (m) and bottom position (m) " << detectorRadius / m
     << " " << bottomPosition / m << G4endl;
+
+  // we don't actually need storeys/towers for this
   MyGenerator->PutFromDetector(detectorCenter, detectorMaxRho, detectorMaxz,
       bottomPosition);
 }
@@ -666,52 +670,36 @@ void KM3Detector::ConstructMaterials() {
 
 G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
   static G4int Cathods = 0;
-  static G4int Storeys = 0;
-  static G4int Towers = 0;  // new towers
-  static G4int OMs = 0;
+  //static G4int Storeys = 0;
+  //static G4int Towers = 0;  // new towers
+  //static G4int OMs = 0;
   static G4AffineTransform AffineTrans;
   static G4RotationMatrix RotationMatr;
   static G4int Depth = 0;
   static G4int Hist[20];
   // static in order to load the benthos (OMs)
-  static std::vector<G4int> *aBenthosIDs;
+  //static std::vector<G4int> *aBenthosIDs;
   // static in order to load the benthos (OMs) in towers //new towers
-  static std::vector<G4int> *aTowerBenthosIDs;
+  //static std::vector<G4int> *aTowerBenthosIDs;
   // static in order to load the cathods (Cathods)
   static std::vector<G4int> *aCathodsIDs;
 
   Hist[Depth] = aPVolume->GetCopyNo();
   Depth++;
-  // TODO:
-  // get from detx
-  // put this into loop
   RotationMatr = RotationMatr * aPVolume->GetObjectRotationValue();
   G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
 
   G4String pvName = aPVolume->GetName();
 
-  //TODO:
-  //for pmt in detx:
-  //  cathinnerradius (glob)
-  //  cathouterradius (glob)
-  //  cathheight (glob)
-  //  position
-  //  direction
-  //  trans (???)
-  //  cath
-
   //  for newgeant add "_PV" at the end of physical volume name
   //  if(pvName == "CathodVolume_PV")
   //
   if (pvName.contains("CathodVolume")) {
-    // detx: pmtdir, pmtpos, pmtID
-
     // set default to negative, since it is not applicable to spherical
     // cathods
     G4double CathodHeight = -1.0 * mm;
     G4double CathodRadius = 0.0;
 
-    // TODO: put detx info there
     G4ThreeVector Position = AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
     G4Transform3D trans(RotationMatr, Position);
     G4String solidName = aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType();
@@ -734,76 +722,71 @@ G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *aPVolume) const {
     // Cathods
     Cathods++;
   }
+  // ignore tower/storey/om volumes, just keep cathods -- moritz
+  //// for newgeant add "_PV" at the end of physical volume name
+  //if (pvName.contains("OMVolume")) {
+  //  // OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
+  //  OMPositions *aOM = new OMPositions;
+  //  aOM->position = AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+  //  aCathodsIDs = new std::vector<G4int>;
+  //  aOM->CathodsIDs = aCathodsIDs;
+  //  // if OM is sphere then set the outer radius as radius, if it is
+  //  // tubs then set the proper radius else set the geometrical sum of
+  //  // the extend on the three axis (maximum extend. Exact only for
+  //  // Boxes)
+  //  // no tubes, please -- moritz
+  //  //if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
+  //  //    G4String("G4Sphere")) {
+  //  aOM->radius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
+  //    ->GetOuterRadius();
+  //  //}  else {
+  //  //  // Defaults to "infinite" limits.
+  //  //  G4VoxelLimits voxelLimits;
+  //  //  // no transform
+  //  //  G4AffineTransform affineTransform;
+  //  //  G4double xmin, xmax, ymin, ymax, zmin, zmax;
+  //  //  aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
+  //  //      kXAxis, voxelLimits, affineTransform, xmin, xmax);
+  //  //  aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
+  //  //      kYAxis, voxelLimits, affineTransform, ymin, ymax);
+  //  //  aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
+  //  //      kZAxis, voxelLimits, affineTransform, zmin, zmax);
+  //  //  xmax = fmax(fabs(xmax), fabs(xmin));
+  //  //  ymax = fmax(fabs(ymax), fabs(ymin));
+  //  //  zmax = fmax(fabs(zmax), fabs(zmin));
+  //  //  aOM->radius = sqrt(xmax * xmax + ymax * ymax + zmax * zmax);
+  //  //}
+  //  allOMs->push_back(aOM);
+  //  aBenthosIDs->push_back(OMs);
+  //  // new towers
+  //  aTowerBenthosIDs->push_back(OMs);
+  //  OMs++;
+  //}
   // for newgeant add "_PV" at the end of physical volume name
-  if (pvName.contains("OMVolume")) {
-    // OMPositions *aOM = (OMPositions *)malloc(sizeof(OMPositions));
-    OMPositions *aOM = new OMPositions;
-    aOM->position = AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-    aCathodsIDs = new std::vector<G4int>;
-    aOM->CathodsIDs = aCathodsIDs;
-    // if OM is sphere then set the outer radius as radius, if it is
-    // tubs then set the proper radius else set the geometrical sum of
-    // the extend on the three axis (maximum extend. Exact only for
-    // Boxes)
-    if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        G4String("G4Sphere")) {
-      aOM->radius = ((G4Sphere *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-    } else if (aPVolume->GetLogicalVolume()->GetSolid()->GetEntityType() ==
-        G4String("G4Tubs")) {
-      G4double zLength = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetZHalfLength();
-      G4double oRadius = ((G4Tubs *)aPVolume->GetLogicalVolume()->GetSolid())
-        ->GetOuterRadius();
-      aOM->radius = sqrt(zLength * zLength + oRadius * oRadius);
-    } else {
-      // Defaults to "infinite" limits.
-      G4VoxelLimits voxelLimits;
-      // no transform
-      G4AffineTransform affineTransform;
-      G4double xmin, xmax, ymin, ymax, zmin, zmax;
-      aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
-          kXAxis, voxelLimits, affineTransform, xmin, xmax);
-      aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
-          kYAxis, voxelLimits, affineTransform, ymin, ymax);
-      aPVolume->GetLogicalVolume()->GetSolid()->CalculateExtent(
-          kZAxis, voxelLimits, affineTransform, zmin, zmax);
-      xmax = fmax(fabs(xmax), fabs(xmin));
-      ymax = fmax(fabs(ymax), fabs(ymin));
-      zmax = fmax(fabs(zmax), fabs(zmin));
-      aOM->radius = sqrt(xmax * xmax + ymax * ymax + zmax * zmax);
-    }
-    allOMs->push_back(aOM);
-    aBenthosIDs->push_back(OMs);
-    // new towers
-    aTowerBenthosIDs->push_back(OMs);
-    OMs++;
-  }
-  // for newgeant add "_PV" at the end of physical volume name
-  if (pvName.contains("StoreyVolume")) {
-    // StoreysPositions *aStorey = (StoreysPositions
-    // *)malloc(sizeof(StoreysPositions));
-    StoreysPositions *aStorey = new StoreysPositions;
-    aStorey->position =
-      AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-    aBenthosIDs = new std::vector<G4int>;
-    aStorey->BenthosIDs = aBenthosIDs;
-    allStoreys->push_back(aStorey);
-    Storeys++;
-  }
+  //if (pvName.contains("StoreyVolume")) {
+  //  // StoreysPositions *aStorey = (StoreysPositions
+  //  // *)malloc(sizeof(StoreysPositions));
+  //  StoreysPositions *aStorey = new StoreysPositions;
+  //  aStorey->position =
+  //    AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+  //  aBenthosIDs = new std::vector<G4int>;
+  //  aStorey->BenthosIDs = aBenthosIDs;
+  //  allStoreys->push_back(aStorey);
+  //  Storeys++;
+  //}
   // new towers
   // for newgeant add "_PV" at the end of physical volume name
-  if (pvName.contains("TowerVolume")) {
-    // TowersPositions *aTower = (TowersPositions
-    // *)malloc(sizeof(TowersPositions));
-    TowersPositions *aTower = new TowersPositions;
-    aTower->position =
-      AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
-    aTowerBenthosIDs = new std::vector<G4int>;
-    aTower->BenthosIDs = aTowerBenthosIDs;
-    allTowers->push_back(aTower);
-    Towers++;
-  }
+  //if (pvName.contains("TowerVolume")) {
+  //  // TowersPositions *aTower = (TowersPositions
+  //  // *)malloc(sizeof(TowersPositions));
+  //  TowersPositions *aTower = new TowersPositions;
+  //  aTower->position =
+  //    AffineTrans.TransformPoint(aPVolume->GetObjectTranslation());
+  //  aTowerBenthosIDs = new std::vector<G4int>;
+  //  aTower->BenthosIDs = aTowerBenthosIDs;
+  //  allTowers->push_back(aTower);
+  //  Towers++;
+  //}
   G4AffineTransform tempoaffine(aPVolume->GetObjectRotationValue().inverse(),
       aPVolume->GetObjectTranslation());
   AffineTrans = tempoaffine * AffineTrans;
@@ -851,6 +834,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
 
   // next find the Cathod && Dead logical volumes and assign them the sensitive
   // detectors
+  // "Deadvolume is obsolete" anyways...
   G4LogicalVolume *aLogicalVolume;
   std::vector<G4LogicalVolume *> *aLogicalStore;
   G4String cathVol("CathodVolume");
@@ -868,6 +852,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
     }
   }
 
+  /* detx: ignore storeys
   // fully adjustable benthos and storey linked list
   G4cout << "Total World Volume Entities= "
     << fWorld->GetLogicalVolume()->TotalVolumeEntities() << G4endl;
@@ -886,6 +871,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
     }
     (*allStoreys)[istorey]->radius = MAXdist;
   }
+  */
 
   // find detector radius and detector center from the Storeys
   FindDetectorRadius();
@@ -921,16 +907,52 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // return the physical World
   return fWorld;
 }
-// TODO closing brace
-
-
 
 
 void KM3Detector::ConstructWorld(const std::string &detxFile) {
   // Parse according to
   // http://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx.29
-  std::ifstream infile(detxFile);
 
+  // there are 3 different materials:
+  //  Water
+  //  Crust
+  //  Cathod (composite)
+  G4Box *worldBox = new G4Box("WorldBox",
+      2200 * meter, 2200 * meter, 2200 * meter);
+  G4LogicalVolume *worldLog = new G4LogicalVolume(worldBox,
+      Water, "WorldVolume");
+  G4VPhysicalVolume *worldPV = new G4PVPlacement(0,
+      G4ThreeVector(), "WorldPV", worldLog, 0, false, 0);
+
+  G4Box *crustBox = new G4Box("CrustBox",
+      2200 * meter, 2200 * meter, 984.7 * meter);
+  G4LogicalVolume *crustLog = new G4LogicalVolume(crustBox,
+      Crust, "CrustVolume");
+  // place into world LOG or PV?
+  G4VPhysicalVolume *crustPV = new G4PVPlacement(0,
+      G4ThreeVector(0, 0, -607.65), crustLog, "CrustVolume", worldPV,
+      false, 0);
+
+  //G4LogicalVolume *towerLog = new G4LogicalVolume(towerBox,
+  //    Water, "TowerVolume");
+  //G4LogicalVolume *storeyLog = new G4LogicalVolume(storeyBox,
+  //    Water, "StoreyVolume");
+  //G4LogicalVolume *omLog = new G4LogicalVolume(omSphere,
+  //    Water, "OMVolume");
+  //G4Box *towerBox = new G4Box("TowerBox",
+  //    1 * meter, 1 * meter, 170.0 * meter);
+  //G4Box *storeyBox = new G4Box("StoreyBox",
+  //    0.6 * meter, 0.6 * meter, 0.6 * meter);
+  //G4Sphere *omSphere = new G4Sphere("OMSphere",
+  //    0.0 * cm, 21.6 * cm, 0.0 * deg, 360.0 * deg, 0.0 * deg, 180.0 * deg);
+
+
+  // create cathod volumes
+  G4Tubs *cathodTube = new G4Tubs("CathodTube",
+      0.0 * cm, 4.7462 * cm, 0.5 * cm, 0.0 * deg, 360.0 * deg);
+  G4LogicalVolume *cathodLog = new G4LogicalVolume(cathodTube,
+      Cathod, "CathodVolume");
+  std::ifstream infile(detxFile);
   std::string line;
   std::getline(infile, line);
   std::istringstream iss(line);
@@ -950,55 +972,25 @@ void KM3Detector::ConstructWorld(const std::string &detxFile) {
       std::getline(infile, line);
       std::istringstream iss(line);
       int pmt_id_global;
-      float x, y, z, dx, dy, dz, t0;
-      iss >> pmt_id_global >> x >> y >> z >> dx >> dy >> dz >> t0;
+      float pos_x, pos_y, pos_z, dir_x, dir_y, dir_z, t0;
+      iss >> pmt_id_global >> pos_x >> pos_y >> pos_z >> dir_x >> dir_y >> dir_z >> t0;
+      G4VPhysicalVolume *cathodPV = new G4PVPlacement(
+          G4ThreeVector(dir_x, dir_y, dir_z),
+          G4ThreeVector(pos_x, pos_y, pos_z),
+          cathodLog,
+          "CathodVolume",
+          worldPV,    // worldLog or worldPV?
+          false,      // no boolean operation, whatever that means
+          pmt         // copy ID. set it to pmt number (why not?)
+      );
     }
   }
-
-  // there are 3 different materials:
-  //  Water
-  //  Crust
-  //  Cathod (composite)
-  G4Box *worldBox = new G4Box("WorldBox",
-      2200 * meter, 2200 * meter, 2200 * meter);
-  G4Box *crustBox = new G4Box("CrustBox",
-      2200 * meter, 2200 * meter, 984.7 * meter);
-  G4Box *towerBox = new G4Box("TowerBox",
-      1 * meter, 1 * meter, 170.0 * meter);
-  G4Box *storeyBox = new G4Box("StoreyBox",
-      0.6 * meter, 0.6 * meter, 0.6 * meter);
-  G4Sphere *omSphere = new G4Sphere("OMSphere",
-      0.0 * cm, 21.6 * cm, 0.0 * deg, 360.0 * deg, 0.0 * deg, 180.0 * deg);
-  G4Tubs *cathodTube = new G4Tubs("CathodTube",
-      0.0 * cm, 4.7462 * cm, 0.5 * cm, 0.0 * deg, 360.0 * deg);
-
-  G4LogicalVolume *worldLog = new G4LogicalVolume(worldBox,
-      Water, "WorldVolume");
-  G4LogicalVolume *crustLog = new G4LogicalVolume(crustBox,
-      Crust, "CrustVolume");
-  G4LogicalVolume *towerLog = new G4LogicalVolume(towerBox,
-      Water, "TowerVolume");
-  G4LogicalVolume *storeyLog = new G4LogicalVolume(storeyBox,
-      Water, "StoreyVolume");
-  G4LogicalVolume *omVolume = new G4LogicalVolume(omSphere,
-      Water, "OMSphere");
-  G4LogicalVolume *cathodVolume = new G4LogicalVolume(cathodTube,
-      Cathod, "CathodVolume");
-
-  G4VPhysicalVolume *crustPV = new G4PVPlacement(0,
-      G4ThreeVector(0, 0, -607.65), crustLog, "CrustVolume", worldLog,
-      false, 0);
-  // make many cathod logical & physical volumes
-  // G4VPhysicalVolume *cathod_1_PV = new G4PVPlacement(vol_1, rot_1, pos_1);
-
-  // derive OM positions from PMT positions
-  // make many OM volumes (or don't? it's water after all)
+  // derive OM/storey/tower positions from PMT positions
+  // dont use them as Geant volumes (it's water after all)
 
   // Towers/benthos: only referenced in this file
   // interesting for propa:
   //    materials volumnes: cathods, crust, water
   //    detector boundaries (bottomPos, topPos, radius)
-
-  // put G4VPhysicalVolumes into world volume
-
+  return worldPV;
 }
