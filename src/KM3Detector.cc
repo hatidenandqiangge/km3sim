@@ -29,24 +29,12 @@
 #include "G4GeometryManager.hh"
 #include "CLHEP/Evaluator/Evaluator.h"
 
-// all we need to define for km3SD
-// cath material
-// water material
-// cath:
-//  position
-//  direction
-//  width
-//  height
-//  id (internal)
-// only thing read is KM3Detector.allCathod()
-//
-// SteppingAction/KM3Cherenkov (through KM3Physics):
 // detector MaxRho
-// detector MaxRho2
 // detectorCenter [0, 1] = [x, y]
-// botoompos
-// maxz
+// bottomposition
+// detectorMaxz
 // quantum_efficiency
+// total_cathod_area
 
 using CLHEP::atmosphere;
 using CLHEP::bar;
@@ -113,17 +101,32 @@ void KM3Detector::FindDetectorRadius() {
   detectorMaxRho = 0.0;
   detectorCenter = G4ThreeVector(0.0, 0.0, 0.0);
 
-  // TODO: derive from cathods
-  for (size_t isto = 0; isto < allStoreys->size(); isto++) {
-    G4ThreeVector pos = (*(allStoreys))[isto]->position;
-    G4double radius = (*(allStoreys))[isto]->radius;
-    G4double dist = pos.mag() + radius;
-    if (absdetectorRadius < dist) absdetectorRadius = dist;
-    if (pos[2] < lowestStorey) lowestStorey = pos[2];
-    if (pos[2] > highestStorey) highestStorey = pos[2];
-    G4double distRho = sqrt(pos[0] * pos[0] + pos[1] * pos[1]) + radius;
-    if (outerStorey < distRho) outerStorey = distRho;
-  }
+  //// TODO: derive from cathods
+  //for (size_t isto = 0; isto < allStoreys->size(); isto++) {
+  //  G4ThreeVector pos = (*(allStoreys))[isto]->position;
+  //  G4double radius = (*(allStoreys))[isto]->radius;
+  //  G4double dist = pos.mag() + radius;
+  //  if (absdetectorRadius < dist) absdetectorRadius = dist;
+  //  if (pos[2] < lowestStorey) lowestStorey = pos[2];
+  //  if (pos[2] > highestStorey) highestStorey = pos[2];
+  //  G4double distRho = sqrt(pos[0] * pos[0] + pos[1] * pos[1]) + radius;
+  //  if (outerStorey < distRho) outerStorey = distRho;
+  //}
+
+  // have a small offset to account for the fact
+  // that we take maximum positions of cathods, not the
+  // storey/tower/om boundaries.
+  // TODO: No idea if it's actually 1 meter, I estimated that from
+  // the old gdml file:
+  // 0.5 * [diameter(storeybox) + diameter(towerbox)] + radius(omsphere)
+  // is approx 1 meter
+  outerStorey = (*std::max_element(
+        r_all.begin(), r_all.end()) + 1.0) * meter;
+  highestStorey = (*std::max_element(
+        z_all.begin(), z_all.end()) + 1.0) * meter;
+  bottomPosition = (*std::min_element(
+        z_all.begin(), z_all.end()) + 1.0) * meter;
+
   detectorMaxRho = outerStorey + MaxAbsDist;
   detectorRadius = MaxAbsDist + absdetectorRadius;
   bottomPosition += lowestStorey;
@@ -670,47 +673,7 @@ void KM3Detector::ConstructMaterials() {
   Cathod->SetMaterialPropertiesTable(Properties_Cath);
 }
 
-G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *motherVolume) const {
-  static G4int numCathods = 0;
-
-  std::cout << "Investigate " << pvName << " ..." << std::endl;
-
-  for (G4int i = 0; i < motherVolume->GetLogicalVolume()->GetNoDaughters(); i++) {
-    thePV = motherVolume->GetLogicalVolume()->GetDaughter(i);
-    G4String pvName = thePV->GetName();
-
-    if (pvName.contains("CathodVolume")) {
-      // set default to negative, since it is not applicable to spherical
-      // cathods
-      // which we will ignore, anyway
-      G4double CathodHeight = -1.0 * mm;
-      G4double CathodRadius = 0.0;
-      G4AffineTransform AffineTrans = G4AffineTransform();
-      G4RotationMatrix RotationMatr = G4RotationMatrix();
-      RotationMatr = RotationMatr * thePV->GetObjectRotationValue();
-
-      G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
-      G4ThreeVector Position = AffineTrans.TransformPoint(thePV->GetObjectTranslation());
-      G4Transform3D trans(RotationMatr, Position);
-      G4String solidName = thePV->GetLogicalVolume()->GetSolid()->GetEntityType();
-      if (solidName == G4String("G4Tubs")) {
-        // applicable to thin tube cathods (normal run)
-        CathodRadius = ((G4Tubs *)thePV->GetLogicalVolume()->GetSolid())
-          ->GetOuterRadius();
-        CathodHeight = ((G4Tubs *)thePV->GetLogicalVolume()->GetSolid())
-          ->GetZHalfLength();
-        // correct to full height
-        CathodHeight *= 2.0;
-      }
-
-      allCathods->addCathod(trans, Position, Direction, CathodRadius,
-          CathodHeight, Depth - 1);
-
-      for (G4int i = 1; i < Depth; i++) allCathods->addToTree(Hist[i]);
-      // Cathods
-      numCathods++;
-    } // is it cathod?
-  } // for pv in subvols
+G4int KM3Detector::TotalPMTEntities() const {
   return numCathods;
 }
 
@@ -734,11 +697,12 @@ G4VPhysicalVolume *KM3Detector::Construct() {
         "", FatalException, "");
 
   std::cout << "Count Cathods..." << std::endl;
-  G4cout << "Total Cathods " << TotalPMTEntities(fWorld) << G4endl;
+  G4cout << "Total Cathods " << TotalPMTEntities() << G4endl;
 
   //------------------------------------------------
   // Sensitive detectors
   //------------------------------------------------
+  G4cout << "Define Sensitive Detector... " << G4endl;
 
   G4SDManager *SDman = G4SDManager::GetSDMpointer();
   G4String MySDname = "mydetector1/MySD";
@@ -750,6 +714,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // next find the Cathod && Dead logical volumes and assign them the sensitive
   // detectors
   // "Deadvolume is obsolete" anyways...
+  G4cout << "Assign Cathods as Sensitive areas... " << G4endl;
   G4LogicalVolume *aLogicalVolume;
   std::vector<G4LogicalVolume *> *aLogicalStore;
   G4String cathVol("CathodVolume");
@@ -767,32 +732,13 @@ G4VPhysicalVolume *KM3Detector::Construct() {
     }
   }
 
-  /* detx: ignore storeys
-  // fully adjustable benthos and storey linked list
-  G4cout << "Total World Volume Entities= "
-    << fWorld->GetLogicalVolume()->TotalVolumeEntities() << G4endl;
-
-  // Next find from OM positions and radius in each store the storey radius
-  for (size_t istorey = 0; istorey < allStoreys->size(); istorey++) {
-    G4ThreeVector storeyposition = (*allStoreys)[istorey]->position;
-    G4double MAXdist = 0.0;
-    size_t OMnumber = (*allStoreys)[istorey]->BenthosIDs->size();
-    for (size_t iom = 0; iom < OMnumber; iom++) {
-      G4int iOM = (*((*allStoreys)[istorey]->BenthosIDs))[iom];
-      G4ThreeVector OMposition = (*allOMs)[iOM]->position;
-      G4double OMradius = (*allOMs)[iOM]->radius;
-      G4double dist = (storeyposition - OMposition).mag() + OMradius;
-      if (dist > MAXdist) MAXdist = dist;
-    }
-    (*allStoreys)[istorey]->radius = MAXdist;
-  }
-  */
-
   // find detector radius and detector center from the Storeys
+  G4cout << "Compute the KM3Sim Can... " << G4endl;
   FindDetectorRadius();
 
   //--------Write the header of the outfile and the Cathods Position, Direction
   // and History Tree
+  G4cout << "Write outfile header... " << G4endl;
   G4int nnn0 = 0;
   G4int nnn1 = 1;
   G4int nben = allCathods->GetNumberOfCathods();
@@ -811,7 +757,9 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   TheEVTtoWrite->WriteRunHeader();
 
   // find the total photocathod area on a OM
-  G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
+  G4cout << "Compute total photocathod area... " << G4endl;
+  //G4int CaPerOM = (*allOMs)[0]->CathodsIDs->size();
+  G4int CaPerOM = 31;
   TotCathodArea =
     CaPerOM * pi * allCathods->GetCathodRadius(0) *
     allCathods->GetCathodRadius(0);
@@ -838,7 +786,7 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
   G4LogicalVolume *worldLog = new G4LogicalVolume(worldBox,
       Water, "WorldVolume");
   G4VPhysicalVolume *worldPV = new G4PVPlacement(0,
-      G4ThreeVector(), "WorldPV", worldLog, 0, false, 0);
+      G4ThreeVector(), "WorldPV", worldLog, 0, false, -1);
 
   G4Box *crustBox = new G4Box("CrustBox",
       2200 * meter, 2200 * meter, 984.7 * meter);
@@ -851,7 +799,7 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
       "CrustVolume",
       worldLog,
       false,
-      1);
+      -2);
 
   //G4LogicalVolume *towerLog = new G4LogicalVolume(towerBox,
   //    Water, "TowerVolume");
@@ -882,6 +830,7 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
 
   global_det_id_ = global_det_id;
   n_doms_ = n_doms;
+  numCathods = 0;
 
   for (int dom = 0; dom < n_doms; dom++) {
     std::getline(infile, line);
@@ -893,8 +842,12 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
       std::getline(infile, line);
       std::istringstream iss(line);
       int pmt_id_global;
-      float pos_x, pos_y, pos_z, dir_x, dir_y, dir_z, t0;
+      double pos_x, pos_y, pos_z, dir_x, dir_y, dir_z, t0;
       iss >> pmt_id_global >> pos_x >> pos_y >> pos_z >> dir_x >> dir_y >> dir_z >> t0;
+
+      // needed for can computation
+      z_all.push_back(pos_z);
+      r_all.push_back(std::sqrt(std::pow(pos_x, 2) + std::pow(pos_y, 2)));
 
       // the api is completely weird.
       // pass rotation as pointer, but vector by value
@@ -902,7 +855,7 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
       // http://proj-clhep.web.cern.ch/proj-clhep/manual/UserGuide/VectorDefs/node25.html
       G4RotationMatrix *rota = new G4RotationMatrix(
           G4ThreeVector(dir_x, dir_y, dir_z), 0);
-      float dumb_id = pmt + 2;
+      int dumb_id = pmt;
       G4VPhysicalVolume *cathodPV = new G4PVPlacement(
           rota,
           G4ThreeVector(pos_x, pos_y, pos_z),
@@ -912,6 +865,27 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
           false,          // no boolean operation, whatever that means
           dumb_id         // copy ID
       );
+      G4double CathodHeight = -1.0 * mm;
+      G4double CathodRadius = 0.0;
+      G4AffineTransform AffineTrans = G4AffineTransform();
+      G4RotationMatrix RotationMatr = G4RotationMatrix();
+      RotationMatr = RotationMatr * cathodPV->GetObjectRotationValue();
+      G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
+      G4ThreeVector Position = AffineTrans.TransformPoint(cathodPV->GetObjectTranslation());
+      G4Transform3D trans(RotationMatr, Position);
+      //G4int cathID = cathodPV->GetCopyNumber();
+      G4int cathID = dumb_id;
+
+      // applicable to thin tube cathods (normal run)
+      CathodRadius = ((G4Tubs *)cathodPV->GetLogicalVolume()->GetSolid())
+        ->GetOuterRadius();
+      CathodHeight = ((G4Tubs *)cathodPV->GetLogicalVolume()->GetSolid())
+        ->GetZHalfLength();
+      // correct to full height
+      CathodHeight *= 2.0;
+      allCathods->addCathod(trans, Position, Direction, CathodRadius,
+          CathodHeight);
+      numCathods++;
     }
   }
   // derive OM/storey/tower positions from PMT positions

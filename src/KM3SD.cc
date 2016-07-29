@@ -76,18 +76,30 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
     KM3TrackInformation *info = NULL;
 
     // next is new cathod id finding mode
-    G4int Depth = aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
-    G4int History[10];
-    for (G4int idep = 0; idep < Depth; idep++) {
-      History[idep] =
-          aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(Depth - 1 -
-                                                                     idep);
-    }
-    G4int id = myStDetector->allCathods->GetCathodId(Depth, History);
+    G4cout << "Enter Cathod Finding Mode..." << G4endl;
+    // moritz:
+    // since the pmt definitions now directly sit below the world
+    // volume, don't do the nested search. Each PMT has unique ID
+    // starting at 0 (world/crust are -1/-2)
+    //G4int Depth = aStep->GetPreStepPoint()->GetTouchable()->GetHistoryDepth();
+    //G4int History[10];
+    //for (G4int idep = 0; idep < Depth; idep++) {
+    //  History[idep] =
+    //      aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(Depth - 1 -
+    //                                                                 idep);
+    //}
+    //G4int id = myStDetector->allCathods->GetCathodId(Depth, History);
+		// ... retrieve the 'pre-step' point
+		//
+		G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+		G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
+		G4int id = theTouchable->GetCopyNumber();
+		G4int motherID = theTouchable->GetCopyNumber(1);
+
     // check if this photon passes after the angular acceptance
-    G4ThreeVector PMTDirection = myStDetector->allCathods->GetDirection();
-    G4double CathodRadius = myStDetector->allCathods->GetCathodRadius();
-    G4double CathodHeight = myStDetector->allCathods->GetCathodHeight();
+    G4ThreeVector PMTDirection = myStDetector->allCathods->GetDirection(id);
+    G4double CathodRadius = myStDetector->allCathods->GetCathodRadius(id);
+    G4double CathodHeight = myStDetector->allCathods->GetCathodHeight(id);
     if (not AcceptAngle(photonDirection.dot(PMTDirection), CathodRadius,
                       CathodHeight, false)) {
         // at this point we dont kill the track if it is not accepted
@@ -101,6 +113,7 @@ G4bool KM3SD::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) {
         // ORCA PMTS = ORCA DOMS * 31 = 0.002 / m**3
         return false;
       }
+
 
     KM3Hit *newHit = new KM3Hit();
     newHit->SetCathodId(id);

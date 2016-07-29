@@ -14,8 +14,9 @@ struct Cathod {
   G4double Radius;
   G4double Height;
   G4Transform3D trans;
-  G4int Depth;
-  std::vector<G4int> *Tree;
+  //G4int Depth;
+  G4int cathID;
+  //std::vector<G4int> *Tree;
 };
 
 class KM3Cathods {
@@ -25,11 +26,10 @@ class KM3Cathods {
 
  public:
   void addCathod(const G4Transform3D &, const G4ThreeVector &,
-                 const G4ThreeVector &, const G4double, const G4double,
-                 const G4int);
-  void addToTree(const G4int);
+                 const G4ThreeVector &, const G4double, const G4double);
+  //void addToTree(const G4int);
 
-  G4int GetCathodId(const G4int, const G4int[]);
+  //G4int GetCathodId(const G4int, const G4int[]);
   void PrintAllCathods(FILE *);
   inline G4Transform3D GetTransformation();
   inline G4ThreeVector GetDirection();

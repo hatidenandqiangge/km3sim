@@ -8,6 +8,8 @@
 #include "KM3EvtIO.h"
 
 #include <stdio.h>
+#include <algorithm>
+#include <cmath>
 #include <vector>
 #include <string>
 
@@ -61,7 +63,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
  private:
   void FindDetectorRadius(void);
   void ConstructMaterials(void);
-  G4int TotalPMTEntities(const G4VPhysicalVolume *) const;
+  G4int TotalPMTEntities() const;
   void SetUpVariables(void);
   // newgeant  void sxpInitialize(void);
 
@@ -101,5 +103,9 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
   int global_det_id_;
   int n_doms_;
+  G4int numCathods;
+
+  std::vector<double> z_all;
+  std::vector<double> r_all;
 };
 #endif  // KM3Detector_h
