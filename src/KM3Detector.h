@@ -63,7 +63,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
  private:
   void FindDetectorRadius(void);
   void ConstructMaterials(void);
-  G4int TotalPMTEntities() const;
+  G4int TotalPMTEntities(const G4VPhysicalVolume *);
   void SetUpVariables(void);
   // newgeant  void sxpInitialize(void);
 
@@ -103,7 +103,7 @@ class KM3Detector : public G4VUserDetectorConstruction {
 
   int global_det_id_;
   int n_doms_;
-  G4int numCathods;
+  int numCathods;
 
   std::vector<double> z_all;
   std::vector<double> r_all;

@@ -673,8 +673,17 @@ void KM3Detector::ConstructMaterials() {
   Cathod->SetMaterialPropertiesTable(Properties_Cath);
 }
 
-G4int KM3Detector::TotalPMTEntities() const {
-  return numCathods;
+
+G4int KM3Detector::TotalPMTEntities(const G4VPhysicalVolume *pvol) {
+  int n_cath = 0;
+  int n_daughters = pvol->GetLogicalVolume()->GetNoDaughters();
+  for (G4int i=0; i < n_daughters; i++) {
+    G4VPhysicalVolume *daughter = pvol->GetLogicalVolume()->GetDaughter(i);
+    if ((daughter->GetName()).contains("CathodVolume")) {
+      n_cath++;
+    }
+  }
+  return n_cath;
 }
 
 
@@ -697,7 +706,7 @@ G4VPhysicalVolume *KM3Detector::Construct() {
         "", FatalException, "");
 
   std::cout << "Count Cathods..." << std::endl;
-  G4cout << "Total Cathods " << TotalPMTEntities() << G4endl;
+  G4cout << "Total Cathods " << TotalPMTEntities(fWorld) << G4endl;
 
   //------------------------------------------------
   // Sensitive detectors
@@ -747,12 +756,10 @@ G4VPhysicalVolume *KM3Detector::Construct() {
   // simulation
   TheEVTtoWrite->ReadRunHeader();
 
-#ifdef G4PRINT_HEADER
   std::FILE *oofile = std::fopen("PmtPositionsAndDirections", "w");
   fprintf(oofile, "%d %f\n", nben, Quantum_Efficiency);
   allCathods->PrintAllCathods(oofile);
   fclose(oofile);
-#endif  // G4PRINT_HEADER
 
   TheEVTtoWrite->WriteRunHeader();
 
@@ -784,22 +791,28 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
   G4Box *worldBox = new G4Box("WorldBox",
       2200 * meter, 2200 * meter, 2200 * meter);
   G4LogicalVolume *worldLog = new G4LogicalVolume(worldBox,
-      Water, "WorldVolume");
-  G4VPhysicalVolume *worldPV = new G4PVPlacement(0,
-      G4ThreeVector(), "WorldPV", worldLog, 0, false, -1);
+      Water, "World");
+  G4VPhysicalVolume *worldPV = new G4PVPlacement(
+      0,                // rotation
+      G4ThreeVector(),  // translation
+      "World",
+      worldLog,         // assoc. logical volume
+      0,                // no mother
+      true,            // MANY
+      0);              // cpNR
 
   G4Box *crustBox = new G4Box("CrustBox",
       2200 * meter, 2200 * meter, 984.7 * meter);
   G4LogicalVolume *crustLog = new G4LogicalVolume(crustBox,
-      Crust, "CrustVolume");
+      Crust, "Crust");
   G4VPhysicalVolume *crustPV = new G4PVPlacement(
       0,
       G4ThreeVector(0, 0, -607.65),
       crustLog,
-      "CrustVolume",
+      "Crust",
       worldLog,
-      false,
-      -2);
+      true,
+      1);
 
   //G4LogicalVolume *towerLog = new G4LogicalVolume(towerBox,
   //    Water, "TowerVolume");
@@ -855,32 +868,31 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
       // http://proj-clhep.web.cern.ch/proj-clhep/manual/UserGuide/VectorDefs/node25.html
       G4RotationMatrix *rota = new G4RotationMatrix(
           G4ThreeVector(dir_x, dir_y, dir_z), 0);
-      int dumb_id = pmt;
+      int dumb_id = 100 * dom + pmt;
       G4VPhysicalVolume *cathodPV = new G4PVPlacement(
           rota,
           G4ThreeVector(pos_x, pos_y, pos_z),
           cathodLog,
           "CathodVolume",
           worldLog,
-          false,          // no boolean operation, whatever that means
+          true,          // no boolean operation, whatever that means
           dumb_id         // copy ID
       );
       G4double CathodHeight = -1.0 * mm;
       G4double CathodRadius = 0.0;
-      G4AffineTransform AffineTrans = G4AffineTransform();
-      G4RotationMatrix RotationMatr = G4RotationMatrix();
-      RotationMatr = RotationMatr * cathodPV->GetObjectRotationValue();
-      G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
-      G4ThreeVector Position = AffineTrans.TransformPoint(cathodPV->GetObjectTranslation());
-      G4Transform3D trans(RotationMatr, Position);
-      //G4int cathID = cathodPV->GetCopyNumber();
-      G4int cathID = dumb_id;
-
-      // applicable to thin tube cathods (normal run)
       CathodRadius = ((G4Tubs *)cathodPV->GetLogicalVolume()->GetSolid())
         ->GetOuterRadius();
       CathodHeight = ((G4Tubs *)cathodPV->GetLogicalVolume()->GetSolid())
         ->GetZHalfLength();
+      G4AffineTransform AffineTrans = G4AffineTransform();
+      G4RotationMatrix RotationMatr = G4RotationMatrix();
+      RotationMatr = RotationMatr * cathodPV->GetObjectRotationValue();
+      //G4ThreeVector Direction = RotationMatr(G4ThreeVector(0.0, 0.0, 1.0));
+      G4ThreeVector Direction = RotationMatr(G4ThreeVector(dir_x, dir_y, dir_z));
+      G4ThreeVector Position = AffineTrans.TransformPoint(cathodPV->GetObjectTranslation());
+      G4Transform3D trans(RotationMatr, Position);
+
+      // applicable to thin tube cathods (normal run)
       // correct to full height
       CathodHeight *= 2.0;
       allCathods->addCathod(trans, Position, Direction, CathodRadius,
@@ -895,5 +907,9 @@ G4VPhysicalVolume* KM3Detector::ConstructWorldVolume(const std::string &detxFile
   // interesting for propa:
   //    materials volumnes: cathods, crust, water
   //    detector boundaries (bottomPos, topPos, radius)
+
+  G4GDMLParser parser;
+  parser.Write("orca.gdml", worldPV, false);
+
   return worldPV;
 }

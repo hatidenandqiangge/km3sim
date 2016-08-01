@@ -1,6 +1,8 @@
 #include "KM3Cathods.h"
 
 using CLHEP::cm;
+using CLHEP::mm;
+using CLHEP::m;
 
 // map cathod ID to the following
 // 6 cathod params: x, y, z, dx, dy, dz
@@ -64,8 +66,8 @@ void KM3Cathods::PrintAllCathods(FILE *outfile) {
     //  fprintf(outfile, "%d\n", (*(theCathods[i]->Tree))[ihi]);
     //}
     fprintf(outfile, "%.6e %.6e %.6e %.6e %.6e %.6e\n",
-            theCathods[i]->Position(0) / cm, theCathods[i]->Position(1) / cm,
-            theCathods[i]->Position(2) / cm, theCathods[i]->Direction(0),
+            theCathods[i]->Position(0) / mm, theCathods[i]->Position(1) / mm,
+            theCathods[i]->Position(2) / mm, theCathods[i]->Direction(0),
             theCathods[i]->Direction(1), theCathods[i]->Direction(2));
   }
 }

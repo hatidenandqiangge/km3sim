@@ -119,19 +119,23 @@ int main(int argc, const char **argv)
   // EvtIO->ReadRunHeader()
   // EvtIO->WriteRunHeader()
   // EvtIO->WriteEvent()
+  std::cout << "Open evt files..." << std::endl;
   KM3EvtIO *TheEVTtoWrite = new KM3EvtIO(infile_evt, outfile_evt);
 
   G4RunManager *runManager = new G4RunManager;
 
+  std::cout << "Parsing detector & parameter files..." << std::endl;
   KM3Detector *Mydet = new KM3Detector;
   Mydet->Geometry_File = Geometry_File;
   Mydet->Parameter_File = Parameter_File;
   runManager->SetUserInitialization(Mydet);
 
+  std::cout << "Set physics processes..." << std::endl;
   KM3Physics *MyPhys = new KM3Physics;
   MyPhys->aDetector = Mydet;
   runManager->SetUserInitialization(MyPhys);
 
+  std::cout << "Call primary generator..." << std::endl;
   runManager->SetNumberOfEventsToBeStored(0);
   KM3PrimaryGeneratorAction *myGeneratorAction = new KM3PrimaryGeneratorAction;
   myGeneratorAction->infile_evt = infile_evt;
@@ -140,6 +144,7 @@ int main(int argc, const char **argv)
   myGeneratorAction->useHEPEvt = useHEPEvt;
   Mydet->MyGenerator = myGeneratorAction;
 
+  std::cout << "Call TrackingAction..." << std::endl;
   KM3TrackingAction *myTracking = new KM3TrackingAction;
   myTracking->TheEVTtoWrite = TheEVTtoWrite;
   // link between generator and tracking (to provide number of
@@ -148,6 +153,7 @@ int main(int argc, const char **argv)
   myGeneratorAction->Initialize();
   runManager->SetUserAction(myGeneratorAction);
 
+  std::cout << "Call EventAction..." << std::endl;
   KM3EventAction *event_action = new KM3EventAction;
   event_action->TheEVTtoWrite = TheEVTtoWrite;
   myGeneratorAction->event_action = event_action;
@@ -156,6 +162,7 @@ int main(int argc, const char **argv)
 
   Mydet->TheEVTtoWrite = TheEVTtoWrite;
 
+  std::cout << "Call Stack/StepAction..." << std::endl;
   KM3StackingAction *myStacking = new KM3StackingAction;
   KM3SteppingAction *myStepping = new KM3SteppingAction;
   myStacking->SetDetector(Mydet);
@@ -166,6 +173,7 @@ int main(int argc, const char **argv)
   runManager->SetUserAction(myStepping);
 
   // Initialize G4 kernel
+  std::cout << "Init G4 Kernel..." << std::endl;
   runManager->Initialize();
 
   // Ummm dont use UI
@@ -177,7 +185,8 @@ int main(int argc, const char **argv)
   //UI->ApplyCommand("/process/inactivate G4FastSimulationManagerProcess");
 
   // start a run
-  runManager->SetVerboseLevel(1);
+  std::cout << "Start a run..." << std::endl;
+  runManager->SetVerboseLevel(10);
   runManager->BeamOn(myGeneratorAction->nevents);
 
   delete TheEVTtoWrite;

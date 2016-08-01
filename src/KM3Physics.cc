@@ -38,13 +38,6 @@
 #include "G4MuBremsstrahlung.hh"
 #include "G4MuPairProduction.hh"
 
-// hadronic_compile
-#include "G4MuonMinusCaptureAtRest.hh"
-#include "G4MuonNuclearProcess.hh"
-#include "G4MuonVDNuclearModel.hh"
-#include "G4hBremsstrahlung.hh"
-#include "G4hPairProduction.hh"
-
 // this is apparently renamed/merged in 4.9.10
 // see http://geant4.cern.ch/support/ReleaseNotes4.10.0.html
 //#include "G4MuonMinusCaptureAtRest.hh"
