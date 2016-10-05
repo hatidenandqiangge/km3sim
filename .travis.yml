@@ -2,6 +2,13 @@ language: cpp
 
 compiler: g++
 
+addons:
+  apt:
+    sources:
+    - geant4
+    - sourceline: 'deb http://lcg-heppkg.web.cern.ch/lcg-heppkg/debian stable hep'
+    - sourceline: 'deb-src http://lcg-heppkg.web.cern.ch/lcg-heppkg/debian stable hep'
+
 script:
   - mkdir -p build
   - cd build
