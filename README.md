@@ -10,3 +10,5 @@ Run cmake in a separate build dir (recommended):
     cd build
     cmake -DGeant4_DIR=/PATH/TO/GEANT/INSTALL/lib64/Geant4-10.2.2 ../
     make
+
+    km3sim --help
