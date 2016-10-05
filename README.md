@@ -1,7 +1,7 @@
 How To Install
 ==============
 
-Install Geant4.10 (compiled with gdml support) in a directory of your choice.
+Install Geant4.10 in a directory of your choice.
 
 Run cmake in a separate build dir (recommended):
     
