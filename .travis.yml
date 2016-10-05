@@ -3,6 +3,6 @@ language: cpp
 compiler: g++
 
 script:
-  - mkdir build
+  - mkdir -p build
   - cd build
   - cmake .. && make
